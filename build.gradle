@@ -1,0 +1,197 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath 'io.franzbecker:gradle-lombok:1.14'
+        classpath 'net.researchgate:gradle-release:2.6.0'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
+        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.12.0'
+        classpath 'de.marcphilipp.gradle:nexus-publish-plugin:0.1.1'
+    }
+}
+
+apply plugin: 'org.sonarqube'
+apply plugin: 'base'
+apply plugin: 'net.researchgate.release'
+apply plugin: 'io.codearte.nexus-staging'
+
+allprojects { subproject ->
+    apply plugin: 'jacoco'
+    apply plugin: 'de.marcphilipp.nexus-publish'
+
+    repositories {
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    }
+
+    sonarqube {
+        properties {
+            property "sonar.projectName", "${rootProject.name}"
+            property "sonar.projectKey", "bakdata-${rootProject.name}"
+            property "sonar.jacoco.reportPaths", jacocoMerge.destinationFile
+        }
+    }
+
+    jacoco {
+        toolVersion = "0.8.2"
+    }
+}
+
+
+nexusStaging {
+    stagingProfileId = '8412378836ed9c'
+    packageGroup = 'com.bakdata'
+    if(project.hasProperty('ossrh.username') && project.hasProperty('ossrh.password')) {
+        username project.'ossrh.username'
+        password project.'ossrh.password'
+    }
+}
+
+subprojects { p ->
+    apply plugin: 'java-library'
+    apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: 'signing'
+
+    group = "com.bakdata.${rootProject.name}"
+    lombok {
+        version = '1.18.4'
+        sha256 = ""
+    }
+
+    jacocoTestReport.dependsOn(test)
+
+    // build fails for java 11, let's wait for a newer lombok version
+    sourceCompatibility = 1.10
+    targetCompatibility = 1.10
+
+    dependencies {
+        implementation group: 'com.google.guava', name: 'guava', version: '26.0-jre'
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.0'
+        testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.11.1'
+    }
+
+    test {
+        testLogging {
+            showStandardStreams = true
+        }
+
+        useJUnitPlatform()
+        systemProperty 'java.util.logging.config.file', 'src/test/resources/logging.properties'
+    }
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                pom {
+                    description = 'Java DSL for (online) deduplication'
+                    name = "${project.group}:${project.name}" as String
+                    url = "http://github.com/bakdata/${rootProject.name}"
+                    organization {
+                        name = 'bakdata.com'
+                        url = 'https://github.com/bakdata'
+                    }
+                    issueManagement {
+                        system = 'GitHub'
+                        url = "http://github.com/bakdata/${rootProject.name}/issues"
+                    }
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = "http://github.com/bakdata/${rootProject.name}/blob/master/LICENSE"
+                            distribution = 'repo'
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:git://github.com/bakdata/${rootProject.name}.git"
+                        developerConnection = "scm:git:ssh://github.com:bakdata/${rootProject.name}.git"
+                        url = "https://github.com/bakdata/${rootProject.name}/"
+                    }
+                    developers {
+                        // TODO: replace
+                        developer {
+                            name = 'Arvid Heise'
+                            id = 'AHeise'
+                        }
+                    }
+                }
+
+                from components.java
+                artifact(sourcesJar) {
+                    classifier = 'sources'
+                }
+                artifact(javadocJar) {
+                    classifier = 'javadoc'
+                }
+            }
+        }
+    }
+
+
+    model {
+        tasks.generatePomFileForMavenJavaPublication {
+            destination = file("$buildDir/generated-pom.xml")
+        }
+        tasks.publishMavenJavaPublicationToMavenLocal {
+            dependsOn p.tasks.signArchives
+        }
+    }
+
+    signing {
+        sign publishing.publications
+    }
+}
+
+def customizePom(pom) {
+    pom.withXml {
+        def root = asNode()
+
+        // eliminate test-scoped dependencies (no need in maven central POMs)
+        root.dependencies.removeAll { dep ->
+            dep.scope == "test"
+        }
+
+        // add all items necessary for maven central publication
+        root.children().last() + {
+            resolveStrategy = Closure.DELEGATE_FIRST
+
+        }
+    }
+}
+
+task jacocoMerge(type: JacocoMerge) {
+    dependsOn subprojects.jacocoTestReport
+
+    executionData subprojects.test
+}
+
+tasks.sonarqube.dependsOn(jacocoMerge)
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(tasks.publishToNexus) && System.getenv('CI') == null) {
+        throw new GradleException("Publishing artifacts is only supported through CI (e.g., Travis)")
+    }
+    if (taskGraph.hasTask(tasks.release) && System.getenv('CI') == null) {
+        throw new GradleException("Release is only supported through CI (e.g., Travis)")
+    }
+    if (taskGraph.hasTask(tasks.closeAndReleaseRepository) && System.getenv('CI') == null) {
+        throw new GradleException("Closing a release is only supported through CI (e.g., Travis)")
+    }
+}

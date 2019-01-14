@@ -1,0 +1,34 @@
+plugins {
+    id 'java-library'
+    id 'io.franzbecker.gradle-lombok'
+}
+
+repositories {
+    jcenter()
+    maven {
+        url 'http://packages.confluent.io/maven/'
+    }
+}
+
+dependencies {
+    api group: 'org.apache.kafka', name: 'kafka-clients'
+    api group: 'org.apache.kafka', name: 'kafka-streams'
+
+    api group: 'io.confluent', name: 'kafka-avro-serializer'
+    api group: 'io.confluent', name: 'kafka-schema-registry-client'
+    api group: 'io.confluent', name: 'kafka-streams-avro-serde'
+
+    api group: 'org.junit.jupiter', name: 'junit-jupiter-api'
+    api group: 'org.apache.kafka', name: 'kafka-streams-test-utils'
+    implementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine'
+    implementation group: 'com.github.tomakehurst', name: 'wiremock'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+lombok {
+    version = '1.18.2'
+    sha256 = ""
+}

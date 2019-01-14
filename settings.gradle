@@ -1,0 +1,3 @@
+rootProject.name = 'fluent-kafka-streams-tests'
+
+include ':fluent-kafka-streams-tests'

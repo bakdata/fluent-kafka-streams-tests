@@ -1,0 +1,49 @@
+language: java
+install: '[[ -v SONAR_TOKEN ]] || (>&2 echo "Not all travis secrets are set" && travis_terminate 1)'
+addons:
+  sonarcloud:
+    organization: bakdata
+    token: $SONAR_TOKEN
+jdk:
+- oraclejdk11
+stages:
+- name: build
+- name: deploy
+before_install:
+# extracts secrets
+- |
+  [[ -v OSSRH_USERNAME ]] && [[ -v OSSRH_PASSWORD ]] || (>&2 echo "Not all ossrh secrets are set" && travis_terminate 1)
+  [[ -v SIGNING_KEY_ID ]] && [[ -v SIGNING_PASSWORD ]] || (>&2 echo "Not all signing secrets are set" && travis_terminate 1)
+  openssl aes-256-cbc -K $encrypted_b2a7add17b18_key -iv $encrypted_b2a7add17b18_iv -in secrets.tar.enc -out secrets.tar -d
+  tar xvf secrets.tar >/dev/null
+matrix:
+  include:
+  - stage: build
+    script: ./gradlew sonarqube
+
+  - stage: deploy
+    name: upload snapshot
+    if: branch = master AND tag IS blank
+    script:
+    - ./gradlew publishToNexus -x test -Possrh.username=$OSSRH_USERNAME -Possrh.password=$OSSRH_PASSWORD -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$(pwd)/.gnupg/secring.gpg
+
+  - stage: deploy
+    name: release new version
+    if: branch = master AND type = api AND env(release) IS present
+    before_script:
+    - version=$(travis/get_version.sh $release || travis_terminate 1)
+    - travis/setup_deploy_key.sh
+    - travis/prepare_git_for_bot.sh
+    script: ./gradlew release -x test -x sonarqube -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${version} -Prelease.failOnUnversionedFiles=false
+
+  - stage: deploy
+    name: upload tagged release
+    if: tag =~ ^\d+\.\d+\.\d+$
+    script:
+    - ./gradlew publishToNexus closeAndReleaseRepository -x test -Possrh.username=$OSSRH_USERNAME -Possrh.password=$OSSRH_PASSWORD -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$(pwd)/.gnupg/secring.gpg
+cache:
+  directories:
+  - "$HOME/.m2/repository"
+  - "$HOME/.sonar/cache"
+  - "$HOME/.gradle"
+  - ".gradle"
