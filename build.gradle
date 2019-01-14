@@ -103,26 +103,26 @@ subprojects { p ->
                 pom {
                     description = 'Java DSL for (online) deduplication'
                     name = "${project.group}:${project.name}" as String
-                    url = "http://github.com/bakdata/${rootProject.name}"
+                    url = "http://github.com/bakdata/${rootProject.name}" as String
                     organization {
                         name = 'bakdata.com'
                         url = 'https://github.com/bakdata'
                     }
                     issueManagement {
                         system = 'GitHub'
-                        url = "http://github.com/bakdata/${rootProject.name}/issues"
+                        url = "http://github.com/bakdata/${rootProject.name}/issues" as String
                     }
                     licenses {
                         license {
                             name = 'MIT License'
-                            url = "http://github.com/bakdata/${rootProject.name}/blob/master/LICENSE"
+                            url = "http://github.com/bakdata/${rootProject.name}/blob/master/LICENSE" as String
                             distribution = 'repo'
                         }
                     }
                     scm {
-                        connection = "scm:git:git://github.com/bakdata/${rootProject.name}.git"
-                        developerConnection = "scm:git:ssh://github.com:bakdata/${rootProject.name}.git"
-                        url = "https://github.com/bakdata/${rootProject.name}/"
+                        connection = "scm:git:git://github.com/bakdata/${rootProject.name}.git" as String
+                        developerConnection = "scm:git:ssh://github.com:bakdata/${rootProject.name}.git" as String
+                        url = "https://github.com/bakdata/${rootProject.name}/" as String
                     }
                     developers {
                         // TODO: replace
