@@ -1,3 +1,4 @@
 rootProject.name = 'fluent-kafka-streams-tests'
 
-include ':fluent-kafka-streams-tests'
+include ':fluent-kafka-streams-tests',
+        ':schema-registry-mock'

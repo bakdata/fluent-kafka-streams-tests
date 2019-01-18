@@ -149,9 +149,9 @@ subprojects { p ->
         tasks.generatePomFileForMavenJavaPublication {
             destination = file("$buildDir/generated-pom.xml")
         }
-        tasks.publishMavenJavaPublicationToMavenLocal {
-            dependsOn p.tasks.signArchives
-        }
+//        tasks.publishMavenJavaPublicationToMavenLocal {
+//            dependsOn p.tasks.signArchives
+//        }
     }
 
     signing {

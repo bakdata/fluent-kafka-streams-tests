@@ -11,8 +11,6 @@ repositories {
 }
 
 dependencies {
-    compile project(':schema-registry-mock')
-
     def kafkaVersion = '2.0.0'
     api group: 'org.apache.kafka', name: 'kafka-clients', version: kafkaVersion
     api group: 'org.apache.kafka', name: 'kafka-streams', version: kafkaVersion

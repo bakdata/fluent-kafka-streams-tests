@@ -1,8 +1,10 @@
-package com.bakdata.fluent_kafka_streams_tests;
+package com.bakdata.schemaregistrymock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -29,13 +31,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 @Slf4j
 public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
     private final RegistrationHandler registrationHandler = new RegistrationHandler();
-    private final WireMockServer httpMock = new WireMockServer(wireMockConfig().dynamicPort().extensions(registrationHandler));
+    private final WireMockServer httpMock = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().extensions(registrationHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
     private List<Runnable> beforeActions = new ArrayList<>();
 
@@ -47,9 +47,9 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
     @Override
     public void beforeEach(ExtensionContext context) {
         httpMock.start();
-        httpMock.stubFor(post(urlPathMatching("/subjects/[^/]+/versions"))
-                .willReturn(aResponse().withTransformers(registrationHandler.getName())));
-        httpMock.stubFor(get(urlPathMatching("/schemas/ids/.*")).willReturn(aResponse().withStatus(404)));
+        httpMock.stubFor(WireMock.post(WireMock.urlPathMatching("/subjects/[^/]+/versions"))
+                .willReturn(WireMock.aResponse().withTransformers(registrationHandler.getName())));
+        httpMock.stubFor(WireMock.get(WireMock.urlPathMatching("/schemas/ids/.*")).willReturn(WireMock.aResponse().withStatus(404)));
         for (Runnable beforeAction : beforeActions) {
             beforeAction.run();
         }
@@ -57,7 +57,7 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
 
     public int register(String subject, Schema schema) throws IOException, RestClientException {
         final int id = schemaRegistryClient.register(subject, schema);
-        httpMock.stubFor(get(urlEqualTo("/schemas/ids/" + id)).willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
+        httpMock.stubFor(WireMock.get(WireMock.urlEqualTo("/schemas/ids/" + id)).willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
         log.debug("Registered schema " + id);
         return id;
     }
