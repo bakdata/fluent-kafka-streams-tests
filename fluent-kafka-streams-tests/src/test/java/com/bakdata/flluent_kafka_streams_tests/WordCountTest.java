@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import testutils.WordCount;
 
-public class WordCountTest {
+class WordCountTest {
     private WordCount app = new WordCount();
 
     @RegisterExtension
@@ -16,7 +16,7 @@ public class WordCountTest {
             .build();
 
     @Test
-    public void shouldAggregateSameWordStream() {
+    void shouldAggregateSameWordStream() {
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("blub");
@@ -31,7 +31,7 @@ public class WordCountTest {
 
 
     @Test
-    public void shouldAggregateSameWordTable() {
+    void shouldAggregateSameWordTable() {
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("blub");
@@ -44,7 +44,7 @@ public class WordCountTest {
     }
 
     @Test
-    public void shouldNotAggregateDifferentWordsStream() {
+    void shouldNotAggregateDifferentWordsStream() {
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("foo");
         testTopology.input(app.getInputTopic()).create("blub");
@@ -58,7 +58,7 @@ public class WordCountTest {
     }
 
     @Test
-    public void shouldNotAggregateDifferentWordsTable() {
+    void shouldNotAggregateDifferentWordsTable() {
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("foo");
         testTopology.input(app.getInputTopic()).create("blub");
@@ -72,7 +72,7 @@ public class WordCountTest {
     }
 
     @Test
-    public void shouldAggregateSameWordOrderTable() {
+    void shouldAggregateSameWordOrderTable() {
         testTopology.input(app.getInputTopic()).create("blub");
         testTopology.input(app.getInputTopic()).create("bla");
         testTopology.input(app.getInputTopic()).create("blub");
@@ -90,6 +90,26 @@ public class WordCountTest {
         testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("blub").hasValue(5L)
                 .expectNextRecord().hasKey("bla").hasValue(7L)
+                .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldReturnSingleInputAndOutputStream() {
+        testTopology.input().create("bla");
+
+        // Check Stream semantics
+        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+                .expectNextRecord().hasKey("bla").hasValue(1L)
+                .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldReturnSingleInputAndOutputTable() {
+        testTopology.input().create("bla");
+
+        // Check Table semantics
+        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
+                .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNoMoreRecord();
     }
 }

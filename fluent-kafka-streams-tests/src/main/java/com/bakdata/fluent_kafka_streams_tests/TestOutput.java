@@ -17,8 +17,8 @@ public interface TestOutput<K, V> {
     TestOutput<K, V> withDefaultSerde(Supplier<Serde<K>> keySerdeSupplier, Supplier<Serde<V>> valueSerdeSupplier);
 
     ProducerRecord<K, V> readOneRecord();
-    TestTopology.Expectation<K, V> expectNextRecord();
-    TestTopology.Expectation<K, V> expectNoMoreRecord();
+    Expectation<K, V> expectNextRecord();
+    Expectation<K, V> expectNoMoreRecord();
 
     // Table semantics (each key only once)
     TestOutput<K, V> asTable();
@@ -46,12 +46,12 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     @Override
-    public TestTopology.Expectation<K, V> expectNextRecord() {
-        return new TestTopology.Expectation<>(readOneRecord(), this);
+    public Expectation<K, V> expectNextRecord() {
+        return new Expectation<>(readOneRecord(), this);
     }
 
     @Override
-    public TestTopology.Expectation<K, V> expectNoMoreRecord() {
+    public Expectation<K, V> expectNoMoreRecord() {
         return expectNextRecord().toBeEmpty();
     }
 

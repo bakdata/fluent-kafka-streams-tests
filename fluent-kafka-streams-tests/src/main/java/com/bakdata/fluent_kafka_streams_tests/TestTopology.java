@@ -7,34 +7,28 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 import lombok.experimental.Delegate;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.apache.kafka.streams.test.ConsumerRecordFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static java.util.Optional.ofNullable;
 
 public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, AfterEachCallback {
     @NonNull
@@ -81,13 +75,13 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         testDriver.close();
         schemaRegistry.afterEach(context);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    public void beforeEach(ExtensionContext context) {
         schemaRegistry.beforeEach(context);
         properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry.url());
         final Topology topology = topologyFactory.apply(properties);
@@ -95,33 +89,46 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
 
         this.inputTopics.clear();
         this.outputTopics.clear();
+
+        BiConsumer<String, Set<String>> addTopics = (topics, topicStore) -> {
+            if (topics.contains("KSTREAM-") || topics.contains("KTABLE-")) {
+                // Internal node created by Kafka. Not relevant for testing.
+                return;
+            }
+
+            List<String> allTopics = new ArrayList<>();
+            if (topics.startsWith("[")) {
+                allTopics.addAll(Arrays.asList(topics.substring(1, topics.length() - 1).split(",")));
+            } else {
+                // Only one topic present without leading '['
+                allTopics.add(topics);
+            }
+
+            topicStore.addAll(allTopics);
+        };
+
         for (TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
             for (TopologyDescription.Node node : subtopology.nodes()) {
-                if(node instanceof TopologyDescription.Source) {
+                if (node instanceof TopologyDescription.Source) {
                     final String topics = ((TopologyDescription.Source) node).topics();
-                    if(topics.startsWith("[")) {
-                        inputTopics.addAll(Arrays.asList(topics.substring(1, topics.length() - 1).split(",")));
-                    } else {
-                        // should be pattern; should be handled differently
-                        throw new UnsupportedOperationException();
-                    }
-                } else if(node instanceof TopologyDescription.Sink) {
-                    String topic = ((TopologyDescription.Sink) node).topic();
-                    outputTopics.add(topic);
+                    addTopics.accept(topics, inputTopics);
+                } else if (node instanceof TopologyDescription.Sink) {
+                    final String topic = ((TopologyDescription.Sink) node).topic();
+                    addTopics.accept(topic, outputTopics);
                 }
             }
         }
     }
 
-    public Input<DefaultK, DefaultV> input() {
+    public TestInput<DefaultK, DefaultV> input() {
         return input(Iterables.getOnlyElement(inputTopics));
     }
 
-    public Input<DefaultK, DefaultV> input(String topic) {
+    public TestInput<DefaultK, DefaultV> input(String topic) {
         if (!inputTopics.contains(topic)) {
-            throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
+            throw new NoSuchElementException(String.format("TestInput topic '%s' not found", topic));
         }
-        return new Input<>(testDriver, topic, getDefaultKeySerde(), getDefaultValueSerde());
+        return new TestInput<>(testDriver, topic, getDefaultKeySerde(), getDefaultValueSerde());
     }
 
     public TestOutput<DefaultK, DefaultV> streamOutput() {
@@ -166,101 +173,6 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
         public TestTopologyBuilder<DefaultK, DefaultV> topologyFactory(Supplier<Topology> topologyFactory) {
             this.topologyFactory = (Properties) -> topologyFactory.get();
             return this;
-        }
-    }
-
-    public static class Input<K, V> extends ConsumerRecordFactory<K, V> {
-        private final TopologyTestDriver testDriver;
-        private final String topic;
-        private final Serde<K> keySerde;
-        private final Serde<V> valueSerde;
-
-        public Input(TopologyTestDriver testDriver, String topic, Serde<K> keySerde, Serde<V> valueSerde) {
-            super(topic, keySerde == null ? new DummySerializer<>() : keySerde.serializer(),
-                    valueSerde == null ? new DummySerializer<>() : valueSerde.serializer());
-            this.testDriver = testDriver;
-            this.topic = topic;
-            this.keySerde = keySerde;
-            this.valueSerde = valueSerde;
-        }
-
-        public <KR, VR> Input<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde) {
-            return new Input<>(testDriver, topic, keySerde, valueSerde);
-        }
-
-        public Input<K, V> withDefaultSerde(Supplier<Serde<K>> keySerdeSupplier, Supplier<Serde<V>> valueSerdeSupplier) {
-            return withSerde(ofNullable(keySerde).orElseGet(keySerdeSupplier),
-                    ofNullable(valueSerde).orElseGet(valueSerdeSupplier));
-        }
-
-        public Input<K, V> and() {
-            return this;
-        }
-
-        public ConsumerRecord<byte[], byte[]> create(final String topicName,
-                                                     final K key,
-                                                     final V value,
-                                                     final Headers headers,
-                                                     final long timestampMs) {
-            final ConsumerRecord<byte[], byte[]> record = super.create(topicName, key, value, headers, timestampMs);
-            testDriver.pipeInput(record);
-            return record;
-        }
-
-        private static class DummySerializer<V> implements Serializer<V> {
-            @Override
-            public void configure(Map<String, ?> configs, boolean isKey) {
-            }
-
-            @Override
-            public byte[] serialize(String topic, V data) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public void close() {
-            }
-        }
-    }
-
-
-    @RequiredArgsConstructor
-    public static class Expectation<K, V> {
-        private final ProducerRecord<K, V> record;
-        private final TestOutput<K, V> output;
-
-        public Expectation<K, V>  isPresent() {
-            Assertions.assertNotNull(record, "No more records found");
-            return and();
-        }
-
-        public Expectation<K, V>  hasKey(K key) {
-            isPresent();
-            Assertions.assertEquals(key, record.key(), "Record key does not match");
-            return and();
-        }
-
-        public Expectation<K, V>  hasValue(V value) {
-            isPresent();
-            Assertions.assertEquals(value, record.value(), "Record value does not match");
-            return and();
-        }
-
-        public Expectation<K, V> and() {
-            return this;
-        }
-
-        public Expectation<K, V> expectNextRecord() {
-            return output.expectNextRecord();
-        }
-
-        public Expectation<K, V> expectNoMoreRecord() {
-            return output.expectNoMoreRecord();
-        }
-
-        public Expectation<K, V> toBeEmpty() {
-            Assertions.assertNull(record);
-            return and();
         }
     }
 }
