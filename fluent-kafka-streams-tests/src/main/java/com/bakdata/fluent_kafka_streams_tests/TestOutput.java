@@ -4,15 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
 
-public interface TestOutput<K, V> {
+public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
     TestOutput<K, V> withDefaultSerde(Supplier<Serde<K>> keySerdeSupplier, Supplier<Serde<V>> valueSerdeSupplier);
 
@@ -66,6 +68,10 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     // Private
+    protected ProducerRecord<K, V> readFromTestDriver() {
+        return testDriver.readOutput(topic, keySerde.deserializer(), valueSerde.deserializer());
+    }
+
     protected abstract <VR, KR> TestOutput<KR,VR> create(TopologyTestDriver testDriver, String topic, Serde<KR> keySerde, Serde<VR> valueSerde);
 }
 
@@ -76,13 +82,35 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
 
     @Override
     public ProducerRecord<K, V> readOneRecord() {
-        return testDriver.readOutput(topic, keySerde.deserializer(), valueSerde.deserializer());
+        return readFromTestDriver();
     }
 
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic, Serde<KR> keySerde,
                                                           Serde<VR> valueSerde) {
         return new StreamOutput<>(testDriver, topic, keySerde, valueSerde);
+    }
+
+    @Override
+    public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
+        return new Iterator<>() {
+            private ProducerRecord<K, V> current = readFromTestDriver();
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public ProducerRecord<K, V> next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                ProducerRecord<K, V> toReturn = current;
+                current = readFromTestDriver();
+                return toReturn;
+            }
+        };
     }
 }
 
@@ -97,17 +125,21 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     @Override
     public ProducerRecord<K, V> readOneRecord() {
         if (tableIterator == null) {
-            ProducerRecord<K, V> record = testDriver.readOutput(topic, keySerde.deserializer(), valueSerde.deserializer());
-            while (record != null) {
-                table.put(record.key(), record);
-                record = testDriver.readOutput(topic, keySerde.deserializer(), valueSerde.deserializer());
-            }
-
-            tableIterator = table.values().stream().iterator();
+            tableIterator = iterator();
         }
 
         // Emulate testDriver, which returns null on last read
         return tableIterator.hasNext() ? tableIterator.next() : null;
+    }
+
+    @Override
+    public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
+        ProducerRecord<K, V> record = readFromTestDriver();
+        while (record != null) {
+            table.put(record.key(), record);
+            record = readFromTestDriver();
+        }
+        return table.values().stream().iterator();
     }
 
     @Override

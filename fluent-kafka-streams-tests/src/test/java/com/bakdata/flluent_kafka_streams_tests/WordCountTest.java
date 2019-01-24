@@ -1,10 +1,17 @@
 package com.bakdata.flluent_kafka_streams_tests;
 
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import testutils.WordCount;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WordCountTest {
     private WordCount app = new WordCount();
@@ -108,5 +115,35 @@ class WordCountTest {
         testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldReturnCorrectIteratorStream() {
+        testTopology.input().add("bla");
+        testTopology.input().add("blub");
+        testTopology.input().add("foo");
+        List<String> expected = List.of("bla", "blub", "foo");
+
+        // Check Stream semantics
+        List<String> actual = StreamSupport
+                .stream(testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long()).spliterator(), false)
+                .map(ProducerRecord::key)
+                .collect(Collectors.toList());
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldReturnCorrectIteratorTable() {
+        testTopology.input().add("bla");
+        testTopology.input().add("blub");
+        testTopology.input().add("foo");
+        List<String> expected = List.of("bla", "blub", "foo");
+
+        // Check Table semantics
+        List<String> actual = StreamSupport
+                .stream(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).spliterator(), false)
+                .map(ProducerRecord::key)
+                .collect(Collectors.toList());
+        assertEquals(expected, actual);
     }
 }
