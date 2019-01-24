@@ -4,11 +4,11 @@ import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import com.google.common.collect.Iterables;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
-import lombok.Builder;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Singular;
-import lombok.experimental.Delegate;
+import lombok.experimental.Wither;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
@@ -30,13 +29,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, AfterEachCallback {
     @NonNull
     private final Properties properties;
 
     private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
 
-    @Delegate
+    @Getter
     private TopologyTestDriver testDriver;
 
     @NonNull
@@ -48,22 +48,27 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     private final Set<String> inputTopics = new HashSet<>();
     private final Set<String> outputTopics = new HashSet<>();
 
+    @Wither
     private Serde<DefaultK> defaultKeySerde;
+    @Wither
     private Serde<DefaultV> defaultValueSerde;
 
-    @Builder
-    private TestTopology(Properties properties, @Singular Map<String, String> overrideProperties,
-                         Function<Properties, Topology> topologyFactory, Serde<DefaultK> defaultKeySerde,
-                         Serde<DefaultV> defaultValueSerde) {
+    public TestTopology(Function<Properties, Topology> topologyFactory, Properties properties) {
+        this.topologyFactory = topologyFactory;
         this.properties = new Properties();
         if (properties != null) {
             this.properties.putAll(properties);
         }
-        this.properties.putAll(overrideProperties);
-        this.topologyFactory = topologyFactory;
+        this.defaultKeySerde = getStreamsConfig().defaultKeySerde();
+        this.defaultValueSerde = getStreamsConfig().defaultValueSerde();
+    }
 
-        this.defaultKeySerde = (defaultKeySerde != null) ? defaultKeySerde : getStreamsConfig().defaultKeySerde();
-        this.defaultValueSerde = (defaultValueSerde != null) ? defaultValueSerde : getStreamsConfig().defaultValueSerde();
+    public TestTopology(Topology topology, Properties properties) {
+        this((Properties) -> topology, properties);
+    }
+
+    public TestTopology(Supplier<Topology> topologyFactory, Properties properties) {
+        this((Properties) -> topologyFactory.get(), properties);
     }
 
     private Serde<DefaultK> getDefaultKeySerde() {
@@ -83,7 +88,7 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     @Override
     public void beforeEach(ExtensionContext context) {
         schemaRegistry.beforeEach(context);
-        properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry.url());
+        properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, getSchemaRegistryUrl());
         final Topology topology = topologyFactory.apply(properties);
         testDriver = new TopologyTestDriver(topology, properties);
 
@@ -156,23 +161,5 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
 
     public String getSchemaRegistryUrl() {
         return schemaRegistry.url();
-    }
-
-    public static class TestTopologyBuilder<DefaultK, DefaultV> {
-        public TestTopologyBuilder<DefaultK, DefaultV> topologyFactory(Function<Properties, Topology> topologyFactory) {
-            this.topologyFactory = topologyFactory;
-            return this;
-        }
-
-        public TestTopologyBuilder<DefaultK, DefaultV> topologyFactory(Topology topology) {
-            Properties dummyProperties = new Properties();
-            this.topologyFactory = (Properties) -> topology;
-            return this;
-        }
-
-        public TestTopologyBuilder<DefaultK, DefaultV> topologyFactory(Supplier<Topology> topologyFactory) {
-            this.topologyFactory = (Properties) -> topologyFactory.get();
-            return this;
-        }
     }
 }

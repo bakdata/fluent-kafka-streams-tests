@@ -10,16 +10,13 @@ class WordCountTest {
     private WordCount app = new WordCount();
 
     @RegisterExtension
-    TestTopology<Object, String> testTopology = TestTopology.<Object, String>builder()
-            .properties(app.getKafkaProperties())
-            .topologyFactory(app::getTopology)
-            .build();
+    TestTopology<Object, String> testTopology = new TestTopology<>(app::getTopology, app.getKafkaProperties());
 
     @Test
     void shouldAggregateSameWordStream() {
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("blub");
 
         // Check Stream semantics
         testTopology.streamOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
@@ -32,9 +29,9 @@ class WordCountTest {
 
     @Test
     void shouldAggregateSameWordTable() {
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("blub");
 
         // Check Table semantics
         testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
@@ -45,9 +42,9 @@ class WordCountTest {
 
     @Test
     void shouldNotAggregateDifferentWordsStream() {
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("foo");
-        testTopology.input(app.getInputTopic()).create("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("foo");
+        testTopology.input(app.getInputTopic()).add("blub");
 
         // Check Stream semantics
         testTopology.streamOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
@@ -59,9 +56,9 @@ class WordCountTest {
 
     @Test
     void shouldNotAggregateDifferentWordsTable() {
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("foo");
-        testTopology.input(app.getInputTopic()).create("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("foo");
+        testTopology.input(app.getInputTopic()).add("blub");
 
         // Check Table semantics
         testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
@@ -73,18 +70,18 @@ class WordCountTest {
 
     @Test
     void shouldAggregateSameWordOrderTable() {
-        testTopology.input(app.getInputTopic()).create("blub");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("blub");
-        testTopology.input(app.getInputTopic()).create("blub");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("blub");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("blub");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("bla");
-        testTopology.input(app.getInputTopic()).create("bla");
+        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input(app.getInputTopic()).add("bla");
 
         // Check Table semantics
         testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
@@ -95,7 +92,7 @@ class WordCountTest {
 
     @Test
     void shouldReturnSingleInputAndOutputStream() {
-        testTopology.input().create("bla");
+        testTopology.input().add("bla");
 
         // Check Stream semantics
         testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
@@ -105,7 +102,7 @@ class WordCountTest {
 
     @Test
     void shouldReturnSingleInputAndOutputTable() {
-        testTopology.input().create("bla");
+        testTopology.input().add("bla");
 
         // Check Table semantics
         testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
