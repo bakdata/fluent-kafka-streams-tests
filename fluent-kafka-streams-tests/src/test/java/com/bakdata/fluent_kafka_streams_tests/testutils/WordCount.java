@@ -1,4 +1,4 @@
-package testutils;
+package com.bakdata.fluent_kafka_streams_tests.testutils;
 
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serde;
@@ -32,7 +32,6 @@ public class WordCount {
         return kafkaConfig;
     }
 
-
     public Topology getTopology() {
         final Serde<String> stringSerde = Serdes.String();
         final Serde<Long> longSerde = Serdes.Long();
@@ -51,7 +50,7 @@ public class WordCount {
     }
 
     public static void main(final String[] args) {
-        WordCount wordCount = new WordCount();
+        final WordCount wordCount = new WordCount();
         final KafkaStreams streams = new KafkaStreams(wordCount.getTopology(), wordCount.getKafkaProperties());
         streams.start();
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

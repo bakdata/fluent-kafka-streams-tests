@@ -51,17 +51,17 @@ public class TestInput<K, V> {
                 ofNullable(valueSerde).orElseGet(valueSerdeSupplier));
     }
 
-    public TestInput add(final V value) {
+    public TestInput<K, V> add(final V value) {
         this.consumerFactory.create(value);
         return this;
     }
 
-    public TestInput add(final K key, final V value) {
+    public TestInput<K, V> add(final K key, final V value) {
         this.consumerFactory.create(key, value);
         return this;
     }
 
-    public TestInput add(final K key, final V value, final long timestamp) {
+    public TestInput<K, V> add(final K key, final V value, final long timestamp) {
         this.consumerFactory.create(key, value, timestamp);
         return this;
     }

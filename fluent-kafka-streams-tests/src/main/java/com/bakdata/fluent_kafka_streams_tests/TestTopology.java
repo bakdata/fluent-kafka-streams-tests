@@ -112,6 +112,7 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
             topicStore.addAll(allTopics);
         };
 
+        // TODO: get serializers
         for (TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
             for (TopologyDescription.Node node : subtopology.nodes()) {
                 if (node instanceof TopologyDescription.Source) {

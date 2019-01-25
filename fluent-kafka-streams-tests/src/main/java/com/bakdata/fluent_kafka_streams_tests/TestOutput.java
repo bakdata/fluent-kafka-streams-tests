@@ -67,7 +67,6 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
         return new StreamOutput<>(testDriver, topic, keySerde, valueSerde);
     }
 
-    // Private
     protected ProducerRecord<K, V> readFromTestDriver() {
         return testDriver.readOutput(topic, keySerde.deserializer(), valueSerde.deserializer());
     }

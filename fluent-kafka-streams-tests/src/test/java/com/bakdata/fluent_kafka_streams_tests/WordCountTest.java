@@ -1,11 +1,10 @@
-package com.bakdata.flluent_kafka_streams_tests;
+package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.fluent_kafka_streams_tests.TestTopology;
+import com.bakdata.fluent_kafka_streams_tests.testutils.WordCount;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import testutils.WordCount;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +13,7 @@ import java.util.stream.StreamSupport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WordCountTest {
-    private WordCount app = new WordCount();
+    private final WordCount app = new WordCount();
 
     @RegisterExtension
     TestTopology<Object, String> testTopology = new TestTopology<>(app::getTopology, app.getKafkaProperties());
