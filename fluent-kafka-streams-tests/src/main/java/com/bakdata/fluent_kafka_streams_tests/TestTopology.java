@@ -132,7 +132,7 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
 
     public TestInput<DefaultK, DefaultV> input(String topic) {
         if (!inputTopics.contains(topic)) {
-            throw new NoSuchElementException(String.format("TestInput topic '%s' not found", topic));
+            throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
         return new TestInput<>(testDriver, topic, getDefaultKeySerde(), getDefaultValueSerde());
     }

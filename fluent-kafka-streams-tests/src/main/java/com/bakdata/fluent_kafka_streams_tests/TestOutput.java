@@ -16,6 +16,8 @@ import static java.util.Optional.ofNullable;
 
 public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
+    <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
+    <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
     TestOutput<K, V> withDefaultSerde(Supplier<Serde<K>> keySerdeSupplier, Supplier<Serde<V>> valueSerdeSupplier);
 
     ProducerRecord<K, V> readOneRecord();
@@ -39,6 +41,14 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde) {
         return create(testDriver, topic, keySerde, valueSerde);
+    }
+
+    public <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde) {
+        return withSerde(keySerde, valueSerde);
+    }
+
+    public <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde) {
+        return withSerde(keySerde, valueSerde);
     }
 
     @Override

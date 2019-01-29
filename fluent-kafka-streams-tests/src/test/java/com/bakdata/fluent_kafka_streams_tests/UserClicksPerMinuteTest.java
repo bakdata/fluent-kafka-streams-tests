@@ -4,7 +4,6 @@ import com.bakdata.fluent_kafka_streams_tests.testutils.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.testutils.ClickOutput;
 import com.bakdata.fluent_kafka_streams_tests.testutils.UserClicksPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.testutils.serde.JsonSerde;
-import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -23,7 +22,7 @@ class UserClicksPerMinuteTest {
         testTopology.input().add(1, event1, time);
 
         // Test Stream semantics
-        testTopology.streamOutput().withSerde(Serdes.Integer(), new JsonSerde<>(ClickOutput.class))
+        testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 1L, time))
                 .expectNoMoreRecord();
     }
@@ -35,7 +34,7 @@ class UserClicksPerMinuteTest {
         testTopology.input().add(1, event1, time);
 
         // Test Stream semantics
-        testTopology.tableOutput().withSerde(Serdes.Integer(), new JsonSerde<>(ClickOutput.class))
+        testTopology.tableOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 1L, time))
                 .expectNoMoreRecord();
     }
@@ -61,7 +60,7 @@ class UserClicksPerMinuteTest {
                 .add(1, event4, time4);
 
         // Test Stream semantics
-        testTopology.streamOutput().withSerde(Serdes.Integer(), new JsonSerde<>(ClickOutput.class))
+        testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 1L, time1))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 2L, time1))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 3L, time1))
@@ -100,7 +99,7 @@ class UserClicksPerMinuteTest {
                 .add(event6.getUserId(), event6, time6);
 
         // Test Stream semantics
-        testTopology.streamOutput().withSerde(Serdes.Integer(), new JsonSerde<>(ClickOutput.class))
+        testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 1L, time1))
                 .expectNextRecord().hasKey(2).hasValue(new ClickOutput(2, 1L, time1))
                 .expectNextRecord().hasKey(1).hasValue(new ClickOutput(1, 2L, time1))

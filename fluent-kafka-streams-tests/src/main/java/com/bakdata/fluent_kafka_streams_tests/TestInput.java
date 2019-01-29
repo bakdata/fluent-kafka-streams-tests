@@ -46,6 +46,14 @@ public class TestInput<K, V> {
         return new TestInput<>(testDriver, topic, keySerde, valueSerde);
     }
 
+    public <KR> TestInput<KR, V> withKeySerde(Serde<KR> keySerde) {
+        return withSerde(keySerde, valueSerde);
+    }
+
+    public <VR> TestInput<K, VR> withValueSerde(Serde<VR> valueSerde) {
+        return withSerde(keySerde, valueSerde);
+    }
+
     public TestInput<K, V> withDefaultSerde(Supplier<Serde<K>> keySerdeSupplier, Supplier<Serde<V>> valueSerdeSupplier) {
         return withSerde(ofNullable(keySerde).orElseGet(keySerdeSupplier),
                 ofNullable(valueSerde).orElseGet(valueSerdeSupplier));
