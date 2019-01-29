@@ -36,8 +36,7 @@ public class UserClicksPerMinute {
 
     public Topology getTopology() {
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<Integer, ClickEvent> clickEvents =
-                builder.stream(inputTopic);
+        final KStream<Integer, ClickEvent> clickEvents = builder.stream(inputTopic);
 
         final KTable<Windowed<Integer>, Long> counts = clickEvents
                 .groupByKey()
