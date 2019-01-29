@@ -45,7 +45,8 @@ public class ErrorEventsPerMinute {
         final StreamsBuilder builder = new StreamsBuilder();
 
         // Click Events
-        final KStream<Integer, ClickEvent> clickEvents = builder.stream(clickInputTopic, Consumed.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)));
+        final KStream<Integer, ClickEvent> clickEvents = builder.stream(clickInputTopic,
+                Consumed.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)));
 
         final KTable<Windowed<Integer>, Long> counts = clickEvents
                 .selectKey(((key, value) -> value.getStatus()))
@@ -62,7 +63,7 @@ public class ErrorEventsPerMinute {
         final KStream<Integer, ErrorOutput> errors = counts.toStream()
                 .map((key, value) -> KeyValue.pair(
                         key.key(),
-                        new ErrorOutput(key.key(), value, key.window().start(), null /* empty definition*/)))
+                        new ErrorOutput(key.key(), value, key.window().start(), null /*empty definition*/)))
                 .join(statusCodes,
                         (countRecord, code) -> new ErrorOutput(
                                 countRecord.statusCode, countRecord.count, countRecord.time, code.getDefinition()),

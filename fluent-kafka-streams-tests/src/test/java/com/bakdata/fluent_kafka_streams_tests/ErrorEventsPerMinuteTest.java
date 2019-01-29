@@ -29,7 +29,7 @@ class ErrorEventsPerMinuteTest {
         testTopology.input(app.getClickInputTopic()).add(1, event1, time);
 
         // Test Stream semantics
-        testTopology.streamOutput(app.getErrorOutputTopic()).withSerde(Serdes.Integer(), new JsonSerde<>(ErrorOutput.class))
+        testTopology.streamOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time, "Internal Server Error"))
                 .expectNoMoreRecord();
     }
@@ -45,7 +45,7 @@ class ErrorEventsPerMinuteTest {
         testTopology.input(app.getClickInputTopic()).add(1, event1, time);
 
         // Test Stream semantics
-        testTopology.tableOutput(app.getErrorOutputTopic()).withSerde(Serdes.Integer(), new JsonSerde<>(ErrorOutput.class))
+        testTopology.tableOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time, "Internal Server Error"))
                 .expectNoMoreRecord();
     }
@@ -72,7 +72,7 @@ class ErrorEventsPerMinuteTest {
         clickEventInput.add(1, event5, time);
 
         // Test Stream semantics
-        testTopology.streamOutput(app.getErrorOutputTopic()).withSerde(Serdes.Integer(), new JsonSerde<>(ErrorOutput.class))
+        testTopology.streamOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time, "Internal Server Error"))
                 .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 1L, time, "Access Forbidden"))
                 .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time, "Access Forbidden"))
@@ -103,14 +103,14 @@ class ErrorEventsPerMinuteTest {
         clickEventInput.add(1, event5, time);
 
         // Test Stream semantics
-        testTopology.tableOutput(app.getErrorOutputTopic()).withSerde(Serdes.Integer(), new JsonSerde<>(ErrorOutput.class))
+        testTopology.tableOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 2L, time, "Internal Server Error"))
                 .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 3L, time, "Access Forbidden"))
                 .expectNoMoreRecord();
     }
 
     @Test
-    void shouldCountMultiUserMultipleCodesMultipleWindowCorrectlyStream() {
+    void shouldCountMultiUserMultipleCodesMultipleWindowCorrectly() {
         TestInput<Integer, StatusCode> statusInput =
                 testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
         statusInput.add(500, new StatusCode(500, "Internal Server Error"));
@@ -179,8 +179,8 @@ class ErrorEventsPerMinuteTest {
 
 
         // Test Stream semantics
-        TestOutput<Integer, ErrorOutput> errorOutut = testTopology.streamOutput(app.getErrorOutputTopic()).withSerde(Serdes.Integer(), new JsonSerde<>(ErrorOutput.class));
-
+        TestOutput<Integer, ErrorOutput> errorOutut =
+                testTopology.streamOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class));
         errorOutut
                 // First window
                 .expectNextRecord().hasKey(502).hasValue(new ErrorOutput(502, 1L, time1, "Bad Gateway"))
@@ -205,5 +205,36 @@ class ErrorEventsPerMinuteTest {
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time5, "Internal Server Error"))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 2L, time5, "Internal Server Error"))
                 .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldAlertOnSixErrors() {
+        TestInput<Integer, StatusCode> statusInput =
+                testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
+        statusInput.add(500, new StatusCode(500, "Internal Server Error"));
+
+        final long time = TimeUnit.MINUTES.toMillis(1);
+        ClickEvent event1 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
+        ClickEvent event2 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
+        ClickEvent event3 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(200).build();
+        ClickEvent event4 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
+        ClickEvent event5 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
+        ClickEvent event6 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
+        ClickEvent event7 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
+        testTopology.input(app.getClickInputTopic()).add(1, event1, time);
+        testTopology.input(app.getClickInputTopic()).add(1, event2, time);
+        testTopology.input(app.getClickInputTopic()).add(1, event3, time);
+        testTopology.input(app.getClickInputTopic()).add(1, event4, time);
+        testTopology.input(app.getClickInputTopic()).add(1, event5, time);
+        testTopology.input(app.getClickInputTopic()).add(1, event6, time);
+        testTopology.input(app.getClickInputTopic()).add(1, event7, time);
+
+        // Test Stream semantics
+        testTopology.tableOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
+                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 6L, time, "Internal Server Error"))
+                .expectNoMoreRecord();
+
+        testTopology.streamOutput(app.getAlertTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
+                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 6L, time, "Internal Server Error"));
     }
 }
