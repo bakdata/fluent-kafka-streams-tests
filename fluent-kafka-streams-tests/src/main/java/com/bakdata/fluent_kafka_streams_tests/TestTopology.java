@@ -1,7 +1,6 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import com.google.common.collect.Iterables;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import lombok.AccessLevel;
@@ -18,13 +17,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -127,7 +120,10 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     public TestInput<DefaultK, DefaultV> input() {
-        return input(Iterables.getOnlyElement(inputTopics));
+        if(inputTopics.size() != 1) {
+            throw new IllegalStateException("Please use #input(String) to select a topic");
+        }
+        return input(inputTopics.iterator().next());
     }
 
     public TestInput<DefaultK, DefaultV> input(String topic) {
@@ -138,7 +134,10 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     public TestOutput<DefaultK, DefaultV> streamOutput() {
-        return streamOutput(Iterables.getOnlyElement(outputTopics));
+        if(outputTopics.size() != 1) {
+            throw new IllegalStateException("Please use #output(String) to select a topic");
+        }
+        return streamOutput(outputTopics.iterator().next());
     }
 
     public TestOutput<DefaultK, DefaultV> streamOutput(String topic) {

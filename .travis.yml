@@ -4,6 +4,7 @@ addons:
   sonarcloud:
     organization: bakdata
     token: $SONAR_TOKEN
+dist: xenial
 jdk:
 - oraclejdk11
 stages:
@@ -14,18 +15,22 @@ before_install:
 - |
   [[ -v OSSRH_USERNAME ]] && [[ -v OSSRH_PASSWORD ]] || (>&2 echo "Not all ossrh secrets are set" && travis_terminate 1)
   [[ -v SIGNING_KEY_ID ]] && [[ -v SIGNING_PASSWORD ]] || (>&2 echo "Not all signing secrets are set" && travis_terminate 1)
-  openssl aes-256-cbc -K $encrypted_b2a7add17b18_key -iv $encrypted_b2a7add17b18_iv -in secrets.tar.enc -out secrets.tar -d
-  tar xvf secrets.tar >/dev/null
+  mkdir -p .secrets
+  base64 --decode <<< $GITHUB_DEPLOY_SSH_KEY > .secrets/deploy-key
+  base64 --decode <<< $SIGNING_SECRET_KEY_RING > .secrets/pgp-keyring
+  export SIGNING_SECRET_KEY_RING_FILE=$(pwd)/.secrets/pgp-keyring
+  md5sum .secrets/deploy-key
 matrix:
   include:
   - stage: build
-    script: ./gradlew sonarqube
+    script:
+    - ./gradlew sonarqube
 
   - stage: deploy
     name: upload snapshot
     if: branch = master AND tag IS blank
     script:
-    - ./gradlew publishToNexus -x test -Possrh.username=$OSSRH_USERNAME -Possrh.password=$OSSRH_PASSWORD -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$(pwd)/.gnupg/secring.gpg
+    - ./gradlew publishToNexus --stacktrace
 
   - stage: deploy
     name: release new version
@@ -34,16 +39,21 @@ matrix:
     - version=$(travis/get_version.sh $release || travis_terminate 1)
     - travis/setup_deploy_key.sh
     - travis/prepare_git_for_bot.sh
-    script: ./gradlew release -x test -x sonarqube -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${version} -Prelease.failOnUnversionedFiles=false
+    script:
+    - ./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${version} -Prelease.failOnUnversionedFiles=false --stacktrace
 
   - stage: deploy
     name: upload tagged release
     if: tag =~ ^\d+\.\d+\.\d+$
     script:
-    - ./gradlew publishToNexus closeAndReleaseRepository -x test -Possrh.username=$OSSRH_USERNAME -Possrh.password=$OSSRH_PASSWORD -Psigning.keyId=$SIGNING_KEY_ID -Psigning.password=$SIGNING_PASSWORD -Psigning.secretKeyRingFile=$(pwd)/.gnupg/secring.gpg
+    - ./gradlew publishToNexus closeAndReleaseRepository -x test --stacktrace
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
   - "$HOME/.m2/repository"
   - "$HOME/.sonar/cache"
   - "$HOME/.gradle"
+  - "$HOME/.sonar"
   - ".gradle"
