@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WordCountTest {
@@ -21,14 +22,14 @@ class WordCountTest {
     @Test
     void shouldAggregateSameWordStream() {
         testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("bla");
         testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
 
         // Check Stream semantics
         testTopology.streamOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
-                .expectNextRecord().hasKey("bla").hasValue(2L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
+                .expectNextRecord().hasKey("bla").hasValue(2L)
                 .expectNoMoreRecord();
     }
 
@@ -36,8 +37,8 @@ class WordCountTest {
     @Test
     void shouldAggregateSameWordTable() {
         testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("bla");
         testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input(app.getInputTopic()).add("bla");
 
         // Check Table semantics
         testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
@@ -138,11 +139,8 @@ class WordCountTest {
         testTopology.input().add("foo");
         List<String> expected = List.of("bla", "blub", "foo");
 
-        // Check Table semantics
-        List<String> actual = StreamSupport
-                .stream(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).spliterator(), false)
-                .map(ProducerRecord::key)
-                .collect(Collectors.toList());
-        assertEquals(expected, actual);
+        assertThat(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
+                .extracting(ProducerRecord::key)
+                .containsAll(expected);
     }
 }
