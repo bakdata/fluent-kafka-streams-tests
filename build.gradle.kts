@@ -1,12 +1,10 @@
 plugins {
-    // kotlin stuff
-    `kotlin-dsl`
+    `java-library`
     // release
     id("net.researchgate.release") version "2.6.0"
-    // eat your own dog food - apply the plugins to this plugin project
-    id("com.bakdata.sonar") version "1.0.0"
-    id("com.bakdata.sonatype") version "1.0.0"
-    id("io.franzbecker.gradle-lombok") version "1.14"
+    id("com.bakdata.sonar") version "1.0.1"
+    id("com.bakdata.sonatype") version "1.0.1"
+    id("org.hildan.github.changelog") version "0.8.0"
 }
 
 allprojects {
@@ -34,15 +32,15 @@ configure<com.bakdata.gradle.SonatypeSettings> {
     }
 }
 
+configure<org.hildan.github.changelog.plugin.GitHubChangelogExtension> {
+    githubUser = "bakdata"
+    futureVersionTag = findProperty("changelog.releaseVersion")?.toString()
+    sinceTag = findProperty("changelog.sinceTag")?.toString()
+}
+
 subprojects {
     apply(plugin = "java-library")
-    apply(plugin = "io.franzbecker.gradle-lombok")
-
-    lombok {
-        version = "1.18.4"
-        sha256 = ""
-    }
-
+    // build fails for java 11, let"s wait for a newer lombok version
     configure<JavaPluginConvention> {
         sourceCompatibility = org.gradle.api.JavaVersion.VERSION_11
         targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
@@ -54,5 +52,10 @@ subprojects {
         testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junitVersion)
         testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
         testImplementation(group = "org.assertj", name = "assertj-core", version = "3.11.1")
+
+        compileOnly("org.projectlombok:lombok:1.18.6")
+        annotationProcessor("org.projectlombok:lombok:1.18.6")
+        testCompileOnly("org.projectlombok:lombok:1.18.6")
+        testAnnotationProcessor("org.projectlombok:lombok:1.18.6")
     }
 }
