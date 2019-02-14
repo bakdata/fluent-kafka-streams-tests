@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClickEvent {
-    String ip;
-    Integer userId;
-    Long timestamp;
+    int userId;
     Integer status;
+
+    public ClickEvent(final int userId) {
+        this.userId = userId;
+    }
 }

@@ -8,6 +8,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.test.ConsumerRecordFactory;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
@@ -17,8 +18,8 @@ public class TestInput<K, V> {
     private final String topic;
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
-
     private final ConsumerRecordFactory<K, V> consumerFactory;
+    private Long timestamp;
 
     public TestInput(TopologyTestDriver testDriver, String topic, Serde<K> keySerde, Serde<V> valueSerde) {
         this.testDriver = testDriver;
@@ -59,18 +60,29 @@ public class TestInput<K, V> {
                 ofNullable(valueSerde).orElseGet(valueSerdeSupplier));
     }
 
-    public TestInput<K, V> add(final V value) {
-        this.consumerFactory.create(value);
+    public TestInput<K, V> at(final long timestamp) {
+        this.timestamp = timestamp;
         return this;
+    }
+
+    public TestInput<K, V> at(final long timestamp, TimeUnit unit) {
+        return at(unit.toMillis(timestamp));
+    }
+
+    public TestInput<K, V> add(final V value) {
+        return addInternal(null, value, this.timestamp);
     }
 
     public TestInput<K, V> add(final K key, final V value) {
-        this.consumerFactory.create(key, value);
-        return this;
+        return addInternal(key, value, this.timestamp);
     }
 
     public TestInput<K, V> add(final K key, final V value, final long timestamp) {
-        this.consumerFactory.create(key, value, timestamp);
+        return addInternal(key, value, timestamp);
+    }
+
+    private TestInput<K, V> addInternal(final K key, final V value, final Long timestamp) {
+        this.consumerFactory.create(key, value, timestamp == null ? 0 : timestamp);
         return this;
     }
 

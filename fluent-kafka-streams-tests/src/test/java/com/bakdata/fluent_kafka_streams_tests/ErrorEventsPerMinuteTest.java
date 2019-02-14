@@ -5,7 +5,6 @@ import com.bakdata.fluent_kafka_streams_tests.testutils.ErrorEventsPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.testutils.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.testutils.StatusCode;
 import com.bakdata.fluent_kafka_streams_tests.testutils.serde.JsonSerde;
-import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -13,6 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 
 class ErrorEventsPerMinuteTest {
+    private static final int USER = 1;
+    private static final int USER1 = 1;
+    private static final int USER2 = 2;
+    private static final int USER3 = 3;
     private final ErrorEventsPerMinute app = new ErrorEventsPerMinute();
 
     @RegisterExtension
@@ -20,13 +23,12 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldCountSingleUserSingleErrorCorrectlyStream() {
-        TestInput<Integer, StatusCode> statusInput =
-                testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
-        statusInput.add(500, new StatusCode(500, "Internal Server Error"));
+        testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class))
+                .add(500, new StatusCode(500, "Internal Server Error"));
 
         final long time = TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event1 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        testTopology.input(app.getClickInputTopic()).add(1, event1, time);
+        testTopology.input(app.getClickInputTopic())
+                .at(time).add(USER, new ClickEvent(USER, 500));
 
         // Test Stream semantics
         testTopology.streamOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
@@ -36,13 +38,12 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldCountSingleUserSingleErrorCorrectlyTable() {
-        TestInput<Integer, StatusCode> statusInput =
-                testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
-        statusInput.add(500, new StatusCode(500, "Internal Server Error"));
+        testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class))
+                .add(500, new StatusCode(500, "Internal Server Error"));
 
         final long time = TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event1 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        testTopology.input(app.getClickInputTopic()).add(1, event1, time);
+        testTopology.input(app.getClickInputTopic())
+                .at(time).add(USER, new ClickEvent(USER, 500));
 
         // Test Stream semantics
         testTopology.tableOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
@@ -52,24 +53,17 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldCountSingleUserMultipleCodesCorrectlyStream() {
-        TestInput<Integer, StatusCode> statusInput =
-                testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
-        statusInput.add(500, new StatusCode(500, "Internal Server Error"));
-        statusInput.add(403, new StatusCode(403, "Access Forbidden"));
+        testTopology.input(app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class))
+                .add(500, new StatusCode(500, "Internal Server Error"))
+                .add(403, new StatusCode(403, "Access Forbidden"));
 
         final long time = TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event1 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event2 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(403).build();
-        ClickEvent event3 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(403).build();
-        ClickEvent event4 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(403).build();
-        ClickEvent event5 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-
-        TestInput<Integer, ClickEvent> clickEventInput = testTopology.input(app.getClickInputTopic());
-        clickEventInput.add(1, event1, time);
-        clickEventInput.add(1, event2, time);
-        clickEventInput.add(1, event3, time);
-        clickEventInput.add(1, event4, time);
-        clickEventInput.add(1, event5, time);
+        testTopology.input(app.getClickInputTopic())
+                .at(time).add(USER, new ClickEvent(USER, 500))
+                .at(time).add(USER, new ClickEvent(USER, 403))
+                .at(time).add(USER, new ClickEvent(USER, 403))
+                .at(time).add(USER, new ClickEvent(USER, 403))
+                .at(time).add(USER, new ClickEvent(USER, 500));
 
         // Test Stream semantics
         testTopology.streamOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
@@ -89,18 +83,12 @@ class ErrorEventsPerMinuteTest {
         statusInput.add(403, new StatusCode(403, "Access Forbidden"));
 
         final long time = TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event1 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event2 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(403).build();
-        ClickEvent event3 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(403).build();
-        ClickEvent event4 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(403).build();
-        ClickEvent event5 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-
-        TestInput<Integer, ClickEvent> clickEventInput = testTopology.input(app.getClickInputTopic());
-        clickEventInput.add(1, event1, time);
-        clickEventInput.add(1, event2, time);
-        clickEventInput.add(1, event3, time);
-        clickEventInput.add(1, event4, time);
-        clickEventInput.add(1, event5, time);
+        testTopology.input(app.getClickInputTopic())
+                .at(time).add(USER, new ClickEvent(USER, 500))
+                .at(time).add(USER, new ClickEvent(USER, 403))
+                .at(time).add(USER, new ClickEvent(USER, 403))
+                .at(time).add(USER, new ClickEvent(USER, 403))
+                .at(time).add(USER, new ClickEvent(USER, 500));
 
         // Test Stream semantics
         testTopology.tableOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
@@ -117,65 +105,38 @@ class ErrorEventsPerMinuteTest {
         statusInput.add(403, new StatusCode(403, "Access Forbidden"));
         statusInput.add(502, new StatusCode(502, "Bad Gateway"));
 
-        // First window
         final long time1 = TimeUnit.MINUTES.toMillis(1);
-        final long time2 = time1 + TimeUnit.SECONDS.toMillis(10);
-        final long time3 = time2 + TimeUnit.SECONDS.toMillis(10);
-        ClickEvent event1_1 = ClickEvent.builder().userId(1).timestamp(time1).ip("100.100.100.100").status(200).build();
-        ClickEvent event1_2 = ClickEvent.builder().userId(2).timestamp(time1).ip("100.100.100.100").status(502).build();
-        ClickEvent event1_3 = ClickEvent.builder().userId(1).timestamp(time1).ip("100.100.100.100").status(500).build();
-        ClickEvent event1_4 = ClickEvent.builder().userId(1).timestamp(time2).ip("100.100.100.100").status(502).build();
-        ClickEvent event1_5 = ClickEvent.builder().userId(1).timestamp(time2).ip("100.100.100.100").status(200).build();
-        ClickEvent event1_6 = ClickEvent.builder().userId(1).timestamp(time2).ip("100.100.100.100").status(502).build();
-        ClickEvent event1_7 = ClickEvent.builder().userId(3).timestamp(time3).ip("100.100.100.100").status(403).build();
-        ClickEvent event1_8 = ClickEvent.builder().userId(2).timestamp(time3).ip("100.100.100.100").status(403).build();
-
-        // Second window
-        final long time4 = time1 + TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event2_1 = ClickEvent.builder().userId(3).timestamp(time4).ip("100.100.100.100").status(403).build();
-        ClickEvent event2_2 = ClickEvent.builder().userId(3).timestamp(time4).ip("100.100.100.100").status(403).build();
-        ClickEvent event2_3 = ClickEvent.builder().userId(3).timestamp(time4).ip("100.100.100.100").status(200).build();
-        ClickEvent event2_4 = ClickEvent.builder().userId(2).timestamp(time4).ip("100.100.100.100").status(403).build();
-        ClickEvent event2_5 = ClickEvent.builder().userId(3).timestamp(time4).ip("100.100.100.100").status(502).build();
-        ClickEvent event2_6 = ClickEvent.builder().userId(2).timestamp(time4).ip("100.100.100.100").status(403).build();
-        ClickEvent event2_7 = ClickEvent.builder().userId(2).timestamp(time4).ip("100.100.100.100").status(500).build();
-
-        // Third window
-        final long time5 = time4 + TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event3_1 = ClickEvent.builder().userId(3).timestamp(time5).ip("100.100.100.100").status(200).build();
-        ClickEvent event3_2 = ClickEvent.builder().userId(1).timestamp(time5).ip("100.100.100.100").status(403).build();
-        ClickEvent event3_3 = ClickEvent.builder().userId(2).timestamp(time5).ip("100.100.100.100").status(502).build();
-        ClickEvent event3_4 = ClickEvent.builder().userId(1).timestamp(time5).ip("100.100.100.100").status(403).build();
-        ClickEvent event3_5 = ClickEvent.builder().userId(1).timestamp(time5).ip("100.100.100.100").status(500).build();
-        ClickEvent event3_6 = ClickEvent.builder().userId(1).timestamp(time5).ip("100.100.100.100").status(500).build();
-
-        TestInput<Integer, ClickEvent> clickEventInput = testTopology.input(app.getClickInputTopic());
         // First window
-        clickEventInput.add(event1_1.getUserId(), event1_1, event1_1.getTimestamp());
-        clickEventInput.add(event1_2.getUserId(), event1_2, event1_2.getTimestamp());
-        clickEventInput.add(event1_3.getUserId(), event1_3, event1_3.getTimestamp());
-        clickEventInput.add(event1_4.getUserId(), event1_4, event1_4.getTimestamp());
-        clickEventInput.add(event1_5.getUserId(), event1_5, event1_5.getTimestamp());
-        clickEventInput.add(event1_6.getUserId(), event1_6, event1_6.getTimestamp());
-        clickEventInput.add(event1_7.getUserId(), event1_7, event1_7.getTimestamp());
-        clickEventInput.add(event1_8.getUserId(), event1_8, event1_8.getTimestamp());
+        testTopology.input(app.getClickInputTopic())
+                .at(time1).add(USER1, new ClickEvent(USER1, 200))
+                .at(time1).add(USER2, new ClickEvent(USER2, 502))
+                .at(time1).add(USER1, new ClickEvent(USER1, 500))
+                .at(time1 + 10).add(USER1, new ClickEvent(USER1, 502))
+                .at(time1 + 10).add(USER1, new ClickEvent(USER1, 200))
+                .at(time1 + 10).add(USER1, new ClickEvent(USER1, 502))
+                .at(time1 + 10 + 20).add(USER3, new ClickEvent(USER3, 403))
+                .at(time1 + 10 + 20).add(USER2, new ClickEvent(USER2, 403));
 
         // Second window
-        clickEventInput.add(event2_1.getUserId(), event2_1, event2_1.getTimestamp());
-        clickEventInput.add(event2_2.getUserId(), event2_2, event2_2.getTimestamp());
-        clickEventInput.add(event2_3.getUserId(), event2_3, event2_3.getTimestamp());
-        clickEventInput.add(event2_4.getUserId(), event2_4, event2_4.getTimestamp());
-        clickEventInput.add(event2_5.getUserId(), event2_5, event2_5.getTimestamp());
-        clickEventInput.add(event2_6.getUserId(), event2_6, event2_6.getTimestamp());
-        clickEventInput.add(event2_7.getUserId(), event2_7, event2_7.getTimestamp());
+        final long time2 = time1 + TimeUnit.MINUTES.toMillis(1);
+        testTopology.input(app.getClickInputTopic())
+                .at(time2).add(USER3, new ClickEvent(USER3, 403))
+                .at(time2).add(USER3, new ClickEvent(USER3, 403))
+                .at(time2).add(USER3, new ClickEvent(USER3, 200))
+                .at(time2).add(USER2, new ClickEvent(USER2, 403))
+                .at(time2).add(USER3, new ClickEvent(USER3, 502))
+                .at(time2).add(USER2, new ClickEvent(USER2, 403))
+                .at(time2).add(USER2, new ClickEvent(USER2, 500));
 
         // Third window
-        clickEventInput.add(event3_1.getUserId(), event3_1, event3_1.getTimestamp());
-        clickEventInput.add(event3_2.getUserId(), event3_2, event3_2.getTimestamp());
-        clickEventInput.add(event3_3.getUserId(), event3_3, event3_3.getTimestamp());
-        clickEventInput.add(event3_4.getUserId(), event3_4, event3_4.getTimestamp());
-        clickEventInput.add(event3_5.getUserId(), event3_5, event3_5.getTimestamp());
-        clickEventInput.add(event3_6.getUserId(), event3_6, event3_6.getTimestamp());
+        final long time3 = time2 + TimeUnit.MINUTES.toMillis(1);
+        testTopology.input(app.getClickInputTopic())
+                .at(time3).add(USER3, new ClickEvent(USER3, 200))
+                .at(time3).add(USER1, new ClickEvent(USER1, 403))
+                .at(time3).add(USER2, new ClickEvent(USER2, 502))
+                .at(time3).add(USER1, new ClickEvent(USER1, 403))
+                .at(time3).add(USER1, new ClickEvent(USER1, 500))
+                .at(time3).add(USER1, new ClickEvent(USER1, 500));
 
 
         // Test Stream semantics
@@ -191,19 +152,19 @@ class ErrorEventsPerMinuteTest {
                 .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time1, "Access Forbidden"))
 
                 // Second window
-                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 1L, time4, "Access Forbidden"))
-                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time4, "Access Forbidden"))
-                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 3L, time4, "Access Forbidden"))
-                .expectNextRecord().hasKey(502).hasValue(new ErrorOutput(502, 1L, time4, "Bad Gateway"))
-                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 4L, time4, "Access Forbidden"))
-                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time4, "Internal Server Error"))
+                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 1L, time2, "Access Forbidden"))
+                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time2, "Access Forbidden"))
+                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 3L, time2, "Access Forbidden"))
+                .expectNextRecord().hasKey(502).hasValue(new ErrorOutput(502, 1L, time2, "Bad Gateway"))
+                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 4L, time2, "Access Forbidden"))
+                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time2, "Internal Server Error"))
 
                 // Third window
-                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 1L, time5, "Access Forbidden"))
-                .expectNextRecord().hasKey(502).hasValue(new ErrorOutput(502, 1L, time5, "Bad Gateway"))
-                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time5, "Access Forbidden"))
-                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time5, "Internal Server Error"))
-                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 2L, time5, "Internal Server Error"))
+                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 1L, time3, "Access Forbidden"))
+                .expectNextRecord().hasKey(502).hasValue(new ErrorOutput(502, 1L, time3, "Bad Gateway"))
+                .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time3, "Access Forbidden"))
+                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time3, "Internal Server Error"))
+                .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 2L, time3, "Internal Server Error"))
                 .expectNoMoreRecord();
     }
 
@@ -214,20 +175,13 @@ class ErrorEventsPerMinuteTest {
         statusInput.add(500, new StatusCode(500, "Internal Server Error"));
 
         final long time = TimeUnit.MINUTES.toMillis(1);
-        ClickEvent event1 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event2 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event3 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(200).build();
-        ClickEvent event4 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event5 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event6 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        ClickEvent event7 = ClickEvent.builder().userId(1).timestamp(time).ip("100.100.100.100").status(500).build();
-        testTopology.input(app.getClickInputTopic()).add(1, event1, time);
-        testTopology.input(app.getClickInputTopic()).add(1, event2, time);
-        testTopology.input(app.getClickInputTopic()).add(1, event3, time);
-        testTopology.input(app.getClickInputTopic()).add(1, event4, time);
-        testTopology.input(app.getClickInputTopic()).add(1, event5, time);
-        testTopology.input(app.getClickInputTopic()).add(1, event6, time);
-        testTopology.input(app.getClickInputTopic()).add(1, event7, time);
+        testTopology.input(app.getClickInputTopic()).at(time).add(USER, new ClickEvent(USER1, 500))
+                .at(time).add(USER, new ClickEvent(USER1, 500))
+                .at(time).add(USER, new ClickEvent(USER1, 200))
+                .at(time).add(USER, new ClickEvent(USER1, 500))
+                .at(time).add(USER, new ClickEvent(USER1, 500))
+                .at(time).add(USER, new ClickEvent(USER1, 500))
+                .at(time).add(USER, new ClickEvent(USER1, 500));
 
         // Test Stream semantics
         testTopology.tableOutput(app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))

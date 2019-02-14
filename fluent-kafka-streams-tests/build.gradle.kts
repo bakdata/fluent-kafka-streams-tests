@@ -12,4 +12,6 @@ dependencies {
 
 
     implementation(project(":schema-registry-mock"))
+
+    testImplementation(group = "org.slf4j", name = "slf4j-log4j12", version = "1.7.25")
 }
