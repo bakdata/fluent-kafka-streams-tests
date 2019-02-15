@@ -6,7 +6,6 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.Wither;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
@@ -26,12 +25,11 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, AfterEachCallback {
     private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
     private final Function<? super Properties, ? extends Topology> topologyFactory;
-    private final @NonNull StreamsConfig streamsConfig;
     private final Collection<String> inputTopics = new HashSet<>();
     private final Collection<String> outputTopics = new HashSet<>();
     @Wither
@@ -44,9 +42,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties) {
         this.topologyFactory = topologyFactory;
         this.properties.putAll(properties);
-        this.streamsConfig = new StreamsConfig(properties);
-        this.defaultKeySerde = this.streamsConfig.defaultKeySerde();
-        this.defaultValueSerde = this.streamsConfig.defaultValueSerde();
+        this.defaultKeySerde = null;
+        this.defaultValueSerde = null;
     }
 
     public TestTopology(final Topology topology, final Map<?, ?> properties) {
@@ -73,12 +70,16 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
         }
     }
 
+    public StreamsConfig getStreamsConfig() {
+        return new StreamsConfig(this.properties);
+    }
+
     private Serde<DefaultK> getDefaultKeySerde() {
-        return this.defaultKeySerde;
+        return this.defaultKeySerde != null ? this.defaultKeySerde : this.getStreamsConfig().defaultKeySerde();
     }
 
     private Serde<DefaultV> getDefaultValueSerde() {
-        return this.defaultValueSerde;
+        return this.defaultValueSerde != null ? this.defaultValueSerde : this.getStreamsConfig().defaultValueSerde();
     }
 
     @Override

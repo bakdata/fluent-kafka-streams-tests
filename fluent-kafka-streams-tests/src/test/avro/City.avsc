@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "City",
+  "namespace": "com.bakdata.fluent_kafka_streams_tests.test_types",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "inhabitants",
+      "type": "int"
+    }
+  ]
+}

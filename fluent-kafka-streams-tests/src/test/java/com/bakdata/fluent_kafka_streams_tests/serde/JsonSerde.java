@@ -11,4 +11,8 @@ public class JsonSerde<T> implements Serde<T> {
     public JsonSerde(final Class<T> clazz) {
         this.inner = Serdes.serdeFrom(new JsonSerializer<>(), new JsonDeserializer<>(clazz));
     }
+
+    public JsonSerde() {
+        this((Class<T>) Object.class);
+    }
 }

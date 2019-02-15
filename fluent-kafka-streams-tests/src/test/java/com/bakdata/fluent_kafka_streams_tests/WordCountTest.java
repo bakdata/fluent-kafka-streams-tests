@@ -14,8 +14,7 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
-    final
-    TestTopology<Object, String> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopology<Object, String> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldAggregateSameWordStream() {

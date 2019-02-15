@@ -16,13 +16,29 @@ import static java.util.Optional.ofNullable;
 
 public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
+
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
+
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
+
+    default <KR> TestOutput<KR, V> withKeyType(Class<KR> keyType) {
+        return (TestOutput<KR, V>) this;
+    }
+
+    default <VR> TestOutput<K, VR> withValueType(Class<VR> valueType) {
+        return (TestOutput<K, VR>) this;
+    }
+
+    default <KR, VR> TestOutput<KR, VR> withTypes(Class<KR> keyType, Class<VR> valueType) {
+        return (TestOutput<KR, VR>) this;
+    }
+
+    ProducerRecord<K, V> readOneRecord();
 
     TestOutput<K, V> withDefaultSerde(Supplier<? extends Serde<K>> keySerdeSupplier, Supplier<? extends Serde<V>> valueSerdeSupplier);
 
-    ProducerRecord<K, V> readOneRecord();
     Expectation<K, V> expectNextRecord();
+
     Expectation<K, V> expectNoMoreRecord();
 
     // Table semantics (each key only once)
@@ -82,7 +98,7 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
         return this.testDriver.readOutput(this.topic, this.keySerde.deserializer(), this.valueSerde.deserializer());
     }
 
-    protected abstract <VR, KR> TestOutput<KR,VR> create(TopologyTestDriver testDriver, String topic, Serde<KR> keySerde, Serde<VR> valueSerde);
+    protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic, Serde<KR> keySerde, Serde<VR> valueSerde);
 }
 
 class StreamOutput<K, V> extends BaseOutput<K, V> {
