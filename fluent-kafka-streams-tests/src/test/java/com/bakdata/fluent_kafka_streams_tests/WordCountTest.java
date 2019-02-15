@@ -14,15 +14,16 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
-    TestTopology<Object, String> testTopology = new TestTopology<>(app::getTopology, app.getKafkaProperties());
+    final
+    TestTopology<Object, String> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldAggregateSameWordStream() {
-        testTopology.input().add("bla")
+        this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla");
 
-        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
                 .expectNextRecord().hasKey("bla").hasValue(2L)
@@ -31,10 +32,10 @@ class WordCountTest {
 
     @Test
     void shouldAggregateSameWordTable() {
-        testTopology.input().add("bla")
+        this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla");
-        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(2L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
                 .expectNoMoreRecord();
@@ -42,11 +43,11 @@ class WordCountTest {
 
     @Test
     void shouldNotAggregateDifferentWordsStream() {
-        testTopology.input().add("bla")
+        this.testTopology.input().add("bla")
                 .add("foo")
                 .add("blub");
 
-        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNextRecord().hasKey("foo").hasValue(1L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
@@ -55,11 +56,11 @@ class WordCountTest {
 
     @Test
     void shouldNotAggregateDifferentWordsTable() {
-        testTopology.input().add("bla")
+        this.testTopology.input().add("bla")
                 .add("foo")
                 .add("blub");
 
-        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNextRecord().hasKey("foo").hasValue(1L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
@@ -68,19 +69,19 @@ class WordCountTest {
 
     @Test
     void shouldReturnNoInputAndOutputStream() {
-        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNoMoreRecord();
     }
 
     @Test
     void shouldReturnNoInputAndOutputTable() {
-        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNoMoreRecord();
     }
 
     @Test
     void shouldAggregateSameWordOrderTable() {
-        testTopology.input().add("blub") // 1 blub
+        this.testTopology.input().add("blub") // 1 blub
                 .add("bla") // 1 bla
                 .add("blub") // 2 blub
                 .add("blub") // 3 blub
@@ -93,7 +94,7 @@ class WordCountTest {
                 .add("bla") // 6 bla
                 .add("bla"); // 7 bla
 
-        testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.tableOutput(this.app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("blub").hasValue(5L)
                 .expectNextRecord().hasKey("bla").hasValue(7L)
                 .expectNoMoreRecord();
@@ -101,42 +102,42 @@ class WordCountTest {
 
     @Test
     void shouldReturnSingleInputAndOutputStream() {
-        testTopology.input().add("bla");
+        this.testTopology.input().add("bla");
 
-        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNoMoreRecord();
     }
 
     @Test
     void shouldReturnSingleInputAndOutputTable() {
-        testTopology.input().add("bla");
+        this.testTopology.input().add("bla");
 
-        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
+        this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNoMoreRecord();
     }
 
     @Test
     void shouldReturnCorrectIteratorStream() {
-        testTopology.input().add("bla")
+        this.testTopology.input().add("bla")
                 .add("blub")
                 .add("foo");
-        List<String> expected = List.of("bla", "blub", "foo");
+        final List<String> expected = List.of("bla", "blub", "foo");
 
-        assertThat(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
+        assertThat(this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
                 .extracting(ProducerRecord::key)
                 .containsAll(expected);
     }
 
     @Test
     void shouldReturnCorrectIteratorTable() {
-        testTopology.input().add("bla")
+        this.testTopology.input().add("bla")
                 .add("blub")
                 .add("foo");
-        List<String> expected = List.of("bla", "blub", "foo");
+        final List<String> expected = List.of("bla", "blub", "foo");
 
-        assertThat(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
+        assertThat(this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
                 .extracting(ProducerRecord::key)
                 .containsAll(expected);
     }

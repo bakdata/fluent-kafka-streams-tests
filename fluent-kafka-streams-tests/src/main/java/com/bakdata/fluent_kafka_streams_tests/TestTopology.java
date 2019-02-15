@@ -17,149 +17,138 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, AfterEachCallback {
-    @NonNull
-    private final Properties properties;
-
     private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
-
-    @Getter
+    private final Function<? super Properties, ? extends Topology> topologyFactory;
+    private final @NonNull StreamsConfig streamsConfig;
+    private final Collection<String> inputTopics = new HashSet<>();
+    private final Collection<String> outputTopics = new HashSet<>();
+    @Wither
+    private final Serde<DefaultK> defaultKeySerde;
+    @Wither
+    private final Serde<DefaultV> defaultValueSerde;
+    private final Properties properties = new Properties();
     private TopologyTestDriver testDriver;
 
-    @NonNull
-    private Function<Properties, Topology> topologyFactory;
-
-    @Getter(lazy = true)
-    private final StreamsConfig streamsConfig = new StreamsConfig(properties);
-
-    private final Set<String> inputTopics = new HashSet<>();
-    private final Set<String> outputTopics = new HashSet<>();
-
-    @Wither
-    private Serde<DefaultK> defaultKeySerde;
-    @Wither
-    private Serde<DefaultV> defaultValueSerde;
-
-    public TestTopology(Function<Properties, Topology> topologyFactory, Properties properties) {
+    public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties) {
         this.topologyFactory = topologyFactory;
-        this.properties = new Properties();
-        if (properties != null) {
-            this.properties.putAll(properties);
-        }
-        this.defaultKeySerde = getStreamsConfig().defaultKeySerde();
-        this.defaultValueSerde = getStreamsConfig().defaultValueSerde();
+        this.properties.putAll(properties);
+        this.streamsConfig = new StreamsConfig(properties);
+        this.defaultKeySerde = this.streamsConfig.defaultKeySerde();
+        this.defaultValueSerde = this.streamsConfig.defaultValueSerde();
     }
 
-    public TestTopology(Topology topology, Properties properties) {
+    public TestTopology(final Topology topology, final Map<?, ?> properties) {
         this((Properties) -> topology, properties);
     }
 
-    public TestTopology(Supplier<Topology> topologyFactory, Properties properties) {
+    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
         this((Properties) -> topologyFactory.get(), properties);
     }
 
+    private static void addExternalTopics(final Collection<String> allTopics, final String topics) {
+        if (topics.contains("KSTREAM-") || topics.contains("KTABLE-")) {
+            // Internal node created by Kafka. Not relevant for testing.
+            return;
+        }
+
+        // TODO: support wildcards
+        if (topics.startsWith("[")) {
+            // a list of topics in the form of [topic1,...,topicN]
+            allTopics.addAll(Arrays.asList(topics.substring(1, topics.length() - 1).split(",")));
+        } else {
+            // Only one topic present without leading '['
+            allTopics.add(topics);
+        }
+    }
+
     private Serde<DefaultK> getDefaultKeySerde() {
-        return defaultKeySerde;
+        return this.defaultKeySerde;
     }
 
     private Serde<DefaultV> getDefaultValueSerde() {
-        return defaultValueSerde;
+        return this.defaultValueSerde;
     }
 
     @Override
-    public void afterEach(ExtensionContext context) {
-        testDriver.close();
-        schemaRegistry.afterEach(context);
+    public void afterEach(final ExtensionContext context) {
+        this.testDriver.close();
+        this.schemaRegistry.afterEach(context);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
-        schemaRegistry.beforeEach(context);
-        properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, getSchemaRegistryUrl());
-        final Topology topology = topologyFactory.apply(properties);
-        testDriver = new TopologyTestDriver(topology, properties);
+    public void beforeEach(final ExtensionContext context) {
+        this.schemaRegistry.beforeEach(context);
+        this.properties.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
+        final Topology topology = this.topologyFactory.apply(this.properties);
+        this.testDriver = new TopologyTestDriver(topology, this.properties);
 
         this.inputTopics.clear();
         this.outputTopics.clear();
 
-        BiConsumer<String, Set<String>> addTopics = (topics, topicStore) -> {
-            if (topics.contains("KSTREAM-") || topics.contains("KTABLE-")) {
-                // Internal node created by Kafka. Not relevant for testing.
-                return;
-            }
-
-            List<String> allTopics = new ArrayList<>();
-            if (topics.startsWith("[")) {
-                allTopics.addAll(Arrays.asList(topics.substring(1, topics.length() - 1).split(",")));
-            } else {
-                // Only one topic present without leading '['
-                allTopics.add(topics);
-            }
-
-            topicStore.addAll(allTopics);
-        };
-
-        // TODO: get serializers
-        for (TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
-            for (TopologyDescription.Node node : subtopology.nodes()) {
+        for (final TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
+            for (final TopologyDescription.Node node : subtopology.nodes()) {
                 if (node instanceof TopologyDescription.Source) {
-                    final String topics = ((TopologyDescription.Source) node).topics();
-                    addTopics.accept(topics, inputTopics);
+                    addExternalTopics(this.inputTopics, ((TopologyDescription.Source) node).topics());
                 } else if (node instanceof TopologyDescription.Sink) {
-                    final String topic = ((TopologyDescription.Sink) node).topic();
-                    addTopics.accept(topic, outputTopics);
+                    addExternalTopics(this.outputTopics, ((TopologyDescription.Sink) node).topic());
                 }
             }
         }
     }
 
     public TestInput<DefaultK, DefaultV> input() {
-        if(inputTopics.size() != 1) {
+        if (this.inputTopics.size() != 1) {
             throw new IllegalStateException("Please use #input(String) to select a topic");
         }
-        return input(inputTopics.iterator().next());
+        return this.input(this.inputTopics.iterator().next());
     }
 
-    public TestInput<DefaultK, DefaultV> input(String topic) {
-        if (!inputTopics.contains(topic)) {
+    public TestInput<DefaultK, DefaultV> input(final String topic) {
+        if (!this.inputTopics.contains(topic)) {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
-        return new TestInput<>(testDriver, topic, getDefaultKeySerde(), getDefaultValueSerde());
+        return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde());
     }
 
     public TestOutput<DefaultK, DefaultV> streamOutput() {
-        if(outputTopics.size() != 1) {
+        if (this.outputTopics.size() != 1) {
             throw new IllegalStateException("Please use #output(String) to select a topic");
         }
-        return streamOutput(outputTopics.iterator().next());
+        return this.streamOutput(this.outputTopics.iterator().next());
     }
 
-    public TestOutput<DefaultK, DefaultV> streamOutput(String topic) {
-        if (!outputTopics.contains(topic)) {
+    public TestOutput<DefaultK, DefaultV> streamOutput(final String topic) {
+        if (!this.outputTopics.contains(topic)) {
             throw new NoSuchElementException(String.format("Output topic '%s' not found", topic));
         }
-        return new StreamOutput<>(testDriver, topic, getDefaultKeySerde(), getDefaultValueSerde());
+        return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde());
     }
 
     public TestOutput<DefaultK, DefaultV> tableOutput() {
-        return streamOutput().asTable();
+        return this.streamOutput().asTable();
     }
 
-    public TestOutput<DefaultK, DefaultV> tableOutput(String topic) {
-        return streamOutput(topic).asTable();
+    public TestOutput<DefaultK, DefaultV> tableOutput(final String topic) {
+        return this.streamOutput(topic).asTable();
     }
 
     public SchemaRegistryClient getSchemaRegistry() {
-        return schemaRegistry.getSchemaRegistryClient();
+        return this.schemaRegistry.getSchemaRegistryClient();
     }
 
     public String getSchemaRegistryUrl() {
-        return schemaRegistry.url();
+        return this.schemaRegistry.url();
     }
 }

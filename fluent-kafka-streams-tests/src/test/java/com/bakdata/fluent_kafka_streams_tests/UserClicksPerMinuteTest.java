@@ -16,15 +16,16 @@ class UserClicksPerMinuteTest {
     private final UserClicksPerMinute app = new UserClicksPerMinute();
 
     @RegisterExtension
-    TestTopology<Integer, ClickEvent> testTopology = new TestTopology<>(app::getTopology, app.getKafkaProperties());
+    final
+    TestTopology<Integer, ClickEvent> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldCountSingleUserSingleEventCorrectlyStream() {
         final long time = TimeUnit.MINUTES.toMillis(1);
-        testTopology.input().at(time).add(USER, new ClickEvent(USER));
+        this.testTopology.input().at(time).add(USER, new ClickEvent(USER));
 
         // Test Stream semantics
-        testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
+        this.testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 1L, time))
                 .expectNoMoreRecord();
     }
@@ -32,10 +33,10 @@ class UserClicksPerMinuteTest {
     @Test
     void shouldCountSingleUserSingleEventCorrectlyTable() {
         final long time = TimeUnit.MINUTES.toMillis(1);
-        testTopology.input().at(time).add(USER, new ClickEvent(USER));
+        this.testTopology.input().at(time).add(USER, new ClickEvent(USER));
 
         // Test Stream semantics
-        testTopology.tableOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
+        this.testTopology.tableOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 1L, time))
                 .expectNoMoreRecord();
     }
@@ -46,14 +47,14 @@ class UserClicksPerMinuteTest {
         final long time1 = TimeUnit.MINUTES.toMillis(1);
         final long time2 = time1 + TimeUnit.MINUTES.toMillis(1);
 
-        testTopology.input()
+        this.testTopology.input()
                 .at(time1).add(USER, new ClickEvent(USER))
                 .at(time1 + 10).add(USER, new ClickEvent(USER))
                 .at(time1 + 20).add(USER, new ClickEvent(USER))
                 .at(time2).add(USER, new ClickEvent(USER));
 
         // Test Stream semantics
-        testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
+        this.testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 1L, time1))
                 .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 2L, time1))
                 .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 3L, time1))
@@ -67,7 +68,7 @@ class UserClicksPerMinuteTest {
         final long time1 = TimeUnit.MINUTES.toMillis(1);
         final long time2 = time1 + TimeUnit.MINUTES.toMillis(1);
 
-        testTopology.input()
+        this.testTopology.input()
                 // First window
                 .at(time1).add(new ClickEvent(USER1).getUserId(), new ClickEvent(USER1))
                 .at(time1 + 10).add(new ClickEvent(USER2).getUserId(), new ClickEvent(USER2))
@@ -78,7 +79,7 @@ class UserClicksPerMinuteTest {
                 .at(time2 + 20).add(new ClickEvent(USER2).getUserId(), new ClickEvent(USER2));
 
         // Test Stream semantics
-        testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
+        this.testTopology.streamOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(USER1).hasValue(new ClickOutput(USER1, 1L, time1))
                 .expectNextRecord().hasKey(USER2).hasValue(new ClickOutput(USER2, 1L, time1))
                 .expectNextRecord().hasKey(USER1).hasValue(new ClickOutput(USER1, 2L, time1))

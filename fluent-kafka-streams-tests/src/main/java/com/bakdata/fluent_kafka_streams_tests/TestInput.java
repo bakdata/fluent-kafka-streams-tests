@@ -19,9 +19,9 @@ public class TestInput<K, V> {
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
     private final ConsumerRecordFactory<K, V> consumerFactory;
-    private Long timestamp;
+    private Long timestamp = null;
 
-    public TestInput(TopologyTestDriver testDriver, String topic, Serde<K> keySerde, Serde<V> valueSerde) {
+    public TestInput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde, final Serde<V> valueSerde) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
@@ -43,21 +43,21 @@ public class TestInput<K, V> {
         };
     }
 
-    public <KR, VR> TestInput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde) {
-        return new TestInput<>(testDriver, topic, keySerde, valueSerde);
+    public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
+        return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde);
     }
 
-    public <KR> TestInput<KR, V> withKeySerde(Serde<KR> keySerde) {
-        return withSerde(keySerde, valueSerde);
+    public <KR> TestInput<KR, V> withKeySerde(final Serde<KR> keySerde) {
+        return this.withSerde(keySerde, this.valueSerde);
     }
 
-    public <VR> TestInput<K, VR> withValueSerde(Serde<VR> valueSerde) {
-        return withSerde(keySerde, valueSerde);
+    public <VR> TestInput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
+        return this.withSerde(this.keySerde, valueSerde);
     }
 
-    public TestInput<K, V> withDefaultSerde(Supplier<Serde<K>> keySerdeSupplier, Supplier<Serde<V>> valueSerdeSupplier) {
-        return withSerde(ofNullable(keySerde).orElseGet(keySerdeSupplier),
-                ofNullable(valueSerde).orElseGet(valueSerdeSupplier));
+    public TestInput<K, V> withDefaultSerde(final Supplier<? extends Serde<K>> keySerdeSupplier, final Supplier<? extends Serde<V>> valueSerdeSupplier) {
+        return this.withSerde(ofNullable(this.keySerde).orElseGet(keySerdeSupplier),
+                ofNullable(this.valueSerde).orElseGet(valueSerdeSupplier));
     }
 
     public TestInput<K, V> at(final long timestamp) {
@@ -65,20 +65,20 @@ public class TestInput<K, V> {
         return this;
     }
 
-    public TestInput<K, V> at(final long timestamp, TimeUnit unit) {
-        return at(unit.toMillis(timestamp));
+    public TestInput<K, V> at(final long timestamp, final TimeUnit unit) {
+        return this.at(unit.toMillis(timestamp));
     }
 
     public TestInput<K, V> add(final V value) {
-        return addInternal(null, value, this.timestamp);
+        return this.addInternal(null, value, this.timestamp);
     }
 
     public TestInput<K, V> add(final K key, final V value) {
-        return addInternal(key, value, this.timestamp);
+        return this.addInternal(key, value, this.timestamp);
     }
 
     public TestInput<K, V> add(final K key, final V value, final long timestamp) {
-        return addInternal(key, value, timestamp);
+        return this.addInternal(key, value, timestamp);
     }
 
     private TestInput<K, V> addInternal(final K key, final V value, final Long timestamp) {
@@ -88,16 +88,18 @@ public class TestInput<K, V> {
 
     private static class UnspecifiedSerializer<V> implements Serializer<V> {
         @Override
-        public void configure(Map<String, ?> configs, boolean isKey) {
+        public void configure(final Map<String, ?> configs, final boolean isKey) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public byte[] serialize(String topic, V data) {
+        public byte[] serialize(final String topic, final V data) {
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void close() {
+            throw new UnsupportedOperationException();
         }
     }
 }

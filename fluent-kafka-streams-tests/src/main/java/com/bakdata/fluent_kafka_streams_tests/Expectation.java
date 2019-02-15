@@ -9,21 +9,21 @@ public class Expectation<K, V> {
     private final ProducerRecord<K, V> record;
     private final TestOutput<K, V> output;
 
-    public Expectation<K, V>  isPresent() {
-        Assertions.assertNotNull(record, "No more records found");
-        return and();
+    public Expectation<K, V> isPresent() {
+        Assertions.assertNotNull(this.record, "No more records found");
+        return this.and();
     }
 
-    public Expectation<K, V>  hasKey(K key) {
-        isPresent();
-        Assertions.assertEquals(key, record.key(), "Record key does not match");
-        return and();
+    public Expectation<K, V> hasKey(final K key) {
+        this.isPresent();
+        Assertions.assertEquals(key, this.record.key(), "Record key does not match");
+        return this.and();
     }
 
-    public Expectation<K, V>  hasValue(V value) {
-        isPresent();
-        Assertions.assertEquals(value, record.value(), "Record value does not match");
-        return and();
+    public Expectation<K, V> hasValue(final V value) {
+        this.isPresent();
+        Assertions.assertEquals(value, this.record.value(), "Record value does not match");
+        return this.and();
     }
 
     public Expectation<K, V> and() {
@@ -31,15 +31,15 @@ public class Expectation<K, V> {
     }
 
     public Expectation<K, V> expectNextRecord() {
-        return output.expectNextRecord();
+        return this.output.expectNextRecord();
     }
 
     public Expectation<K, V> expectNoMoreRecord() {
-        return output.expectNoMoreRecord();
+        return this.output.expectNoMoreRecord();
     }
 
     public Expectation<K, V> toBeEmpty() {
-        Assertions.assertNull(record);
-        return and();
+        Assertions.assertNull(this.record);
+        return this.and();
     }
 }

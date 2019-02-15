@@ -23,23 +23,23 @@ import java.util.concurrent.TimeUnit;
 
 public class ErrorEventsPerMinute {
     @Getter
-    final String clickInputTopic = "user-click-input";
+    private final String clickInputTopic = "user-click-input";
 
     @Getter
-    final String statusInputTopic = "status-input";
+    private final String statusInputTopic = "status-input";
 
     @Getter
-    final String errorOutputTopic = "user-error-output";
+    private final String errorOutputTopic = "user-error-output";
 
     @Getter
-    final String alertTopic = "error-alert-output";
+    private final String alertTopic = "error-alert-output";
 
     public Properties getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Properties kafkaConfig = new Properties();
-        kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "errors-per-minute");
-        kafkaConfig.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
-        kafkaConfig.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.Integer().getClass().getName());
+        kafkaConfig.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "errors-per-minute");
+        kafkaConfig.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        kafkaConfig.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.Integer().getClass().getName());
         kafkaConfig.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde.class);
         return kafkaConfig;
     }
@@ -48,7 +48,7 @@ public class ErrorEventsPerMinute {
         final StreamsBuilder builder = new StreamsBuilder();
 
         // Click Events
-        final KStream<Integer, ClickEvent> clickEvents = builder.stream(clickInputTopic,
+        final KStream<Integer, ClickEvent> clickEvents = builder.stream(this.clickInputTopic,
                 Consumed.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)));
 
         final KTable<Windowed<Integer>, Long> counts = clickEvents
@@ -59,7 +59,7 @@ public class ErrorEventsPerMinute {
                 .count();
 
         // Status codes
-        final KTable<Integer, StatusCode> statusCodes = builder.table(statusInputTopic,
+        final KTable<Integer, StatusCode> statusCodes = builder.table(this.statusInputTopic,
                 Consumed.with(Serdes.Integer(), new JsonSerde<>(StatusCode.class)));
 
         // Join
@@ -71,10 +71,10 @@ public class ErrorEventsPerMinute {
                         (countRecord, code) -> new ErrorOutput(
                                 countRecord.getStatusCode(), countRecord.getCount(), countRecord.getTime(), code.getDefinition()),
                         Joined.valueSerde(new JsonSerde<>(ErrorOutput.class)));
-        errors.to(errorOutputTopic);
+        errors.to(this.errorOutputTopic);
 
         // Send alert if more than 5x a certain error code per minute
-        errors.filter((key, errorOutput) -> errorOutput.getCount() > 5L).to(alertTopic);
+        errors.filter((key, errorOutput) -> errorOutput.getCount() > 5L).to(this.alertTopic);
 
         return builder.build();
     }

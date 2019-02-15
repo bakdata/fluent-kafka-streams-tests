@@ -17,18 +17,25 @@ import java.util.regex.Pattern;
 
 public class WordCount {
     @Getter
-    final String inputTopic = "wordcount-input";
+    private final String inputTopic = "wordcount-input";
 
     @Getter
-    final String outputTopic = "wordcount-output";
+    private final String outputTopic = "wordcount-output";
+
+    public static void main(final String[] args) {
+        final WordCount wordCount = new WordCount();
+        final KafkaStreams streams = new KafkaStreams(wordCount.getTopology(), wordCount.getKafkaProperties());
+        streams.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+    }
 
     public Properties getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Properties kafkaConfig = new Properties();
-        kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount");
-        kafkaConfig.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
-        kafkaConfig.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        kafkaConfig.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        kafkaConfig.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount");
+        kafkaConfig.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        kafkaConfig.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        kafkaConfig.setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         return kafkaConfig;
     }
 
@@ -37,7 +44,7 @@ public class WordCount {
         final Serde<Long> longSerde = Serdes.Long();
 
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, String> textLines = builder.stream(inputTopic);
+        final KStream<String, String> textLines = builder.stream(this.inputTopic);
 
         final Pattern pattern = Pattern.compile("\\W+", Pattern.UNICODE_CHARACTER_CLASS);
         final KTable<String, Long> wordCounts = textLines
@@ -45,14 +52,7 @@ public class WordCount {
                 .groupBy((key, word) -> word)
                 .count();
 
-        wordCounts.toStream().to(outputTopic, Produced.with(stringSerde, longSerde));
+        wordCounts.toStream().to(this.outputTopic, Produced.with(stringSerde, longSerde));
         return builder.build();
-    }
-
-    public static void main(final String[] args) {
-        final WordCount wordCount = new WordCount();
-        final KafkaStreams streams = new KafkaStreams(wordCount.getTopology(), wordCount.getKafkaProperties());
-        streams.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 }
