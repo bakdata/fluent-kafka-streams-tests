@@ -7,11 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WordCountTest {
     private final WordCount app = new WordCount();
@@ -21,27 +18,23 @@ class WordCountTest {
 
     @Test
     void shouldAggregateSameWordStream() {
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("bla");
+        testTopology.input().add("bla")
+                .add("blub")
+                .add("bla");
 
-        // Check Stream semantics
-        testTopology.streamOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
+        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
                 .expectNextRecord().hasKey("bla").hasValue(2L)
                 .expectNoMoreRecord();
     }
 
-
     @Test
     void shouldAggregateSameWordTable() {
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("bla");
-
-        // Check Table semantics
-        testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
+        testTopology.input().add("bla")
+                .add("blub")
+                .add("bla");
+        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(2L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
                 .expectNoMoreRecord();
@@ -49,12 +42,11 @@ class WordCountTest {
 
     @Test
     void shouldNotAggregateDifferentWordsStream() {
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("foo");
-        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input().add("bla")
+                .add("foo")
+                .add("blub");
 
-        // Check Stream semantics
-        testTopology.streamOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
+        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNextRecord().hasKey("foo").hasValue(1L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
@@ -63,12 +55,11 @@ class WordCountTest {
 
     @Test
     void shouldNotAggregateDifferentWordsTable() {
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("foo");
-        testTopology.input(app.getInputTopic()).add("blub");
+        testTopology.input().add("bla")
+                .add("foo")
+                .add("blub");
 
-        // Check Table semantics
-        testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
+        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNextRecord().hasKey("foo").hasValue(1L)
                 .expectNextRecord().hasKey("blub").hasValue(1L)
@@ -76,21 +67,32 @@ class WordCountTest {
     }
 
     @Test
-    void shouldAggregateSameWordOrderTable() {
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("blub");
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("bla");
-        testTopology.input(app.getInputTopic()).add("bla");
+    void shouldReturnNoInputAndOutputStream() {
+        testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+                .expectNoMoreRecord();
+    }
 
-        // Check Table semantics
+    @Test
+    void shouldReturnNoInputAndOutputTable() {
+        testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
+                .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldAggregateSameWordOrderTable() {
+        testTopology.input().add("blub") // 1 blub
+                .add("bla") // 1 bla
+                .add("blub") // 2 blub
+                .add("blub") // 3 blub
+                .add("bla") // 2 bla
+                .add("blub") // 4 blub
+                .add("bla") // 3 bla
+                .add("bla") // 4 bla
+                .add("blub") // 5 blub
+                .add("bla") // 5 bla
+                .add("bla") // 6 bla
+                .add("bla"); // 7 bla
+
         testTopology.tableOutput(app.getOutputTopic()).withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("blub").hasValue(5L)
                 .expectNextRecord().hasKey("bla").hasValue(7L)
@@ -101,7 +103,6 @@ class WordCountTest {
     void shouldReturnSingleInputAndOutputStream() {
         testTopology.input().add("bla");
 
-        // Check Stream semantics
         testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNoMoreRecord();
@@ -111,7 +112,6 @@ class WordCountTest {
     void shouldReturnSingleInputAndOutputTable() {
         testTopology.input().add("bla");
 
-        // Check Table semantics
         testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNextRecord().hasKey("bla").hasValue(1L)
                 .expectNoMoreRecord();
@@ -119,24 +119,21 @@ class WordCountTest {
 
     @Test
     void shouldReturnCorrectIteratorStream() {
-        testTopology.input().add("bla");
-        testTopology.input().add("blub");
-        testTopology.input().add("foo");
+        testTopology.input().add("bla")
+                .add("blub")
+                .add("foo");
         List<String> expected = List.of("bla", "blub", "foo");
 
-        // Check Stream semantics
-        List<String> actual = StreamSupport
-                .stream(testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long()).spliterator(), false)
-                .map(ProducerRecord::key)
-                .collect(Collectors.toList());
-        assertEquals(expected, actual);
+        assertThat(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
+                .extracting(ProducerRecord::key)
+                .containsAll(expected);
     }
 
     @Test
     void shouldReturnCorrectIteratorTable() {
-        testTopology.input().add("bla");
-        testTopology.input().add("blub");
-        testTopology.input().add("foo");
+        testTopology.input().add("bla")
+                .add("blub")
+                .add("foo");
         List<String> expected = List.of("bla", "blub", "foo");
 
         assertThat(testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
