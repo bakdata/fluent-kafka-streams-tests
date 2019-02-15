@@ -1,4 +1,4 @@
-package com.bakdata.fluent_kafka_streams_tests.testutils.serde;
+package com.bakdata.fluent_kafka_streams_tests.serde;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;

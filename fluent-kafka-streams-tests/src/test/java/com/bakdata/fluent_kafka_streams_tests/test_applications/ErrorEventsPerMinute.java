@@ -1,6 +1,9 @@
-package com.bakdata.fluent_kafka_streams_tests.testutils;
+package com.bakdata.fluent_kafka_streams_tests.test_applications;
 
-import com.bakdata.fluent_kafka_streams_tests.testutils.serde.JsonSerde;
+import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
+import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -66,12 +69,12 @@ public class ErrorEventsPerMinute {
                         new ErrorOutput(key.key(), value, key.window().start(), null /*empty definition*/)))
                 .join(statusCodes,
                         (countRecord, code) -> new ErrorOutput(
-                                countRecord.statusCode, countRecord.count, countRecord.time, code.getDefinition()),
+                                countRecord.getStatusCode(), countRecord.getCount(), countRecord.getTime(), code.getDefinition()),
                         Joined.valueSerde(new JsonSerde<>(ErrorOutput.class)));
         errors.to(errorOutputTopic);
 
         // Send alert if more than 5x a certain error code per minute
-        errors.filter((key, errorOutput) -> errorOutput.count > 5L).to(alertTopic);
+        errors.filter((key, errorOutput) -> errorOutput.getCount() > 5L).to(alertTopic);
 
         return builder.build();
     }

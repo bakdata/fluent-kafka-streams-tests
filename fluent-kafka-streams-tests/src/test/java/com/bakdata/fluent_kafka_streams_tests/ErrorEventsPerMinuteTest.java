@@ -1,15 +1,14 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.fluent_kafka_streams_tests.testutils.ClickEvent;
-import com.bakdata.fluent_kafka_streams_tests.testutils.ErrorEventsPerMinute;
-import com.bakdata.fluent_kafka_streams_tests.testutils.ErrorOutput;
-import com.bakdata.fluent_kafka_streams_tests.testutils.StatusCode;
-import com.bakdata.fluent_kafka_streams_tests.testutils.serde.JsonSerde;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
+import com.bakdata.fluent_kafka_streams_tests.test_applications.ErrorEventsPerMinute;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
+import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
+import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.concurrent.TimeUnit;
-
 
 class ErrorEventsPerMinuteTest {
     private static final int USER = 1;

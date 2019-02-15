@@ -1,4 +1,4 @@
-package com.bakdata.fluent_kafka_streams_tests.testutils.serde;
+package com.bakdata.fluent_kafka_streams_tests.serde;
 
 import lombok.experimental.Delegate;
 import org.apache.kafka.common.serialization.Serde;

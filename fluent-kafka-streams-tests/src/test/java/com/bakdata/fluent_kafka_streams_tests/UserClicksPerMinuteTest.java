@@ -1,9 +1,9 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.fluent_kafka_streams_tests.testutils.ClickEvent;
-import com.bakdata.fluent_kafka_streams_tests.testutils.ClickOutput;
-import com.bakdata.fluent_kafka_streams_tests.testutils.UserClicksPerMinute;
-import com.bakdata.fluent_kafka_streams_tests.testutils.serde.JsonSerde;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickOutput;
+import com.bakdata.fluent_kafka_streams_tests.test_applications.UserClicksPerMinute;
+import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

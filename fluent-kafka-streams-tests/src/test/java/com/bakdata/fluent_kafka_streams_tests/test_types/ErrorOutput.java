@@ -1,4 +1,4 @@
-package com.bakdata.fluent_kafka_streams_tests.testutils;
+package com.bakdata.fluent_kafka_streams_tests.test_types;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;

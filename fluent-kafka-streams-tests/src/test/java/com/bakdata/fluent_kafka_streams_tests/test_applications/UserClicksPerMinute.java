@@ -1,6 +1,8 @@
-package com.bakdata.fluent_kafka_streams_tests.testutils;
+package com.bakdata.fluent_kafka_streams_tests.test_applications;
 
-import com.bakdata.fluent_kafka_streams_tests.testutils.serde.JsonSerde;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickOutput;
+import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
