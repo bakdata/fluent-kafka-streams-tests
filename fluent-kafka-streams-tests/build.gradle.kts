@@ -9,6 +9,8 @@ buildscript {
     }
 }
 
+description = "Provides the fluent Kafka Streams test framework."
+
 apply(plugin = "com.commercehub.gradle.plugin.avro")
 
 repositories {

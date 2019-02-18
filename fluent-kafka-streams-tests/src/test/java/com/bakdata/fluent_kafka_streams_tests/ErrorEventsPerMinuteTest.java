@@ -1,10 +1,10 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
+import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_applications.ErrorEventsPerMinute;
+import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
-import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -18,8 +18,7 @@ class ErrorEventsPerMinuteTest {
     private final ErrorEventsPerMinute app = new ErrorEventsPerMinute();
 
     @RegisterExtension
-    final
-    TestTopology<Integer, ClickEvent> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopology<Integer, ClickEvent> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldCountSingleUserSingleErrorCorrectlyStream() {
