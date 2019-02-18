@@ -1,3 +1,5 @@
+description = "Mocks the HTTP endpoint of the schema registry for seamlessly testing topologies with Avro serdes"
+
 repositories {
     // jcenter()
     maven(url = "http://packages.confluent.io/maven/")
