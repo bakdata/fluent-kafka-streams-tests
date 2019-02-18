@@ -14,12 +14,12 @@ You can find a [blog post on medium](https://medium.com/bakdata/xxx) with some e
 You can add Fluent Kafka Stream Tests via Maven Central.
 
 #### Gradle
-```
+```gradle
 compile group: 'com.bakdata.gradle', name: 'XXX', version: '1.0.0'
 ```
 
 #### Maven
-```
+```xml
 <dependency>
     <groupId>com.bakdata.gradle</groupId>
     <artifactId>XXX</artifactId>
