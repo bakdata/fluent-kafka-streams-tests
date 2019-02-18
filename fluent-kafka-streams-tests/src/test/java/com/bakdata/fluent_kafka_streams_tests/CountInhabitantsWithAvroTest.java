@@ -33,29 +33,22 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 
 class CountInhabitantsWithAvroTest {
-    private static final String CITY1 = "City1";
-    private static final String CITY2 = "City2";
-
-    private static final String ID1 = "Person1";
-    private static final String ID2 = "Person2";
-    private static final String ID3 = "Person3";
 
     private final CountInhabitantsWithAvro app = new CountInhabitantsWithAvro();
 
     @RegisterExtension
-    final
-    TestTopology<String, Person> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopology<String, Person> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldAggregateInhabitants() {
         this.testTopology.input()
-                .add(new Person(ID1, "Huey", CITY1))
-                .add(new Person(ID2, "Dewey", CITY2))
-                .add(new Person(ID3, "Louie", CITY1));
+                .add(Person.newBuilder().setId("Person1").setName("Huey").setCity("City1").build())
+                .add(Person.newBuilder().setId("Person2").setName("Dewey").setCity("City2").build())
+                .add(Person.newBuilder().setId("Person3").setName("Louie").setCity("City1").build());
 
         this.testTopology.tableOutput().withValueType(City.class)
-                .expectNextRecord().hasKey(CITY1).hasValue(new City(CITY1, 2))
-                .expectNextRecord().hasKey(CITY2).hasValue(new City(CITY2, 1))
+                .expectNextRecord().hasKey("City1").hasValue(new City("City1", 2))
+                .expectNextRecord().hasKey("City2").hasValue(new City("City2", 1))
                 .expectNoMoreRecord();
     }
 
