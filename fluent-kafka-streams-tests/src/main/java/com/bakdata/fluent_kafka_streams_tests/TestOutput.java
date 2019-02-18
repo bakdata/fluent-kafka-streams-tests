@@ -20,8 +20,8 @@ import static java.util.Optional.ofNullable;
  * This can be used via the {@link StreamOutput} or the {@link TableOutput}, dependent on the desired semantics.
  * For more details see each implementation.
  *
- * @param <K> the default Key type of the output stream
- * @param <V> the default Value type of the output stream
+ * @param <K> the key type of the output stream
+ * @param <V> the value type of the output stream
  */
 public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
@@ -47,7 +47,6 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     TestOutput<K, V> withDefaultSerde(Supplier<? extends Serde<K>> keySerdeSupplier,
                                       Supplier<? extends Serde<V>> valueSerdeSupplier);
-
 
     /**
      * TODO
