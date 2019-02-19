@@ -26,6 +26,7 @@ package com.bakdata.fluent_kafka_streams_tests.test_applications;
 
 import com.bakdata.fluent_kafka_streams_tests.test_types.City;
 import com.bakdata.fluent_kafka_streams_tests.test_types.Person;
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
@@ -47,9 +48,12 @@ public class CountInhabitantsWithAvro {
     @Getter
     private final String outputTopic = "city-output";
 
+    @Getter
+    private final String schemaRegistryUrl = "http://dummy";
+
     public static void main(final String[] args) {
-        final UserClicksPerMinute clickCount = new UserClicksPerMinute();
-        final KafkaStreams streams = new KafkaStreams(clickCount.getTopology(), clickCount.getKafkaProperties());
+        final CountInhabitantsWithAvro app = new CountInhabitantsWithAvro();
+        final KafkaStreams streams = new KafkaStreams(app.getTopology(), app.getKafkaProperties());
         streams.start();
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
@@ -57,10 +61,11 @@ public class CountInhabitantsWithAvro {
     public Properties getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Properties kafkaConfig = new Properties();
-        kafkaConfig.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
-        kafkaConfig.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
-        kafkaConfig.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
+        kafkaConfig.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        kafkaConfig.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         kafkaConfig.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class);
+        kafkaConfig.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
         return kafkaConfig;
     }
 
