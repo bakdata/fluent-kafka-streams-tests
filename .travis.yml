@@ -27,7 +27,7 @@ matrix:
 
     - stage: deploy
       name: upload snapshot
-      if: branch = master AND tag IS blank
+      if: branch = master AND tag IS blank AND type = push
       script:
         - ./gradlew publishToNexus --stacktrace
 
