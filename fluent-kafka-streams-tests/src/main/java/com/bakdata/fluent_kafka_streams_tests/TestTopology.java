@@ -150,6 +150,6 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     public String getSchemaRegistryUrl() {
-        return this.schemaRegistry.url();
+        return this.schemaRegistry.getUrl();
     }
 }

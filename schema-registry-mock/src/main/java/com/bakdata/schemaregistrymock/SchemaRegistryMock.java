@@ -31,39 +31,54 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 @Slf4j
 public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
-    private final RegistrationHandler registrationHandler = new RegistrationHandler();
-    private final WireMockServer httpMock = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().extensions(this.registrationHandler));
+    public static final String SCHEMA_REGISTRATION_PATTERN = "/subjects/[^/]+/versions";
+    public static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
+    private final AutoRegistrationHandler autoRegistrationHandler = new AutoRegistrationHandler();
+    private final WireMockServer mockSchemaRegistry = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().extensions(this.autoRegistrationHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
     @Override
     public void afterEach(ExtensionContext context) {
-        this.httpMock.stop();
+        this.mockSchemaRegistry.stop();
     }
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        this.httpMock.start();
-        this.httpMock.stubFor(WireMock.post(WireMock.urlPathMatching("/subjects/[^/]+/versions"))
-                .willReturn(WireMock.aResponse().withTransformers(this.registrationHandler.getName())));
-        this.httpMock.stubFor(WireMock.get(WireMock.urlPathMatching("/schemas/ids/.*")).willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+        this.mockSchemaRegistry.start();
+        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN))
+                .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "*"))
+                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
     }
 
-    public int register(String subject, Schema schema) throws IOException, RestClientException {
+    public int registerKeySchema(String topic, Schema schema) throws IOException, RestClientException {
+        return register(topic + "-key", schema);
+    }
+
+    public int registerValueSchema(String topic, Schema schema) throws IOException, RestClientException {
+        return register(topic + "-value", schema);
+    }
+
+    private int register(String subject, Schema schema) throws IOException, RestClientException {
         final int id = this.schemaRegistryClient.register(subject, schema);
-        this.httpMock.stubFor(WireMock.get(WireMock.urlEqualTo("/schemas/ids/" + id)).willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id))
+                .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
         log.debug("Registered schema " + id);
         return id;
     }
 
     public SchemaRegistryClient getSchemaRegistryClient() {
-        return new CachedSchemaRegistryClient(url(), 1000);
+        return new CachedSchemaRegistryClient(getUrl(), 1000);
     }
 
-    public String url() {
-        return "http://localhost:" + this.httpMock.port();
+    public String getUrl() {
+        return "http://localhost:" + this.mockSchemaRegistry.port();
     }
 
-    public class RegistrationHandler extends ResponseDefinitionTransformer {
+    public class AutoRegistrationHandler extends ResponseDefinitionTransformer {
+
+        private Splitter urlSplitter;
+
         @Override
         public boolean applyGlobally() {
             return false;
@@ -71,8 +86,9 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
 
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
-            // url = "/subjects/.*-value/versions"
-            final String subject = Iterables.get(Splitter.on('/').omitEmptyStrings().split(request.getUrl()), 1);
+            // Expected url pattern /subjects/.*-value/versions
+            urlSplitter = Splitter.on('/').omitEmptyStrings();
+            final String subject = Iterables.get(urlSplitter.split(request.getUrl()), 1);
             try {
                 final int id = register(subject, new Schema.Parser().parse(RegisterSchemaRequest.fromJson(request.getBodyAsString()).getSchema()));
                 final RegisterSchemaResponse registerSchemaResponse = new RegisterSchemaResponse();
@@ -85,7 +101,7 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
 
         @Override
         public String getName() {
-            return "RegistrationHandler";
+            return AutoRegistrationHandler.class.getSimpleName();
         }
     }
 }
