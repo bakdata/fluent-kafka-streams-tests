@@ -4,10 +4,6 @@
   "namespace": "com.bakdata.fluent_kafka_streams_tests.test_types",
   "fields": [
     {
-      "name": "id",
-      "type": "string"
-    },
-    {
       "name": "name",
       "type": "string"
     },

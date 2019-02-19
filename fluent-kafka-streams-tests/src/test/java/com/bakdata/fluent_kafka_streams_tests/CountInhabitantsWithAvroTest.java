@@ -39,12 +39,13 @@ class CountInhabitantsWithAvroTest {
     @RegisterExtension
     final TestTopology<String, Person> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
+
     @Test
     void shouldAggregateInhabitants() {
         this.testTopology.input()
-                .add(Person.newBuilder().setId("Person1").setName("Huey").setCity("City1").build())
-                .add(Person.newBuilder().setId("Person2").setName("Dewey").setCity("City2").build())
-                .add(Person.newBuilder().setId("Person3").setName("Louie").setCity("City1").build());
+                .add(new Person("Huey", "City1"))
+                .add(new Person("Dewey", "City2"))
+                .add(new Person("Louie", "City1"));
 
         this.testTopology.tableOutput().withValueType(City.class)
                 .expectNextRecord().hasKey("City1").hasValue(new City("City1", 2))
