@@ -111,7 +111,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
 
     public TestInput<DefaultK, DefaultV> input() {
         if (this.inputTopics.size() != 1) {
-            throw new IllegalStateException("Please use #input(String) to select a topic");
+            throw new IllegalStateException("#input() works with exactly 1 topic, if more are used," +
+                    " please use #input(String) to select a topic");
         }
         return this.input(this.inputTopics.iterator().next());
     }

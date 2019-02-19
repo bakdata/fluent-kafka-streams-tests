@@ -27,8 +27,8 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
      * Set new serde for this output.
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the output
-     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @param keySerde   The serializer/deserializer to be used for the keys in the output.
+     * @param valueSerde The serializer/deserializer to be used for the values in the output.
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
@@ -236,8 +236,8 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     /**
      * Set new serde for this output.
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the output
-     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @param keySerde   The serializer/deserializer to be used for the keys in the output.
+     * @param valueSerde The serializer/deserializer to be used for the values in the output.
      */
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
