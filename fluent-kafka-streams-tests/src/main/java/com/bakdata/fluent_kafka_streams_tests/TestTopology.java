@@ -3,8 +3,13 @@ package com.bakdata.fluent_kafka_streams_tests;
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -67,6 +72,7 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     private final Serde<DefaultV> defaultValueSerde;
     private final Properties properties = new Properties();
     private TopologyTestDriver testDriver;
+    private Path stateDirectory;
 
     /**
      * <p>Create a new {@link TestTopology} for your topology under test.</p>
@@ -243,15 +249,21 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     @Override
-    public void afterEach(final ExtensionContext context) {
+    public void afterEach(final ExtensionContext context) throws IOException {
         this.testDriver.close();
         this.schemaRegistry.afterEach(context);
+        Files.walk(this.stateDirectory)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 
     @Override
-    public void beforeEach(final ExtensionContext context) {
+    public void beforeEach(final ExtensionContext context) throws IOException {
         this.schemaRegistry.beforeEach(context);
         this.properties.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
+        this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
+        this.properties.setProperty(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
         final Topology topology = this.topologyFactory.apply(this.properties);
         this.testDriver = new TopologyTestDriver(topology, this.properties);
 
