@@ -25,7 +25,5 @@ dependencies {
     "api"(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
     implementation(project(":schema-registry-mock"))
 
-    testImplementation(group = "org.assertj", name = "assertj-core", version = "3.11.1")
     testImplementation(group = "org.apache.avro", name = "avro", version = "1.8.2")
-    testImplementation(group = "org.slf4j", name = "slf4j-log4j12", version = "1.7.25")
 }

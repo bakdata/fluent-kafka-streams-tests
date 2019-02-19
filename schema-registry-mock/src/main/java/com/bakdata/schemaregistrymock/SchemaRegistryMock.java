@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2019 bakdata GmbH
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.bakdata.schemaregistrymock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -51,20 +74,24 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
     }
 
-    public int registerKeySchema(String topic, Schema schema) throws IOException, RestClientException {
+    public int registerKeySchema(String topic, Schema schema) {
         return register(topic + "-key", schema);
     }
 
-    public int registerValueSchema(String topic, Schema schema) throws IOException, RestClientException {
+    public int registerValueSchema(String topic, Schema schema) {
         return register(topic + "-value", schema);
     }
 
-    private int register(String subject, Schema schema) throws IOException, RestClientException {
-        final int id = this.schemaRegistryClient.register(subject, schema);
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id))
-                .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
-        log.debug("Registered schema " + id);
-        return id;
+    private int register(String subject, Schema schema) {
+        try {
+            final int id = this.schemaRegistryClient.register(subject, schema);
+            this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id))
+                    .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
+            log.debug("Registered schema " + id);
+            return id;
+        } catch (IOException | RestClientException e) {
+            throw new IllegalStateException("Internal error in mock schema registry client", e);
+        }
     }
 
     public SchemaRegistryClient getSchemaRegistryClient() {
@@ -94,8 +121,8 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
                 final RegisterSchemaResponse registerSchemaResponse = new RegisterSchemaResponse();
                 registerSchemaResponse.setId(id);
                 return ResponseDefinitionBuilder.jsonResponse(registerSchemaResponse);
-            } catch (IOException | RestClientException e) {
-                throw new IllegalStateException("Error while registering the schema of " + subject, e);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Cannot parse schema registration request", e);
             }
         }
 
