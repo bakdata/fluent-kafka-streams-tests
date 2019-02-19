@@ -50,7 +50,33 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-
+/**
+ * The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.<br/> In particular,
+ * <li>you can register a schema and</li>
+ * <li>retrieve a schema by id.</li>
+ *
+ * <p>If you use the TestToplogy of the fluent Kafka Streams test, you don't have to interact with this class at
+ * all.</p>
+ *
+ * <p>Without the test framework, you can use the mock as follows:</p>
+ * <pre>{@code
+ * class SchemaRegistryMockTest {
+ *     @RegisterExtension
+ *     final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+ *
+ *     @Test
+ *     void shouldRegisterKeySchema() throws IOException, RestClientException {
+ *         final Schema keySchema = this.createSchema("key_schema");
+ *         final int id = this.schemaRegistry.registerKeySchema("test-topic", keySchema);
+ *
+ *         final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
+ *         assertThat(retrievedSchema).isEqualTo(keySchema);
+ *     }
+ * }
+ * }</pre>
+ *
+ * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
+ */
 @Slf4j
 public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
     private static final String SCHEMA_REGISTRATION_PATTERN = "/subjects/[^/]+/versions";
@@ -85,11 +111,11 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
 
     private int register(final String subject, final Schema schema) {
         try {
-            final int id = this.schemaRegistryClient.register(subject, schema);
+        final int id = this.schemaRegistryClient.register(subject, schema);
             this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id))
                     .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
             log.debug("Registered schema {}", id);
-            return id;
+        return id;
         } catch (final IOException | RestClientException e) {
             throw new IllegalStateException("Internal error in mock schema registry client", e);
         }
