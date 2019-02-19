@@ -2,37 +2,37 @@
 [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Code coverage](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=coverage)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 
-Fluent Kafka Stream Tests
+Fluent Kafka Streams Tests
 =========================
 
 Write clean and concise tests for your Kafka Streams application.
 
-You can find a [blog post on medium](https://medium.com/bakdata/xxx) with some examples and detailed explanations of how Fluent Kafka Stream Tests works.
+You can find a [blog post on medium](https://medium.com/bakdata/xxx) with some examples and detailed explanations of how Fluent Kafka Streams Tests works.
 
 ## Getting Started
 
-You can add Fluent Kafka Stream Tests via Maven Central.
+You can add Fluent Kafka Streams Tests via Maven Central.
 
 #### Gradle
 ```gradle
-compile group: 'com.bakdata.gradle', name: 'XXX', version: '1.0.0'
+compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests', version: '1.0.0'
 ```
 
 #### Maven
 ```xml
 <dependency>
-    <groupId>com.bakdata.gradle</groupId>
-    <artifactId>XXX</artifactId>
+    <groupId>com.bakdata</groupId>
+    <artifactId>fluent-kafka-streams-tests</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 
 ### Using it to Write Tests
 
-Here are two example tests which show you how to use Fluent Kafka Stream Tests.
+Here are two example tests which show you how to use Fluent Kafka Streams Tests.
 
 #### Word Count Test
-Assume you have a Word Count Kafka Stream application, called `WordCount`, and want to test it correctly.
+Assume you have a Word Count Kafka Streams application, called `WordCount`, and want to test it correctly.
 First, start by creating a new test class with your application.
 
 ```java
@@ -73,14 +73,14 @@ class WordCountTest {
     @Test
     void shouldAggregateSameWordStream() {
         this.testTopology.input()
-            .add("bla")
-            .add("blub")
-            .add("bla");
+            .add("cat")
+            .add("dog")
+            .add("cat");
 
         this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
-            .expectNextRecord().hasKey("bla").hasValue(1L)
-            .expectNextRecord().hasKey("blub").hasValue(1L)
-            .expectNextRecord().hasKey("bla").hasValue(2L)
+            .expectNextRecord().hasKey("cat").hasValue(1L)
+            .expectNextRecord().hasKey("dog").hasValue(1L)
+            .expectNextRecord().hasKey("cat").hasValue(2L)
             .expectNoMoreRecord();
     }
 }
@@ -110,14 +110,13 @@ Here is an example using [AssertJ](http://joel-costigliola.github.io/assertj/).
 @Test
 void shouldReturnCorrectIteratorTable() {
     this.testTopology.input()
-        .add("bla")
-        .add("blub")
-        .add("foo");
+        .add("cat")
+        .add("dog")
+        .add("bird");
 
-    final List<String> expected = List.of("bla", "blub", "foo");
     assertThat(this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()))
         .extracting(ProducerRecord::key)
-        .containsAll(expected);
+        .containsAll(List.of("cat", "dog", "bird"));
 }
 ```
 
@@ -149,6 +148,3 @@ Just open an issue beforehand and let us know what you want to do and why.
 ## License
 This project is licensed under the MIT license.
 Have a look at the [LICENSE](https://github.com/bakdata/fluent-kafka-streams-tests/blob/master/LICENSE) for more details.
-
-## Acknowledgements
-
