@@ -53,8 +53,9 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 @Slf4j
 public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
-    public static final String SCHEMA_REGISTRATION_PATTERN = "/subjects/[^/]+/versions";
-    public static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
+    private static final String SCHEMA_REGISTRATION_PATTERN = "/subjects/[^/]+/versions";
+    private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
+    private static final int IDENTITY_MAP_CAPACITY = 1000;
     private final AutoRegistrationHandler autoRegistrationHandler = new AutoRegistrationHandler();
     private final WireMockServer mockSchemaRegistry = new WireMockServer(
             WireMockConfiguration.wireMockConfig().dynamicPort().extensions(this.autoRegistrationHandler));
@@ -95,7 +96,7 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
     }
 
     public SchemaRegistryClient getSchemaRegistryClient() {
-        return new CachedSchemaRegistryClient(this.getUrl(), 1000);
+        return new CachedSchemaRegistryClient(this.getUrl(), IDENTITY_MAP_CAPACITY);
     }
 
     public String getUrl() {
