@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
 
 /**
- * Represents a single output {@link ProducerRecord} from {@link TestOutput} to be tested.
+ * Represents a single output {@link ProducerRecord} from {@link TestOutput} to be tested.<br/>
  *
  * @param <K> the key type of the record under test
  * @param <V> the value type of the record under test
@@ -16,7 +16,7 @@ public class Expectation<K, V> {
     private final TestOutput<K, V> output;
 
     /**
-     * Asserts whether a record exists.
+     * Asserts whether a record exists.<br/>
      */
     public Expectation<K, V> isPresent() {
         Assertions.assertNotNull(this.record, "No more records found");
@@ -24,7 +24,7 @@ public class Expectation<K, V> {
     }
 
     /**
-     * Checks for the equality of the {@link ProducerRecord#key()} and {@code expectedKey}.
+     * Checks for the equality of the {@link ProducerRecord#key()} and {@code expectedKey}.<br/>
      */
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
@@ -33,7 +33,7 @@ public class Expectation<K, V> {
     }
 
     /**
-     * Checks for the equality of the {@link ProducerRecord#value()} and {@code expectedValue}.
+     * Checks for the equality of the {@link ProducerRecord#value()} and {@code expectedValue}.<br/>
      */
     public Expectation<K, V> hasValue(final V expectedValue) {
         this.isPresent();
@@ -43,47 +43,48 @@ public class Expectation<K, V> {
 
     /**
      * Concatenates calls to this Expectation. It is not necessary to call this method, but it can be seen as a more
-     * readable alternative to simple chaining.
+     * readable alternative to simple chaining.<br/>
      */
     public Expectation<K, V> and() {
         return this;
     }
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.
-     * This is logically equivalent to {@link TestOutput#expectNextRecord()}.
+     * Reads the next record as creates an {@link Expectation} for it.<br/>
+     * This is logically equivalent to {@link TestOutput#expectNextRecord()}.<br/>
      * This methods main purpose is to allow chaining:
      *
-     * {@code
+     * <pre>{@code
      * myOutput.expectNextRecord()
      *         .expectNextRecord()
      *         .expectNoMoreRecord();
-     * }
+     * }</pre>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@link Expectation} containing the next record from the output.<br/>
      */
     public Expectation<K, V> expectNextRecord() {
         return this.output.expectNextRecord();
     }
 
     /**
-     * Reads the next record from the output and expects it to be the end of output.
-     * This is logically equivalent to {@link TestOutput#expectNoMoreRecord()}.
+     * Reads the next record from the output and expects it to be the end of output.<br/>
+     * This is logically equivalent to {@link TestOutput#expectNoMoreRecord()}.<br/>
      * This methods main purpose is to allow chaining:
      *
-     * {@code
+     * <pre>{@code
      * myOutput.expectNextRecord()
      *         .expectNextRecord()
      *         .expectNoMoreRecord();
-     * }*
-     * @return An {@link Expectation} containing the next record from the output.
+     * }</pre>
+     *
+     * @return An {@link Expectation} containing the next record from the output.<br/>
      */
     public Expectation<K, V> expectNoMoreRecord() {
         return this.output.expectNoMoreRecord();
     }
 
     /**
-     * Asserts that there is no recors present, i.e., the end of the output has been reached.
+     * Asserts that there is no recors present, i.e., the end of the output has been reached.<br/>
      */
     public Expectation<K, V> toBeEmpty() {
         Assertions.assertNull(this.record);

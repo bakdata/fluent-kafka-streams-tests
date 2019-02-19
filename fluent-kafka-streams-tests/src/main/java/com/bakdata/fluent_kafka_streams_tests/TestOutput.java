@@ -1,133 +1,148 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TopologyTestDriver;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.function.Supplier;
-
-import static java.util.Optional.ofNullable;
-
 
 /**
- * Represents the output stream of the tested app via the {@link TestTopology}.
- * This can be used via the {@link StreamOutput} or the {@link TableOutput}, dependent on the desired semantics.
- * For more details see each implementation.
+ * Represents the output stream of the tested app via the {@link TestTopology}.<br/>
+ * This can be used via the {@link StreamOutput} or the {@link TableOutput}, dependent on the desired semantics.<br/>
+ * For more details see each implementation.<br/>
+ *
+ * Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.
  *
  * @param <K> the key type of the output stream
  * @param <V> the value type of the output stream
  */
 public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
-     * Set new serde for this output.
+     * Set new serde for this output.<br/>
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the output.
-     * @param valueSerde The serializer/deserializer to be used for the values in the output.
+     * @param keySerde   The serializer/deserializer to be used for the keys in the output
+     * @param valueSerde The serializer/deserializer to be used for the values in the output
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
     /**
-     * Set new key serde for this output.
+     * Set new key serde for this output.<br/>
      */
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
 
     /**
-     * Set new value serde for this output.
+     * Set new value serde for this output.<br/>
      */
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
 
     /**
-     * TODO: do we even need this anymore?
-     */
-    TestOutput<K, V> withDefaultSerde(Supplier<? extends Serde<K>> keySerdeSupplier,
-                                      Supplier<? extends Serde<V>> valueSerdeSupplier);
-
-    /**
-     * TODO
+     * Type-casts the key and value to the given types.<br/>
      *
-     * @param keyType
-     * @param valueType
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
+     * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
+     * output.
+     *
+     * @param keyType the new key type
+     * @param valueType the new value type
      */
     default <KR, VR> TestOutput<KR, VR> withTypes(Class<KR> keyType, Class<VR> valueType) {
         return (TestOutput<KR, VR>) this;
     }
 
     /**
-     * TODO
+     * Type-casts the key to the given type.<br/>
      *
-     * @param keyType
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
+     * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
+     * output.
+     *
+     * @param keyType the new key type
      */
     default <KR> TestOutput<KR, V> withKeyType(Class<KR> keyType) {
         return (TestOutput<KR, V>) this;
     }
 
     /**
-     * TODO
+     * Type-casts the value to the given type.<br/>
      *
-     * @param valueType
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
+     * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
+     * output.
+     *
+     * @param valueType the new value type
      */
     default <VR> TestOutput<K, VR> withValueType(Class<VR> valueType) {
         return (TestOutput<K, VR>) this;
     }
 
     /**
-     * Reads the next value from the output stream.
+     * Reads the next value from the output stream.<br/>
      * Usually, you should not need to call this. The recommended way should be to use either
-     * - the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR
-     * - the iterable interface (via {@link #iterator()}.
+     * <li>the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR</li>
+     * <li>the iterable interface (via {@link #iterator()}.</li>
      *
-     * @return The next value in the output stream depending on the output type (stream or table semantics).
-     * {@code null} if no more values are present.
+     * @return The next value in the output stream depending on the output type (stream or table semantics).<br/>
+     * {@code null} if no more values are present.<br/>
      */
     ProducerRecord<K, V> readOneRecord();
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.
+     * Reads the next record as creates an {@link Expectation} for it.<br/>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@link Expectation} containing the next record from the output.<br/>
      */
     Expectation<K, V> expectNextRecord();
 
     /**
-     * Reads the next record from the output and expects it to be the end of output.
+     * Reads the next record from the output and expects it to be the end of output.<br/>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@link Expectation} containing the next record from the output.<br/>
      */
     Expectation<K, V> expectNoMoreRecord();
 
     /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).
+     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).<br/>
      * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.
+     * the output types any more.<br/>
      */
     TestOutput<K, V> asTable();
 
     /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times).
-     * This is the default, there should usually be no need to call this method.
+     * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times)
+     * .<br/>
+     * This is the default, there should usually be no need to call this method.<br/>
      * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.
+     * the output types any more.<br/>
      */
     TestOutput<K, V> asStream();
 }
 
 /**
- * Represents the {@link TestOutput} with {@link org.apache.kafka.streams.kstream.KStream} semantics.
+ * Represents the {@link TestOutput} with {@link org.apache.kafka.streams.kstream.KStream} semantics.<br/>
+ *
+ * Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.
  */
 class StreamOutput<K, V> extends BaseOutput<K, V> {
+    // ==================
+    // Non-public methods
+    // ==================
+    StreamOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
+            final Serde<V> valueSerde) {
+        super(testDriver, topic, keySerde, valueSerde);
+    }
+
     /**
-     * Reads the next value from the output stream.
+     * Reads the next value from the output stream.<br/>
      * Usually, you should not need to call this. The recommended way should be to use either
-     * - the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR
-     * - the iterable interface (via {@link #iterator()}.
+     * <li>the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR</li>
+     * <li>the iterable interface (via {@link #iterator()}.</li>
      *
-     * @return The next value in the output stream. {@code null} if no more values are present.
+     * @return The next value in the output stream. {@code null} if no more values are present.<br/>
      */
     @Override
     public ProducerRecord<K, V> readOneRecord() {
@@ -135,7 +150,7 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
     }
 
     /**
-     * Creates an iterator of {@link ProducerRecord} for the stream output. Can only be read once.
+     * Creates an iterator of {@link ProducerRecord} for the stream output. Can only be read once.<br/>
      */
     @Override
     public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
@@ -159,30 +174,32 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
         };
     }
 
-    // ==================
-    // Non-public methods
-    // ==================
-    StreamOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-                 final Serde<V> valueSerde) {
-        super(testDriver, topic, keySerde, valueSerde);
-    }
-
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-                                                 final Serde<KR> keySerde,
-                                                 final Serde<VR> valueSerde) {
+            final Serde<KR> keySerde, final Serde<VR> valueSerde) {
         return new StreamOutput<>(testDriver, topic, keySerde, valueSerde);
     }
 }
 
 class TableOutput<K, V> extends BaseOutput<K, V> {
+    // ==================
+    // Non-public methods
+    // ==================
+    private final Map<K, ProducerRecord<K, V>> table = new LinkedHashMap<>();
+    private Iterator<ProducerRecord<K, V>> tableIterator = null;
+
+    TableOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
+            final Serde<V> valueSerde) {
+        super(testDriver, topic, keySerde, valueSerde);
+    }
+
     /**
-     * Reads the next value from the output stream.
+     * Reads the next value from the output stream.<br/>
      * Usually, you should not need to call this. The recommended way should be to use either
-     * - the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR
-     * - the iterable interface (via {@link #iterator()}.
+     * <li>the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR</li>
+     * <li>the iterable interface (via {@link #iterator()}.</li>
      *
-     * @return The next value in the output stream. {@code null} if no more values are present.
+     * @return The next value in the output stream. {@code null} if no more values are present.<br/>
      */
     @Override
     public ProducerRecord<K, V> readOneRecord() {
@@ -195,7 +212,7 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     }
 
     /**
-     * Creates an iterator of {@link ProducerRecord} for the table output. Can only be read once.
+     * Creates an iterator of {@link ProducerRecord} for the table output. Can only be read once.<br/>
      */
     @Override
     public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
@@ -207,21 +224,9 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
         return this.table.values().stream().iterator();
     }
 
-    // ==================
-    // Non-public methods
-    // ==================
-    private final Map<K, ProducerRecord<K, V>> table = new LinkedHashMap<>();
-    private Iterator<ProducerRecord<K, V>> tableIterator = null;
-
-    TableOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-                final Serde<V> valueSerde) {
-        super(testDriver, topic, keySerde, valueSerde);
-    }
-
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-                                                 final Serde<KR> keySerde,
-                                                 final Serde<VR> valueSerde) {
+            final Serde<KR> keySerde, final Serde<VR> valueSerde) {
         return new TableOutput<>(testDriver, topic, keySerde, valueSerde);
     }
 }
@@ -234,10 +239,10 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     protected final Serde<V> valueSerde;
 
     /**
-     * Set new serde for this output.
+     * Set new serde for this output.<br/>
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the output.
-     * @param valueSerde The serializer/deserializer to be used for the values in the output.
+     * @param keySerde   The serializer/deserializer to be used for the keys in the output.<br/>
+     * @param valueSerde The serializer/deserializer to be used for the values in the output.<br/>
      */
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
@@ -245,30 +250,23 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
-     * Set new key serde for this output.
+     * Set new key serde for this output.<br/>
      */
     public <KR> TestOutput<KR, V> withKeySerde(final Serde<KR> keySerde) {
         return this.withSerde(keySerde, this.valueSerde);
     }
 
     /**
-     * Set new value serde for this output.
+     * Set new value serde for this output.<br/>
      */
     public <VR> TestOutput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
         return this.withSerde(this.keySerde, valueSerde);
     }
 
-    @Override
-    public TestOutput<K, V> withDefaultSerde(final Supplier<? extends Serde<K>> keySerdeSupplier, final Supplier<?
-            extends Serde<V>> valueSerdeSupplier) {
-        return this.withSerde(ofNullable(this.keySerde).orElseGet(keySerdeSupplier),
-                ofNullable(this.valueSerde).orElseGet(valueSerdeSupplier));
-    }
-
     /**
-     * Reads the next record as creates an {@link Expectation} for it.
+     * Reads the next record as creates an {@link Expectation} for it.<br/>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@link Expectation} containing the next record from the output.<br/>
      */
     @Override
     public Expectation<K, V> expectNextRecord() {
@@ -276,9 +274,9 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
-     * Reads the next record from the output and expects it to be the end of output.
+     * Reads the next record from the output and expects it to be the end of output.<br/>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@link Expectation} containing the next record from the output.<br/>
      */
     @Override
     public Expectation<K, V> expectNoMoreRecord() {
@@ -286,9 +284,9 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).
+     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).<br/>
      * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.
+     * the output types any more.<br/>
      */
     @Override
     public TestOutput<K, V> asTable() {
@@ -296,10 +294,11 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times).
-     * This is the default, there should usually be no need to call this method.
+     * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times)
+     * .<br/>
+     * This is the default, there should usually be no need to call this method.<br/>
      * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.
+     * the output types any more.<br/>
      */
     @Override
     public TestOutput<K, V> asStream() {
@@ -314,6 +313,6 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
-                                                          Serde<KR> keySerde, Serde<VR> valueSerde);
+            Serde<KR> keySerde, Serde<VR> valueSerde);
 }
 
