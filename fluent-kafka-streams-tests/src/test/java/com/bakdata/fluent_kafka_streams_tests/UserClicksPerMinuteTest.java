@@ -4,6 +4,7 @@ import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_applications.UserClicksPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickOutput;
+import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -38,6 +39,29 @@ class UserClicksPerMinuteTest {
         this.testTopology.tableOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
                 .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 1L, time))
                 .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldCountSingleUserSingleEventCorrectlyExplicitTime() {
+        this.testTopology.input().at(1, TimeUnit.HOURS).add(USER, new ClickEvent(USER));
+
+        // Test Stream semantics
+        this.testTopology.tableOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
+            .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 1L, TimeUnit.HOURS.toMillis(1)))
+            .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldCountSingleUserSingleEventCorrectlyExplicitTimeWithoutAt() {
+        final long time = TimeUnit.MINUTES.toMillis(1);
+        this.testTopology.input()
+            .add(USER, new ClickEvent(USER), time)
+            .add(USER, new ClickEvent(USER), time);
+
+        // Test Stream semantics
+        this.testTopology.tableOutput().withValueSerde(new JsonSerde<>(ClickOutput.class))
+            .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 2L, time))
+            .expectNoMoreRecord();
     }
 
     @Test
@@ -87,5 +111,17 @@ class UserClicksPerMinuteTest {
                 .expectNextRecord().hasKey(USER1).hasValue(new ClickOutput(USER1, 1L, time2))
                 .expectNextRecord().hasKey(USER2).hasValue(new ClickOutput(USER2, 2L, time2))
                 .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldWorkWithExplicitKeySerdes() {
+        final long time = TimeUnit.MINUTES.toMillis(1);
+        this.testTopology.input().withKeySerde(Serdes.Integer())
+            .at(time).add(USER, new ClickEvent(USER));
+
+        this.testTopology.streamOutput()
+            .withKeySerde(Serdes.Integer())
+            .withValueSerde(new JsonSerde<>(ClickOutput.class))
+            .expectNextRecord().hasKey(USER).hasValue(new ClickOutput(USER, 1, time));
     }
 }
