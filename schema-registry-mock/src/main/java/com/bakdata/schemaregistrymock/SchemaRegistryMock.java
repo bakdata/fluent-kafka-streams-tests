@@ -51,20 +51,23 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.<br/> In particular,
+ * <p>The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.</p>
+ * In particular,
+ * <ul>
  * <li>you can register a schema and</li>
  * <li>retrieve a schema by id.</li>
+ * </ul>
  *
  * <p>If you use the TestToplogy of the fluent Kafka Streams test, you don't have to interact with this class at
  * all.</p>
  *
  * <p>Without the test framework, you can use the mock as follows:</p>
- * <pre>{@code
+ * <pre><code>
  * class SchemaRegistryMockTest {
- *     @RegisterExtension
+ *     {@literal @RegisterExtension}
  *     final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
  *
- *     @Test
+ *     {@literal @Test}
  *     void shouldRegisterKeySchema() throws IOException, RestClientException {
  *         final Schema keySchema = this.createSchema("key_schema");
  *         final int id = this.schemaRegistry.registerKeySchema("test-topic", keySchema);
@@ -72,8 +75,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  *         final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
  *         assertThat(retrievedSchema).isEqualTo(keySchema);
  *     }
- * }
- * }</pre>
+ * }</code></pre>
  *
  * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
  */

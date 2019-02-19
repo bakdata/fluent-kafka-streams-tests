@@ -12,18 +12,18 @@ import org.apache.kafka.streams.TopologyTestDriver;
 
 
 /**
- * Represents the output stream of the tested app via the {@link TestTopology}.<br/>
- * This can be used via the {@link StreamOutput} or the {@link TableOutput}, dependent on the desired semantics.<br/>
- * For more details see each implementation.<br/>
+ * <p>Represents the output stream of the tested app via the {@link TestTopology}.</p>
+ * <p>This can be used via the {@link StreamOutput} or the {@link TableOutput}, dependent on the desired semantics.</p>
+ * <p>For more details see each implementation.</p>
  *
- * Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.
+ * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
  *
  * @param <K> the key type of the output stream
  * @param <V> the value type of the output stream
  */
 public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
-     * Set new serde for this output.<br/>
+     * Set new serde for this output.
      *
      * @param keySerde   The serializer/deserializer to be used for the keys in the output
      * @param valueSerde The serializer/deserializer to be used for the values in the output
@@ -31,17 +31,17 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
     /**
-     * Set new key serde for this output.<br/>
+     * Set new key serde for this output.
      */
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
 
     /**
-     * Set new value serde for this output.<br/>
+     * Set new value serde for this output.
      */
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
 
     /**
-     * Type-casts the key and value to the given types.<br/>
+     * <p>Type-casts the key and value to the given types.</p>
      *
      * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
      * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
@@ -55,7 +55,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     }
 
     /**
-     * Type-casts the key to the given type.<br/>
+     * <p>Type-casts the key to the given type.</p>
      *
      * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
      * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
@@ -68,7 +68,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     }
 
     /**
-     * Type-casts the value to the given type.<br/>
+     * <p>Type-casts the value to the given type.</p>
      *
      * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
      * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
@@ -81,51 +81,55 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     }
 
     /**
-     * Reads the next value from the output stream.<br/>
+     * <p>Reads the next value from the output stream.</p>
      * Usually, you should not need to call this. The recommended way should be to use either
+     * <ul>
      * <li>the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR</li>
      * <li>the iterable interface (via {@link #iterator()}.</li>
+     * </ul>
      *
-     * @return The next value in the output stream depending on the output type (stream or table semantics).<br/>
-     * {@code null} if no more values are present.<br/>
+     * @return The next value in the output stream depending on the output type (stream or table semantics).
+     * {@code null} if no more values are present.
      */
     ProducerRecord<K, V> readOneRecord();
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.<br/>
+     * Reads the next record as creates an {@link Expectation} for it.
      *
-     * @return An {@link Expectation} containing the next record from the output.<br/>
+     * @return An {@link Expectation} containing the next record from the output.
      */
     Expectation<K, V> expectNextRecord();
 
     /**
-     * Reads the next record from the output and expects it to be the end of output.<br/>
+     * Reads the next record from the output and expects it to be the end of output.
      *
-     * @return An {@link Expectation} containing the next record from the output.<br/>
+     * @return An {@link Expectation} containing the next record from the output.
      */
     Expectation<K, V> expectNoMoreRecord();
 
     /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).<br/>
-     * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.<br/>
+     * <p>Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).</p>
+     * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
+     * between
+     * the output types any more.</p>
      */
     TestOutput<K, V> asTable();
 
     /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times)
-     * .<br/>
-     * This is the default, there should usually be no need to call this method.<br/>
-     * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.<br/>
+     * <p>Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple
+     * times).</p>
+     * <p>This is the default, there should usually be no need to call this method.</p>
+     * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
+     * between
+     * the output types any more.</p>
      */
     TestOutput<K, V> asStream();
 }
 
 /**
- * Represents the {@link TestOutput} with {@link org.apache.kafka.streams.kstream.KStream} semantics.<br/>
+ * <p>Represents the {@link TestOutput} with {@link org.apache.kafka.streams.kstream.KStream} semantics.</p>
  *
- * Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.
+ * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
  */
 class StreamOutput<K, V> extends BaseOutput<K, V> {
     // ==================
@@ -139,8 +143,10 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
     /**
      * Reads the next value from the output stream.<br/>
      * Usually, you should not need to call this. The recommended way should be to use either
+     * <ul>
      * <li>the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR</li>
      * <li>the iterable interface (via {@link #iterator()}.</li>
+     * </ul>
      *
      * @return The next value in the output stream. {@code null} if no more values are present.<br/>
      */
@@ -194,12 +200,14 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     }
 
     /**
-     * Reads the next value from the output stream.<br/>
+     * <p>Reads the next value from the output stream.</p>
      * Usually, you should not need to call this. The recommended way should be to use either
+     * <ul>
      * <li>the {@link #expectNextRecord()} and {@link #expectNoMoreRecord()} methods OR</li>
      * <li>the iterable interface (via {@link #iterator()}.</li>
+     * </ul>
      *
-     * @return The next value in the output stream. {@code null} if no more values are present.<br/>
+     * @return The next value in the output stream. {@code null} if no more values are present.
      */
     @Override
     public ProducerRecord<K, V> readOneRecord() {
@@ -212,7 +220,7 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     }
 
     /**
-     * Creates an iterator of {@link ProducerRecord} for the table output. Can only be read once.<br/>
+     * Creates an iterator of {@link ProducerRecord} for the table output. Can only be read once.
      */
     @Override
     public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
@@ -241,8 +249,8 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     /**
      * Set new serde for this output.<br/>
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the output.<br/>
-     * @param valueSerde The serializer/deserializer to be used for the values in the output.<br/>
+     * @param keySerde   The serializer/deserializer to be used for the keys in the output.
+     * @param valueSerde The serializer/deserializer to be used for the values in the output.
      */
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {

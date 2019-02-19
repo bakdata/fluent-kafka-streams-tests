@@ -25,19 +25,19 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * Represents the main interaction with Kafka for testing purposes. Handles all inputs and outputs of the
+ * <p>Represents the main interaction with Kafka for testing purposes. Handles all inputs and outputs of the
  * {@link Topology} under test. This should be registered as an extension in your JUnit tests, to ensure that
- * certain setup and teardown methods are called.<br/>
+ * certain setup and teardown methods are called.</p>
  * Usage:
- * <pre>{@code
+ * <pre><code>
  * class WordCountTest {
  *     private final WordCount app = new WordCount();
  *
- *     @RegisterExtension
+ *     {@literal @RegisterExtension
  *     final TestTopology<Object, String> testTopology =
- *         new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+ *         new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());}
  *
- *     @Test
+ *     {@literal @Test}
  *     void shouldAggregateSameWordStream() {
  *         this.testTopology.input()
  *             .add("cat")
@@ -51,10 +51,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  *             .expectNoMoreRecord();
  *     }
  * }
- * }</pre>
- *
- * With {@code app} being any Kafka Streams application that you want to test.<br/>
- *
+ * </code></pre>
+ * <p>With {@code app} being any Kafka Streams application that you want to test.</p>
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -71,13 +69,12 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     private TopologyTestDriver testDriver;
 
     /**
-     * Create a new {@link TestTopology} for your topology under test.<br/>
+     * <p>Create a new {@link TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
-     *                        ensure strict separation of each test run.<br/>
-     * @param properties The properties of the Kafka Streams application under test.<br/>
-     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG,
-     *                                     DEFAULT_KEY_SERDE_CLASS_CONFIG, DEFAULT_VALUE_SERDE_CLASS_CONFIG
+     *                        ensure strict separation of each test run.
+     * @param properties The properties of the Kafka Streams application under test.
+     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties) {
         this.topologyFactory = topologyFactory;
@@ -87,18 +84,24 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     /**
-     * See above constructor for more details.<br/>
-     * @param topologyFactory Provides the topology under test but does not require properties to build the topology
-     * .<br/>
+     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     *
+     * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
+     *                        ensure strict separation of each test run.
+     * @param properties The properties of the Kafka Streams application under test.
+     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
         this((Properties) -> topologyFactory.get(), properties);
     }
 
     /**
-     * See above constructor for more details.<br/>
+     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     *
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
-     *                 affected by other test runs. Otherwise, side-effects could impact your tests.<br/>
+     *                 affected by other test runs. Otherwise, side-effects could impact your tests.
+     * @param properties The properties of the Kafka Streams application under test.
+     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Topology topology, final Map<?, ?> properties) {
         this((Properties) -> topology, properties);
@@ -124,31 +127,31 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     /**
-     * Get all properties that the application has set.<br/>
+     * Get all properties that the application has set.
      */
     public StreamsConfig getStreamsConfig() {
         return new StreamsConfig(this.properties);
     }
 
     /**
-     * Get the default serde of the key type in your application.<br/>
+     * Get the default serde of the key type in your application.
      */
     private Serde<DefaultK> getDefaultKeySerde() {
         return this.defaultKeySerde != null ? this.defaultKeySerde : this.getStreamsConfig().defaultKeySerde();
     }
 
     /**
-     * Get the default serde of the value type in your application.<br/>
+     * Get the default serde of the value type in your application.
      */
     private Serde<DefaultV> getDefaultValueSerde() {
         return this.defaultValueSerde != null ? this.defaultValueSerde : this.getStreamsConfig().defaultValueSerde();
     }
 
     /**
-     * Get the only input topic used by the topology under test.<br/>
+     * Get the only input topic used by the topology under test.
      *
-     * @throws IllegalStateException if more than one input topic is present.<br/>
-     * @return {@link TestInput} of the input topic that you want to write to.<br/>
+     * @throws IllegalStateException if more than one input topic is present.
+     * @return {@link TestInput} of the input topic that you want to write to.
      */
     public TestInput<DefaultK, DefaultV> input() {
         if (this.inputTopics.size() != 1) {
@@ -159,10 +162,10 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     /**
-     * Get the input topic with the name `topic` used by the topology under test.<br/>
+     * Get the input topic with the name `topic` used by the topology under test.
      *
-     * @throws NoSuchElementException if there is no topic with that name.<br/>
-     * @return {@link TestInput} of the input topic that you want to write to.<br/>
+     * @throws NoSuchElementException if there is no topic with that name.
+     * @return {@link TestInput} of the input topic that you want to write to.
      */
     public TestInput<DefaultK, DefaultV> input(final String topic) {
         if (!this.inputTopics.contains(topic)) {
@@ -172,13 +175,13 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     /**
-     * Get the only output topic used by the topology under test with
-     * {@link org.apache.kafka.streams.kstream.KStream}-semantics.<br/>
+     * <p>Get the only output topic used by the topology under test with
+     * {@link org.apache.kafka.streams.kstream.KStream}-semantics.</p>
      *
-     * Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.
+     * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
      *
-     * @throws IllegalStateException if more than one output topic is present.<br/>
-     * @return {@link StreamOutput} of the output topic that you want to read from.<br/>
+     * @throws IllegalStateException if more than one output topic is present.
+     * @return {@link StreamOutput} of the output topic that you want to read from.
      */
     public TestOutput<DefaultK, DefaultV> streamOutput() {
         if (this.outputTopics.size() != 1) {
@@ -188,13 +191,13 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     /**
-     * Get the output topic with the name `topic` used by the topology under test with
-     * {@link org.apache.kafka.streams.kstream.KStream}-semantics.<br/>
+     * <p>Get the output topic with the name `topic` used by the topology under test with
+     * {@link org.apache.kafka.streams.kstream.KStream}-semantics.</p>
      *
-     * Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.
+     * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
      *
-     * @throws NoSuchElementException if there is no topic with that name.<br/>
-     * @return {@link StreamOutput} of the output topic that you want to read from.<br/>
+     * @throws NoSuchElementException if there is no topic with that name.
+     * @return {@link StreamOutput} of the output topic that you want to read from.
      */
     public TestOutput<DefaultK, DefaultV> streamOutput(final String topic) {
         if (!this.outputTopics.contains(topic)) {
@@ -204,36 +207,36 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     }
 
     /**
-     * Get the only output topic used by the topology under test with
-     * {@link org.apache.kafka.streams.kstream.KTable}-semantics.<br/>
+     * <p>Get the only output topic used by the topology under test with
+     * {@link org.apache.kafka.streams.kstream.KTable}-semantics.</p>
      *
-     * @throws IllegalStateException if more than one output topic is present.<br/>
-     * @return {@link TableOutput} of the output topic that you want to read from.<br/>
+     * @throws IllegalStateException if more than one output topic is present.
+     * @return {@link TableOutput} of the output topic that you want to read from.
      */
     public TestOutput<DefaultK, DefaultV> tableOutput() {
         return this.streamOutput().asTable();
     }
 
     /**
-     * Get the output topic with the name `topic` used by the topology under test with
-     * {@link org.apache.kafka.streams.kstream.KTable}-semantics.<br/>
+     * <p>Get the output topic with the name `topic` used by the topology under test with
+     * {@link org.apache.kafka.streams.kstream.KTable}-semantics.</p>
      *
-     * @throws NoSuchElementException if there is no topic with that name.<br/>
-     * @return {@link TableOutput} of the output topic that you want to read from.<br/>
+     * @throws NoSuchElementException if there is no topic with that name.
+     * @return {@link TableOutput} of the output topic that you want to read from.
      */
     public TestOutput<DefaultK, DefaultV> tableOutput(final String topic) {
         return this.streamOutput(topic).asTable();
     }
 
     /**
-     * Get the client to the schema registry for setup or verifications.<br/>
+     * Get the client to the schema registry for setup or verifications.
      */
     public SchemaRegistryClient getSchemaRegistry() {
         return this.schemaRegistry.getSchemaRegistryClient();
     }
 
     /**
-     * Get the URL of the schema registry in the format that is expected in Kafka Streams configurations.<br/>
+     * Get the URL of the schema registry in the format that is expected in Kafka Streams configurations.
      */
     public String getSchemaRegistryUrl() {
         return this.schemaRegistry.getUrl();

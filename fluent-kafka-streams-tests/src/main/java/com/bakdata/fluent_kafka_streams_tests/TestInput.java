@@ -10,7 +10,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.test.ConsumerRecordFactory;
 
 /**
- * Represents the input topic for the tested app via {@link TestTopology}.<br/>
+ * Represents the input topic for the tested app via {@link TestTopology}.
  *
  * @param <K> the key type of the input topic
  * @param <V> the value type of the input topic
@@ -24,16 +24,15 @@ public class TestInput<K, V> {
     private Long timestamp = null;
 
     /**
-     * Constructor for the test input topic.<br/>
-     * You should not need to call this. The recommended way is to use {@link TestTopology#input(String)} or
-     * {@link TestTopology#input()}.<br/>
+     * <p>Constructor for the test input topic.</p>
      *
-     * @param testDriver Kafka's {@link TopologyTestDriver} used in this test.<br/>
-     * @param topic Name of input topic.<br/>
-     * @param keySerde Serde for key type in topic.<br/>
-     * @param valueSerde Serde for value type in topic.<br/>
+     * @param testDriver Kafka's {@link TopologyTestDriver} used in this test.
+     * @param topic Name of input topic.
+     * @param keySerde Serde for key type in topic.
+     * @param valueSerde Serde for value type in topic.
      */
-    public TestInput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde, final Serde<V> valueSerde) {
+    protected TestInput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
+            final Serde<V> valueSerde) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
@@ -53,34 +52,34 @@ public class TestInput<K, V> {
     }
 
     /**
-     * Set new serde for this input.<br/>
+     * Set new serde for this input.
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the input.<br/>
-     * @param valueSerde The serializer/deserializer to be used for the values in the input.<br/>
+     * @param keySerde   The serializer/deserializer to be used for the keys in the input.
+     * @param valueSerde The serializer/deserializer to be used for the values in the input.
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
         return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde);
     }
 
     /**
-     * Set new key serde for this input.<br/>
+     * Set new key serde for this input.
      */
     public <KR> TestInput<KR, V> withKeySerde(final Serde<KR> keySerde) {
         return this.withSerde(keySerde, this.valueSerde);
     }
 
     /**
-     * Set new value serde for this input.<br/>
+     * Set new value serde for this input.
      */
     public <VR> TestInput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
         return this.withSerde(this.keySerde, valueSerde);
     }
 
     /**
-     * Set the event time of the following record. Use like this: {@code myInput.at(60000).add(myValue)}.<br/>
+     * Set the event time of the following record. Use like this: {@code myInput.at(60000).add(myValue)}.
      *
-     * @param timestamp Event time in milliseconds.<br/>
-     * @return This input, so it can be chained.<br/>
+     * @param timestamp Event time in milliseconds.
+     * @return This input, so it can be chained.
      */
     public TestInput<K, V> at(final long timestamp) {
         this.timestamp = timestamp;
@@ -88,14 +87,14 @@ public class TestInput<K, V> {
     }
 
     /**
-     * Set the event time of the following record.<br/>
-     * Use if you want to specify the time instead of simply using milliseconds.<br/>
-     * Use like this: {@code myInput.at(1, TimeUnit.MINUTES).add(myValue)}.<br/>
+     * <p>Set the event time of the following record.</p>
+     * <p>Use if you want to specify the time instead of simply using milliseconds.</p>
+     * <p>Use like this: {@code myInput.at(1, TimeUnit.MINUTES).add(myValue)}.</p>
      *
-     * @param timestamp Number of time units wanted, i.e., 1 --> 1 minute/second/hour, 10 --> 10
-     * minutes/seconds/hours.<br/>
-     * @param unit Time unit for this timestamp (e.g., {@code TimeUnit.{MINUTES|SECONDS|HOURS}}).<br/>
-     * @return This input, so it can be chained.<br/>
+     * @param timestamp Number of time units wanted, i.e., {@literal 1 --> 1 minute/second/hour, 10 --> 10
+     * minutes/seconds/hours.}
+     * @param unit Time unit for this timestamp (e.g., {@code TimeUnit.{MINUTES|SECONDS|HOURS}}).
+     * @return This input, so it can be chained.
      */
     public TestInput<K, V> at(final long timestamp, final TimeUnit unit) {
         return this.at(unit.toMillis(timestamp));
@@ -104,10 +103,10 @@ public class TestInput<K, V> {
     /**
      * Add a value to the input topic. The key will default to null. If a timestamp was specified with
      * {@link #at(long, TimeUnit)} or {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will
-     * default to 0.<br/>
+     * default to 0.
      *
-     * @param value Value to be inserted into topic.<br/>
-     * @return This input, so it can be chained.<br/>
+     * @param value Value to be inserted into topic.
+     * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final V value) {
         return this.addInternal(null, value, this.timestamp);
@@ -115,11 +114,11 @@ public class TestInput<K, V> {
 
     /**
      * Add a key and value to the input topic. If a timestamp was specified with {@link #at(long, TimeUnit)} or
-     * {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will default to 0.<br/>
+     * {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will default to 0.
      *
-     * @param key Key to be inserted into the topic.<br/>
-     * @param value Value to be inserted into topic.<br/>
-     * @return This input, so it can be chained.<br/>
+     * @param key Key to be inserted into the topic.
+     * @param value Value to be inserted into topic.
+     * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final K key, final V value) {
         return this.addInternal(key, value, this.timestamp);
@@ -127,12 +126,12 @@ public class TestInput<K, V> {
 
     /**
      * Add a key and value to the input topic with a given timestamp. The recommended way is to use
-     * {@link #at(long, TimeUnit)} or {@link #at(long)}, as they are easier to read and more expressive.<br/>
+     * {@link #at(long, TimeUnit)} or {@link #at(long)}, as they are easier to read and more expressive.
      *
-     * @param key Key to be inserted into the topic.<br/>
-     * @param value Value to be inserted into topic.<br/>
-     * @param timestamp Event time at which the event should be inserted.<br/>
-     * @return This input, so it can be chained.<br/>
+     * @param key Key to be inserted into the topic.
+     * @param value Value to be inserted into topic.
+     * @param timestamp Event time at which the event should be inserted.
+     * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final K key, final V value, final long timestamp) {
         return this.addInternal(key, value, timestamp);

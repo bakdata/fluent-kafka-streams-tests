@@ -46,6 +46,18 @@ subprojects {
         targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
     }
 
+    tasks.javadoc {
+        options {
+            (this as StandardJavadocDocletOptions).apply {
+                addBooleanOption("html5", true)
+                stylesheetFile(File("${rootDir}/src/main/javadoc/assertj-javadoc.css"))
+                addBooleanOption("-allow-script-in-comments", true)
+                header("<script src=\"http://cdn.jsdelivr.net/highlight.js/8.6/highlight.min.js\"></script>")
+                footer("<script type=\"text/javascript\">\nhljs.initHighlightingOnLoad();\n</script>")
+            }
+        }
+    }
+
     dependencies {
         val junitVersion = "5.3.0"
         implementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)

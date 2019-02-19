@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
 
 /**
- * Represents a single output {@link ProducerRecord} from {@link TestOutput} to be tested.<br/>
+ * Represents a single output {@link ProducerRecord} from {@link TestOutput} to be tested.
  *
  * @param <K> the key type of the record under test
  * @param <V> the value type of the record under test
@@ -16,7 +16,7 @@ public class Expectation<K, V> {
     private final TestOutput<K, V> output;
 
     /**
-     * Asserts whether a record exists.<br/>
+     * Asserts whether a record exists.
      */
     public Expectation<K, V> isPresent() {
         Assertions.assertNotNull(this.record, "No more records found");
@@ -24,7 +24,7 @@ public class Expectation<K, V> {
     }
 
     /**
-     * Checks for the equality of the {@link ProducerRecord#key()} and {@code expectedKey}.<br/>
+     * Checks for the equality of the {@link ProducerRecord#key()} and {@code expectedKey}.
      */
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
@@ -33,7 +33,7 @@ public class Expectation<K, V> {
     }
 
     /**
-     * Checks for the equality of the {@link ProducerRecord#value()} and {@code expectedValue}.<br/>
+     * Checks for the equality of the {@link ProducerRecord#value()} and {@code expectedValue}.
      */
     public Expectation<K, V> hasValue(final V expectedValue) {
         this.isPresent();
@@ -43,48 +43,47 @@ public class Expectation<K, V> {
 
     /**
      * Concatenates calls to this Expectation. It is not necessary to call this method, but it can be seen as a more
-     * readable alternative to simple chaining.<br/>
+     * readable alternative to simple chaining.
      */
     public Expectation<K, V> and() {
         return this;
     }
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.<br/>
-     * This is logically equivalent to {@link TestOutput#expectNextRecord()}.<br/>
-     * This methods main purpose is to allow chaining:
-     *
+     * <p>Reads the next record as creates an {@link Expectation} for it.</p>
+     * <p>This is logically equivalent to {@link TestOutput#expectNextRecord()}.</p>
+     * <p>This methods main purpose is to allow chaining:</p>
      * <pre>{@code
      * myOutput.expectNextRecord()
      *         .expectNextRecord()
      *         .expectNoMoreRecord();
      * }</pre>
      *
-     * @return An {@link Expectation} containing the next record from the output.<br/>
+     * @return An {@link Expectation} containing the next record from the output.
      */
     public Expectation<K, V> expectNextRecord() {
         return this.output.expectNextRecord();
     }
 
     /**
-     * Reads the next record from the output and expects it to be the end of output.<br/>
-     * This is logically equivalent to {@link TestOutput#expectNoMoreRecord()}.<br/>
-     * This methods main purpose is to allow chaining:
-     *
+     * <p>Reads the next record from the output and expects it to be the end of output.</p>
+     * <p>This is logically equivalent to {@link TestOutput#expectNoMoreRecord()}.</p>
+     * <p>This methods main purpose is to allow chaining:</p>
      * <pre>{@code
      * myOutput.expectNextRecord()
      *         .expectNextRecord()
      *         .expectNoMoreRecord();
      * }</pre>
      *
-     * @return An {@link Expectation} containing the next record from the output.<br/>
+     * @return An {@link Expectation} containing the next record from the output.
      */
     public Expectation<K, V> expectNoMoreRecord() {
         return this.output.expectNoMoreRecord();
     }
 
     /**
-     * Asserts that there is no recors present, i.e., the end of the output has been reached.<br/>
+     * <p>Asserts that there is no records present, i.e., the end of the output has been reached.</p>
+     * <p>This method should be used when there are no records at all expected.</p>
      */
     public Expectation<K, V> toBeEmpty() {
         Assertions.assertNull(this.record);
