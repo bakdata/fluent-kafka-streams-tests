@@ -28,6 +28,7 @@ import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitants
 import com.bakdata.fluent_kafka_streams_tests.test_types.City;
 import com.bakdata.fluent_kafka_streams_tests.test_types.Person;
 import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -57,5 +58,10 @@ class CountInhabitantsWithAvroTest {
     void shouldWorkForEmptyInput() {
         this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldGetSchemaRegistryClient() {
+        Assertions.assertNotNull(this.testTopology.getSchemaRegistry());
     }
 }

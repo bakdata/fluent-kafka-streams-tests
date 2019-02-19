@@ -1,10 +1,15 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_applications.ErrorEventsPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
+import java.util.NoSuchElementException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -189,5 +194,35 @@ class ErrorEventsPerMinuteTest {
 
         this.testTopology.streamOutput(this.app.getAlertTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 6L, time, "Internal Server Error"));
+    }
+
+    @Test
+    void shouldFailOnTooManyInputsForUnnamedCall() {
+        assertThrows(IllegalStateException.class, this.testTopology::input);
+    }
+
+    @Test
+    void shouldFailOnTooManyOutputsForUnnamedCallStream() {
+        assertThrows(IllegalStateException.class, this.testTopology::streamOutput);
+    }
+
+    @Test
+    void shouldFailOnTooManyOutputsForUnnamedCallTable() {
+        assertThrows(IllegalStateException.class, this.testTopology::tableOutput);
+    }
+
+    @Test
+    void shouldFailOnBadInputName() {
+        assertThrows(NoSuchElementException.class, () -> this.testTopology.input("bad-name"));
+    }
+
+    @Test
+    void shouldFailOnBadOutputNameStream() {
+        assertThrows(NoSuchElementException.class, () -> this.testTopology.streamOutput("bad-name"));
+    }
+
+    @Test
+    void shouldFailOnBadOutputNameTable() {
+        assertThrows(NoSuchElementException.class, () -> this.testTopology.tableOutput("bad-name"));
     }
 }
