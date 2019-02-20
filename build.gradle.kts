@@ -7,18 +7,6 @@ plugins {
     id("org.hildan.github.changelog") version "0.8.0"
 }
 
-allprojects {
-    group = "com.bakdata.${rootProject.name}"
-
-    tasks.withType<Test> {
-        maxParallelForks = 4
-    }
-
-    repositories {
-        mavenCentral()
-    }
-}
-
 configure<com.bakdata.gradle.SonatypeSettings> {
     developers {
         developer {
@@ -46,7 +34,7 @@ subprojects {
         targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
     }
 
-    tasks.javadoc {
+    tasks.named<Javadoc>("javadoc").configure {
         options {
             (this as StandardJavadocDocletOptions).apply {
                 addBooleanOption("html5", true)
