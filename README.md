@@ -7,7 +7,7 @@ Fluent Kafka Streams Tests
 
 Write clean and concise tests for your Kafka Streams application.
 
-You can find a [blog post on medium](https://medium.com/bakdata/xxx) with some examples and detailed explanations of how Fluent Kafka Streams Tests works.
+You can find a [blog post on medium](https://medium.com/bakdata) with some examples and detailed explanations of how Fluent Kafka Streams Tests works.
 
 ## Getting Started
 
@@ -27,7 +27,7 @@ compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests', version: '1.0.
 </dependency>
 ```
 
-### Using it to Write Tests
+## Using it to Write Tests
 
 Here are two example tests which show you how to use Fluent Kafka Streams Tests.
 
