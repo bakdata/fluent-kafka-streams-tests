@@ -1,11 +1,23 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.bakdata.gradle:sonar:1.1.1")
+        classpath("com.bakdata.gradle:sonatype:1.1.1")
+    }
+}
+
 plugins {
-    `java-library`
     // release
     id("net.researchgate.release") version "2.6.0"
-    id("com.bakdata.sonar") version "1.0.1"
-    id("com.bakdata.sonatype") version "1.0.1"
+//    id("com.bakdata.sonar") version "1.0.1"
+//    id("com.bakdata.sonatype") version "1.1.1"
     id("org.hildan.github.changelog") version "0.8.0"
 }
+
+apply(plugin = "com.bakdata.sonatype")
+apply(plugin = "com.bakdata.sonar")
 
 allprojects {
     group = "com.bakdata.${rootProject.name}"
@@ -46,7 +58,7 @@ subprojects {
         targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
     }
 
-    tasks.javadoc {
+    tasks.withType<Javadoc> {
         options {
             (this as StandardJavadocDocletOptions).apply {
                 addBooleanOption("html5", true)
@@ -60,16 +72,16 @@ subprojects {
 
     dependencies {
         val junitVersion = "5.3.0"
-        implementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
-        testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junitVersion)
-        testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
+        "implementation"(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
+        "testImplementation"(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junitVersion)
+        "testRuntimeOnly"(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
 
-        testImplementation(group = "org.slf4j", name = "slf4j-log4j12", version = "1.7.25")
-        testImplementation(group = "org.assertj", name = "assertj-core", version = "3.11.1")
+        "testImplementation"(group = "org.slf4j", name = "slf4j-log4j12", version = "1.7.25")
+        "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.11.1")
 
-        compileOnly("org.projectlombok:lombok:1.18.6")
-        annotationProcessor("org.projectlombok:lombok:1.18.6")
-        testCompileOnly("org.projectlombok:lombok:1.18.6")
-        testAnnotationProcessor("org.projectlombok:lombok:1.18.6")
+        "compileOnly"("org.projectlombok:lombok:1.18.6")
+        "annotationProcessor"("org.projectlombok:lombok:1.18.6")
+        "testCompileOnly"("org.projectlombok:lombok:1.18.6")
+        "testAnnotationProcessor"("org.projectlombok:lombok:1.18.6")
     }
 }

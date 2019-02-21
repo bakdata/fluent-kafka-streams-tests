@@ -23,6 +23,7 @@ matrix:
   include:
     - stage: build
       script:
+        - ./gradlew sign
         - ./gradlew sonarqube
 
     - stage: deploy
