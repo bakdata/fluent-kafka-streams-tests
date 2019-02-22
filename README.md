@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.com/bakdata/fluent-kafka-streams-tests.svg?branch=master)](https://travis-ci.com/bakdata/fluent-kafka-streams-tests)
 [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Code coverage](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=coverage)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
+[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests&core=gav)
 
 Fluent Kafka Streams Tests
 =========================
@@ -26,6 +27,9 @@ compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests', version: '1.0.
     <version>1.0.0</version>
 </dependency>
 ```
+
+For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests/latest).
+
 
 ## Using it to Write Tests
 
