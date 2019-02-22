@@ -1,5 +1,14 @@
 # Change Log
 
+## [1.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.0.1) (2019-02-22)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.0...1.0.1)
+
+**Merged pull requests:**
+
+- General code cleanup [\#16](https://github.com/bakdata/fluent-kafka-streams-tests/pull/16) ([@AHeise](https://github.com/AHeise))
+- Add README for Schema Registry Mock [\#13](https://github.com/bakdata/fluent-kafka-streams-tests/pull/13) ([@lawben](https://github.com/lawben))
+- Improved deployment fault tolerance [\#15](https://github.com/bakdata/fluent-kafka-streams-tests/pull/15) ([@AHeise](https://github.com/AHeise))
+
 ## [1.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.0.0) (2019-02-21)
 
 **Fixed bugs:**
