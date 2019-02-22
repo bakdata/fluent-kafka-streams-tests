@@ -55,6 +55,8 @@ matrix:
         file: "**/build/libs/*.jar"
         name: "Release ${TRAVIS_TAG}"
         skip_cleanup: true
+        on:
+          tags: true
       after_deploy:
         - travis/github_release.sh
 before_cache:
