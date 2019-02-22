@@ -8,7 +8,7 @@ Schema Registry Mock
 
 Mock your Schema Registry in Kafka Streams Tests.
 
-You can find a blog post on [medium](https://medium.com/bakdata) with some examples and detailed explanations of how the Schema Registry Mock works with the Fluent Kafka Streams Tests framework.
+You can find a [blog post on medium](https://medium.com/bakdata/transparent-schema-registry-for-kafka-streams-6b43a3e7a15c) with some examples and detailed explanations of how the Schema Registry Mock works with the Fluent Kafka Streams Tests framework.
 
 ## Getting Started
 You can find the Schema Registry Mock via Maven Central. 
