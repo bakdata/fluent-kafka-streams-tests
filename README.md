@@ -8,7 +8,7 @@ Fluent Kafka Streams Tests
 
 Write clean and concise tests for your Kafka Streams application.
 
-You can find a [blog post on medium](https://medium.com/bakdata) with some examples and detailed explanations of how Fluent Kafka Streams Tests work.
+You can find a [blog post on medium](https://medium.com/bakdata/fluent-kafka-streams-tests-e641785171ec) with some examples and detailed explanations of how Fluent Kafka Streams Tests work.
 
 ## Getting Started
 
