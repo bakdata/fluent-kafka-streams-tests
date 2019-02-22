@@ -42,7 +42,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
      * Set new serde for this output.
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the output
+     * @param keySerde The serializer/deserializer to be used for the keys in the output
      * @param valueSerde The serializer/deserializer to be used for the values in the output
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
@@ -60,9 +60,8 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
      * <p>Type-casts the key and value to the given types.</p>
      *
-     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
-     * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
-     * output.
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different types
+     * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the output.
      *
      * @param keyType the new key type.
      * @param valueType the new value type.
@@ -74,9 +73,8 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
      * <p>Type-casts the key to the given type.</p>
      *
-     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
-     * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
-     * output.
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different types
+     * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the output.
      *
      * @param keyType the new key type.
      */
@@ -87,9 +85,8 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
      * <p>Type-casts the value to the given type.</p>
      *
-     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different
-     * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
-     * output.
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different types
+     * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the output.
      *
      * @param valueType the new value type.
      */
@@ -105,8 +102,8 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * <li>the iterable interface (via {@link #iterator()}.</li>
      * </ul>
      *
-     * @return The next value in the output stream depending on the output type (stream or table semantics).
-     * {@code null} if no more values are present.
+     * @return The next value in the output stream depending on the output type (stream or table semantics). {@code
+     * null} if no more values are present.
      */
     ProducerRecord<K, V> readOneRecord();
 
@@ -127,8 +124,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     /**
      * <p>Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).</p>
      * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
-     * between
-     * the output types any more.</p>
+     * between the output types any more.</p>
      */
     TestOutput<K, V> asTable();
 
@@ -137,8 +133,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * times).</p>
      * <p>This is the default, there should usually be no need to call this method.</p>
      * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
-     * between
-     * the output types any more.</p>
+     * between the output types any more.</p>
      */
     TestOutput<K, V> asStream();
 }

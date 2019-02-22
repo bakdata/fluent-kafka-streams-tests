@@ -37,9 +37,6 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
  */
 class StreamOutput<K, V> extends BaseOutput<K, V> {
-    // ==================
-    // Non-public methods
-    // ==================
     StreamOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
             final Serde<V> valueSerde) {
         super(testDriver, topic, keySerde, valueSerde);
@@ -85,6 +82,9 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
         };
     }
 
+    // ==================
+    // Non-public methods
+    // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
             final Serde<KR> keySerde, final Serde<VR> valueSerde) {

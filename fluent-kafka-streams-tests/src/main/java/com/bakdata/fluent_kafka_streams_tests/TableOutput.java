@@ -33,9 +33,6 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 class TableOutput<K, V> extends BaseOutput<K, V> {
-    // ==================
-    // Non-public methods
-    // ==================
     private final Map<K, ProducerRecord<K, V>> table = new LinkedHashMap<>();
     private Iterator<ProducerRecord<K, V>> tableIterator;
 
@@ -77,6 +74,9 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
         return this.table.values().stream().iterator();
     }
 
+    // ==================
+    // Non-public methods
+    // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
             final Serde<KR> keySerde, final Serde<VR> valueSerde) {
