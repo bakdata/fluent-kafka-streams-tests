@@ -113,11 +113,11 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
 
     private int register(final String subject, final Schema schema) {
         try {
-        final int id = this.schemaRegistryClient.register(subject, schema);
+            final int id = this.schemaRegistryClient.register(subject, schema);
             this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id))
                     .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
             log.debug("Registered schema {}", id);
-        return id;
+            return id;
         } catch (final IOException | RestClientException e) {
             throw new IllegalStateException("Internal error in mock schema registry client", e);
         }

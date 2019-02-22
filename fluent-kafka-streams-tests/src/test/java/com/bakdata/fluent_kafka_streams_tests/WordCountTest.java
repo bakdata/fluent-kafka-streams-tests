@@ -218,9 +218,4 @@ class WordCountTest {
     void shouldDoNothingOnEmptyInput() {
         this.testTopology.streamOutput().expectNoMoreRecord().and().expectNoMoreRecord().toBeEmpty();
     }
-
-    @Test
-    void shouldThrowOnNoSerdeGiven() {
-
-    }
 }

@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 bakdata GmbH
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
@@ -16,6 +40,7 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,9 +56,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * <p>Represents the main interaction with Kafka for testing purposes. Handles all inputs and outputs of the
- * {@link Topology} under test. This should be registered as an extension in your JUnit tests, to ensure that
- * certain setup and teardown methods are called.</p>
- * Usage:
+ * {@link Topology} under test. This should be registered as an extension in your JUnit tests, to ensure that certain
+ * setup and teardown methods are called.</p> Usage:
  * <pre><code>
  * class WordCountTest {
  *     private final WordCount app = new WordCount();
@@ -78,11 +102,12 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      * <p>Create a new {@link TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
-     *                        ensure strict separation of each test run.
-     * @param properties The properties of the Kafka Streams application under test.
-     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * ensure strict separation of each test run.
+     * @param properties The properties of the Kafka Streams application under test. Required entries:
+     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties) {
+    public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Map<?, ?> properties) {
         this.topologyFactory = topologyFactory;
         this.properties.putAll(properties);
         this.defaultKeySerde = null;
@@ -93,24 +118,24 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      * <p>Create a new {@link TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
-     *                        ensure strict separation of each test run.
-     * @param properties The properties of the Kafka Streams application under test.
-     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * ensure strict separation of each test run.
+     * @param properties The properties of the Kafka Streams application under test. Required entries:
+     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
-        this((Properties) -> topologyFactory.get(), properties);
+        this(props -> topologyFactory.get(), properties);
     }
 
     /**
      * <p>Create a new {@link TestTopology} for your topology under test.</p>
      *
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
-     *                 affected by other test runs. Otherwise, side-effects could impact your tests.
-     * @param properties The properties of the Kafka Streams application under test.
-     *                   Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * affected by other test runs. Otherwise, side-effects could impact your tests.
+     * @param properties The properties of the Kafka Streams application under test. Required entries:
+     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Topology topology, final Map<?, ?> properties) {
-        this((Properties) -> topology, properties);
+        this(props -> topology, properties);
     }
 
     // ==================
@@ -156,8 +181,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     /**
      * Get the only input topic used by the topology under test.
      *
-     * @throws IllegalStateException if more than one input topic is present.
      * @return {@link TestInput} of the input topic that you want to write to.
+     * @throws IllegalStateException if more than one input topic is present.
      */
     public TestInput<DefaultK, DefaultV> input() {
         if (this.inputTopics.size() != 1) {
@@ -170,8 +195,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     /**
      * Get the input topic with the name `topic` used by the topology under test.
      *
-     * @throws NoSuchElementException if there is no topic with that name.
      * @return {@link TestInput} of the input topic that you want to write to.
+     * @throws NoSuchElementException if there is no topic with that name.
      */
     public TestInput<DefaultK, DefaultV> input(final String topic) {
         if (!this.inputTopics.contains(topic)) {
@@ -186,8 +211,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      *
      * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
      *
-     * @throws IllegalStateException if more than one output topic is present.
      * @return {@link StreamOutput} of the output topic that you want to read from.
+     * @throws IllegalStateException if more than one output topic is present.
      */
     public TestOutput<DefaultK, DefaultV> streamOutput() {
         if (this.outputTopics.size() != 1) {
@@ -202,8 +227,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      *
      * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
      *
-     * @throws NoSuchElementException if there is no topic with that name.
      * @return {@link StreamOutput} of the output topic that you want to read from.
+     * @throws NoSuchElementException if there is no topic with that name.
      */
     public TestOutput<DefaultK, DefaultV> streamOutput(final String topic) {
         if (!this.outputTopics.contains(topic)) {
@@ -216,8 +241,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      * <p>Get the only output topic used by the topology under test with
      * {@link org.apache.kafka.streams.kstream.KTable}-semantics.</p>
      *
-     * @throws IllegalStateException if more than one output topic is present.
      * @return {@link TableOutput} of the output topic that you want to read from.
+     * @throws IllegalStateException if more than one output topic is present.
      */
     public TestOutput<DefaultK, DefaultV> tableOutput() {
         return this.streamOutput().asTable();
@@ -227,8 +252,8 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      * <p>Get the output topic with the name `topic` used by the topology under test with
      * {@link org.apache.kafka.streams.kstream.KTable}-semantics.</p>
      *
-     * @throws NoSuchElementException if there is no topic with that name.
      * @return {@link TableOutput} of the output topic that you want to read from.
+     * @throws NoSuchElementException if there is no topic with that name.
      */
     public TestOutput<DefaultK, DefaultV> tableOutput(final String topic) {
         return this.streamOutput(topic).asTable();
@@ -252,16 +277,18 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
     public void afterEach(final ExtensionContext context) throws IOException {
         this.testDriver.close();
         this.schemaRegistry.afterEach(context);
-        Files.walk(this.stateDirectory)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        try (final Stream<Path> stateFiles = Files.walk(this.stateDirectory)) {
+            stateFiles.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 
     @Override
     public void beforeEach(final ExtensionContext context) throws IOException {
         this.schemaRegistry.beforeEach(context);
-        this.properties.setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
+        this.properties
+                .setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
         this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
         this.properties.setProperty(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
         final Topology topology = this.topologyFactory.apply(this.properties);
