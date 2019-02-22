@@ -91,7 +91,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * types in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the
      * output.
      *
-     * @param valueType the new value type
+     * @param valueType the new value type.
      */
     default <VR> TestOutput<K, VR> withValueType(final Class<VR> valueType) {
         return (TestOutput<K, VR>) this;
