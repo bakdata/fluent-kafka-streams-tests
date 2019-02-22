@@ -7,14 +7,13 @@ addons:
 dist: xenial
 jdk:
   - oraclejdk11
-stages:
-  - name: build
-  - name: deploy
 before_install:
   # extracts secrets
   - |
     [[ -v OSSRH_USERNAME ]] && [[ -v OSSRH_PASSWORD ]] || (>&2 echo "Not all ossrh secrets are set" && travis_terminate 1)
-    [[ -v SIGNING_KEY_ID ]] && [[ -v SIGNING_PASSWORD ]] || (>&2 echo "Not all signing secrets are set" && travis_terminate 1)
+    [[ -v SIGNING_KEY_ID ]] && [[ -v SIGNING_PASSWORD ]] && [[ -v SIGNING_SECRET_KEY_RING ]] || (>&2 echo "Not all signing secrets are set" && travis_terminate 1)
+    [[ -v GITHUB_DEPLOY_SSH_KEY ]] || (>&2 echo "Missing github deploy key" && travis_terminate 1)
+    [[ -v GITHUB_TOKEN ]] || (>&2 echo "Missing github token" && travis_terminate 1)
     mkdir -p .secrets
     base64 --decode <<< $GITHUB_DEPLOY_SSH_KEY > .secrets/deploy-key
     base64 --decode <<< $SIGNING_SECRET_KEY_RING > .secrets/pgp-keyring
@@ -40,8 +39,8 @@ matrix:
         - travis/setup_deploy_key.sh
         - travis/prepare_git_for_bot.sh
       script:
-        - ./gradlew generateChangelog -Pchangelog.releaseVersion=${version}
-        - git add CHANGELOG.md && git commit -m "Changelog for version ${version}" && git push
+        - ./gradlew generateChangelog -Pchangelog.releaseVersion=${version} || travis_terminate 1
+        - git add CHANGELOG.md && git commit -m "Changelog for version ${version}" && git push || travis_terminate 1
         - ./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${version} -Prelease.failOnUnversionedFiles=false --stacktrace
 
     - stage: deploy
@@ -49,17 +48,15 @@ matrix:
       if: tag =~ ^\d+\.\d+\.\d+$
       script:
         - ./gradlew publishToNexus closeAndReleaseRepository -x test --stacktrace
-deploy:
-  provider: releases
-  api_key: ${GITHUB_TOKEN}
-  file_glob: true
-  file: "**/build/libs/*.jar"
-  name: "Release ${TRAVIS_TAG}"
-  skip_cleanup: true
-  on:
-    tags: true
-after_deploy:
-  - travis/github_release.sh
+      deploy:
+        provider: releases
+        api_key: ${GITHUB_TOKEN}
+        file_glob: true
+        file: "**/build/libs/*.jar"
+        name: "Release ${TRAVIS_TAG}"
+        skip_cleanup: true
+      after_deploy:
+        - travis/github_release.sh
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/

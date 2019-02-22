@@ -1,23 +1,10 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.bakdata.gradle:sonar:1.1.1")
-        classpath("com.bakdata.gradle:sonatype:1.1.1")
-    }
-}
-
 plugins {
     // release
     id("net.researchgate.release") version "2.6.0"
-//    id("com.bakdata.sonar") version "1.0.1"
-//    id("com.bakdata.sonatype") version "1.1.1"
+    id("com.bakdata.sonar") version "1.1.2"
+    id("com.bakdata.sonatype") version "1.1.2"
     id("org.hildan.github.changelog") version "0.8.0"
 }
-
-apply(plugin = "com.bakdata.sonatype")
-apply(plugin = "com.bakdata.sonar")
 
 allprojects {
     group = "com.bakdata.${rootProject.name}"
