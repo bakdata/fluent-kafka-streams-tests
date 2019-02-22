@@ -65,7 +65,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * output.
      *
      * @param keyType the new key type.
-     * @param valueType the new value type
+     * @param valueType the new value type.
      */
     default <KR, VR> TestOutput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
         return (TestOutput<KR, VR>) this;
