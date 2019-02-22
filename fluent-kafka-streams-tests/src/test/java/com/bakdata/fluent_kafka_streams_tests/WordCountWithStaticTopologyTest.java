@@ -5,7 +5,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-class WordCountTestWithStaticTopology {
+class WordCountWithStaticTopologyTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
