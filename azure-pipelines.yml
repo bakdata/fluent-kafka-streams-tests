@@ -1,0 +1,27 @@
+trigger:
+  branches:
+    include:
+      - refs/heads/*
+      - refs/tags/*
+pr:
+  branches:
+    include:
+    - master
+    
+variables:
+- group: sonarqube
+- group: sign
+- group: ossrh
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: bakdata/bakdata-project-templates
+      endpoint: bot
+
+jobs:
+- template: azure/gradle/build.yml@templates
+- template: azure/gradle/create_tag_version.yml@templates
+- template: azure/gradle/upload_release.yml@templates
+- template: azure/gradle/upload_snapshot.yml@templates
