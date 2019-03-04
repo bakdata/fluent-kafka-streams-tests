@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/bakdata/fluent-kafka-streams-tests.svg?branch=master)](https://travis-ci.com/bakdata/fluent-kafka-streams-tests)
+[![Build Status](https://dev.azure.com/bakdata/public/_apis/build/status/bakdata.fluent-kafka-streams-tests?branchName=master)](https://dev.azure.com/bakdata/public/_build/latest?definitionId=2&branchName=master)
 [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Code coverage](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=coverage)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests&core=gav)
