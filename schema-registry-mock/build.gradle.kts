@@ -6,7 +6,7 @@ repositories {
 }
 
 dependencies {
-    val confluentVersion = "5.1.0"
+    val confluentVersion = "5.1.2"
     "api"(group = "io.confluent", name = "kafka-avro-serializer", version = confluentVersion)
     "api"(group = "io.confluent", name = "kafka-schema-registry-client", version = confluentVersion)
     "api"(group = "io.confluent", name = "kafka-streams-avro-serde", version = confluentVersion)

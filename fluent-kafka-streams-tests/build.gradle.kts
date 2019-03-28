@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    val kafkaVersion = "2.0.0"
+    val kafkaVersion = "2.2.0"
     "api"(group = "org.apache.kafka", name = "kafka-clients", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
