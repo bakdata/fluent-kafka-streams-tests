@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -169,7 +170,6 @@ class SchemaRegistryMockTest {
         assertThat(subjectsAfterDeletion).isEmpty();
     }
 
-
     @Test
     void shouldDeleteValueSchema() throws IOException, RestClientException {
         final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
@@ -192,7 +192,6 @@ class SchemaRegistryMockTest {
         assertThat(subjectsAfterDeletion).isEmpty();
     }
 
-
     @Test
     void shouldDeleteValueSchemaWithClient() throws IOException, RestClientException {
         final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
@@ -210,7 +209,6 @@ class SchemaRegistryMockTest {
                 .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().deleteSubject("does_not_exist"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
-
 
     @Test
     void shouldNotHaveSchemaVersionsForDeletedSubject() throws IOException, RestClientException {
@@ -235,6 +233,22 @@ class SchemaRegistryMockTest {
         assertThatExceptionOfType(RestClientException.class)
                 .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
+    }
+
+    @Test
+    void shouldHaveLatestSchemaVersion() throws IOException, RestClientException {
+        final Schema valueSchema = this.createSchema("value_schema");
+        final String topic = "test-topic";
+        final int id = this.schemaRegistry.registerValueSchema(topic, valueSchema);
+
+        final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
+        assertThat(versions.size()).isNotZero();
+
+        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
+        assertThat(metadata.getId()).isEqualTo(id);
+        final String schemaString = metadata.getSchema();
+        final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
+        assertThat(retrievedSchema).isEqualTo(valueSchema);
     }
 
     private static Schema createSchema(final String name) {

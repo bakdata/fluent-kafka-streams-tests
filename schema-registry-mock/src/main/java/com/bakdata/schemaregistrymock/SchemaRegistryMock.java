@@ -107,6 +107,7 @@ public class SchemaRegistryMock {
             WireMockConfiguration.wireMockConfig().dynamicPort()
                     .extensions(this.autoRegistrationHandler, this.listVersionsHandler, this.getVersionHandler,
                             this.deleteSubjectHandler, this.allSubjectsHandler));
+
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
     private static UrlPattern getSchemaPattern(final Integer id) {
@@ -131,8 +132,10 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN + "/(?:latest|\\d+)"))
-                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN))
+                .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN + "/(?:latest|\\d+)"))
+                .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.delete(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/[^/]+"))
@@ -202,6 +205,34 @@ public class SchemaRegistryMock {
         }
     }
 
+    private List<Integer> listVersions(String subject) {
+        log.debug("Listing all versions for subject {}", subject);
+        try {
+            return this.schemaRegistryClient.getAllVersions(subject);
+        } catch (IOException | RestClientException e) {
+            throw new IllegalStateException("Internal error in mock schema registry client", e);
+        }
+    }
+
+    private SchemaMetadata getSubjectVersion(String subject, Object version) {
+        log.debug("Requesting version {} for subject {}", version, subject);
+        try {
+            if (version instanceof String && version.equals("latest")) {
+                return this.schemaRegistryClient.getLatestSchemaMetadata(subject);
+            } else if (version instanceof Number){
+                return this.schemaRegistryClient.getSchemaMetadata(subject, ((Number) version).intValue());
+            } else {
+                throw new IllegalArgumentException("Only 'latest' or integer versions are allowed");
+            }
+        } catch (IOException | RestClientException e) {
+            throw new IllegalStateException("Internal error in mock schema registry client", e);
+        }
+    }
+
+    public SchemaRegistryClient getSchemaRegistryClient() {
+        return new CachedSchemaRegistryClient(this.getUrl(), IDENTITY_MAP_CAPACITY);
+    }
+
     private List<Integer> listVersions(final String subject) {
         log.debug("Listing all versions for subject {}", subject);
         try {
@@ -234,14 +265,21 @@ public class SchemaRegistryMock {
         }
     }
 
-    private abstract static class SubjectsHandler extends ResponseDefinitionTransformer {
-        // Expected url pattern /subjects(/.*-value/versions)
+    private abstract class SubjectsVersioHandler extends ResponseDefinitionTransformer {
+        // Expected url pattern /subjects/.*-value/versions
         protected final Splitter urlSplitter = Splitter.on('/').omitEmptyStrings();
+
+        protected String getSubject(Request request) {
+            return Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
+        }
 
         @Override
         public boolean applyGlobally() {
             return false;
         }
+    }
+
+    private class AutoRegistrationHandler extends SubjectsVersioHandler {
 
         protected String getSubject(final Request request) {
             return Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
@@ -276,7 +314,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final List<Integer> versions = SchemaRegistryMock.this.listVersions(this.getSubject(request));
             log.debug("Got versions {}", versions);
             return ResponseDefinitionBuilder.jsonResponse(versions);
@@ -292,7 +330,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final String versionStr = Iterables.get(this.urlSplitter.split(request.getUrl()), 3);
             final SchemaMetadata metadata;
             if (versionStr.equals("latest")) {
