@@ -84,7 +84,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  */
 @Slf4j
 public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
-    private static final String SCHEMA_REGISTRATION_PATTERN = "/subjects/[^/]+/versions";
+    private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
     private final ListVersionsHandler listVersionsHandler = new ListVersionsHandler();
@@ -103,11 +103,11 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
     @Override
     public void beforeEach(final ExtensionContext context) {
         this.mockSchemaRegistry.start();
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN))
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN))
+        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN + "/(?:latest|\\d+)"))
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN + "/(?:latest|\\d+)"))
                 .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
