@@ -92,7 +92,7 @@ import org.apache.avro.Schema;
  * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
  */
 @Slf4j
-public class SchemaRegistryMock {
+public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
     private static final String ALL_SUBJECT_PATTERN = "/subjects";
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
@@ -134,7 +134,7 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_REGISTRATION_PATTERN + "/(?:latest|\\d+)"))
+        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN + "/(?:latest|\\d+)"))
                 .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
