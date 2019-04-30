@@ -1,5 +1,25 @@
 # Change Log
 
+## [1.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.1.0) (2019-04-30)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.1...1.1.0)
+
+**Closed issues:**
+
+- \[schema\-registry\] Use with Java 8 tests [\#21](https://github.com/bakdata/fluent-kafka-streams-tests/issues/21)
+- Schema Registry List and Get subject versions [\#19](https://github.com/bakdata/fluent-kafka-streams-tests/issues/19)
+- Bump kafka version to 2.2.0 [\#18](https://github.com/bakdata/fluent-kafka-streams-tests/issues/18)
+- Upate Medium Links [\#14](https://github.com/bakdata/fluent-kafka-streams-tests/issues/14)
+
+**Fixed bugs:**
+
+- java.lang.ClassNotFoundException: com.fasterxml.jackson.annotation.JsonMerge [\#23](https://github.com/bakdata/fluent-kafka-streams-tests/issues/23)
+
+**Merged pull requests:**
+
+- Pinning jackson version to avoid conflict between wiremock and schema… [\#26](https://github.com/bakdata/fluent-kafka-streams-tests/pull/26) ([@AHeise](https://github.com/AHeise))
+- Set java version of SR mock to java 8 [\#24](https://github.com/bakdata/fluent-kafka-streams-tests/pull/24) ([@AHeise](https://github.com/AHeise))
+- \(\#19\) Mock subject version endpoints [\#20](https://github.com/bakdata/fluent-kafka-streams-tests/pull/20) ([@cricket007](https://github.com/cricket007))
+
 ## [1.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.0.1) (2019-02-22)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.0...1.0.1)
 
