@@ -12,4 +12,10 @@ dependencies {
     "api"(group = "io.confluent", name = "kafka-streams-avro-serde", version = confluentVersion)
 
     implementation(group = "com.github.tomakehurst", name = "wiremock", version = "2.20.0")
+
+    // resolve dependency issues between wiremock and schema registry
+    val jacksonVersion = "2.9.6"
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = jacksonVersion)
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-annotations", version = jacksonVersion)
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = jacksonVersion)
 }
