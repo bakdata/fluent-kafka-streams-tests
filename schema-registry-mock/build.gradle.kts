@@ -13,3 +13,8 @@ dependencies {
 
     implementation(group = "com.github.tomakehurst", name = "wiremock", version = "2.20.0")
 }
+
+configure<JavaPluginConvention> {
+    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+    targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+}
