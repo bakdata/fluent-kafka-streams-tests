@@ -1,5 +1,5 @@
 /*
- * The MIT License
+ * MIT License
  *
  * Copyright (c) 2019 bakdata GmbH
  *
@@ -25,28 +25,19 @@ package com.bakdata.schemaregistrymock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bakdata.schemaregistrymock.junit5.SchemaRegistryMockExtension;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import org.apache.avro.Schema;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-class SchemaRegistryMockTest {
-    private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
-
-    @BeforeEach
-    void start() {
-        schemaRegistry.start();
-    }
-
-    @AfterEach
-    void stop() {
-        schemaRegistry.stop();
-    }
+class SchemaRegistryMockExtensionTest {
+    @RegisterExtension
+    final SchemaRegistryMockExtension schemaRegistry = new SchemaRegistryMockExtension();
 
     @Test
     void shouldRegisterKeySchema() throws IOException, RestClientException {
@@ -93,7 +84,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isOne();
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
+        final SchemaMetadata metadata =
+                this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
         assertThat(metadata.getId()).isEqualTo(id);
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
@@ -114,7 +106,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isEqualTo(2);
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
+        final SchemaMetadata metadata =
+                this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
         int metadataId = metadata.getId();
         assertThat(metadataId).isNotEqualTo(id1);
         assertThat(metadataId).isEqualTo(id2);

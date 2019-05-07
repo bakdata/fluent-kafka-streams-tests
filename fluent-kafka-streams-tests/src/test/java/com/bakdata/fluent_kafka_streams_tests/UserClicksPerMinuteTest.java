@@ -4,11 +4,11 @@ import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_applications.UserClicksPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickOutput;
-import org.apache.kafka.common.serialization.Serdes;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
 import java.util.concurrent.TimeUnit;
+import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class UserClicksPerMinuteTest {
     private static final int USER = 1;
@@ -16,8 +16,18 @@ class UserClicksPerMinuteTest {
     private static final int USER2 = 2;
     private final UserClicksPerMinute app = new UserClicksPerMinute();
 
-    @RegisterExtension
-    final TestTopology<Integer, ClickEvent> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    private final TestTopology<Integer, ClickEvent> testTopology =
+            new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+
+    @BeforeEach
+    void start() {
+        testTopology.start();
+    }
+
+    @AfterEach
+    void stop() {
+        testTopology.stop();
+    }
 
     @Test
     void shouldCountSingleUserSingleEventCorrectlyStream() {

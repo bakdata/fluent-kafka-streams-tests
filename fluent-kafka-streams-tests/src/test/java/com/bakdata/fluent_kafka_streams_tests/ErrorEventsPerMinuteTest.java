@@ -1,6 +1,5 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
@@ -9,11 +8,10 @@ import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
 import java.util.NoSuchElementException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class ErrorEventsPerMinuteTest {
     private static final int USER = 1;
@@ -22,8 +20,18 @@ class ErrorEventsPerMinuteTest {
     private static final int USER3 = 3;
     private final ErrorEventsPerMinute app = new ErrorEventsPerMinute();
 
-    @RegisterExtension
-    final TestTopology<Integer, ClickEvent> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    private final TestTopology<Integer, ClickEvent> testTopology =
+            new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+
+    @BeforeEach
+    void start() {
+        testTopology.start();
+    }
+
+    @AfterEach
+    void stop() {
+        testTopology.stop();
+    }
 
     @Test
     void shouldCountSingleUserSingleErrorCorrectlyStream() {

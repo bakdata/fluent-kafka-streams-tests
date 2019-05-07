@@ -58,10 +58,9 @@ subprojects {
     }
 
     dependencies {
-        val junitVersion = "5.3.0"
-        "implementation"(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
-        "testImplementation"(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junitVersion)
-        "testRuntimeOnly"(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junitVersion)
+        val junit5Version: String by project
+        "testImplementation"(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
+        "testRuntimeOnly"(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
 
         "testImplementation"(group = "org.slf4j", name = "slf4j-log4j12", version = "1.7.25")
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.11.1")

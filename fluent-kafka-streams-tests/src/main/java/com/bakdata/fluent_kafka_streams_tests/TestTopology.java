@@ -29,6 +29,7 @@ import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -41,18 +42,12 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.Wither;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * <p>Represents the main interaction with Kafka for testing purposes. Handles all inputs and outputs of the
@@ -84,19 +79,29 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * <p>With {@code app} being any Kafka Streams application that you want to test.</p>
  */
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, AfterEachCallback {
+public class TestTopology<DefaultK, DefaultV> {
     private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
     private final Function<? super Properties, ? extends Topology> topologyFactory;
+    private final Properties properties = new Properties();
     private final Collection<String> inputTopics = new HashSet<>();
     private final Collection<String> outputTopics = new HashSet<>();
-    @Wither
+
     private final Serde<DefaultK> defaultKeySerde;
-    @Wither
     private final Serde<DefaultV> defaultValueSerde;
-    private final Properties properties = new Properties();
     private TopologyTestDriver testDriver;
     private Path stateDirectory;
+
+    /**
+     * Used by wither methods.
+     */
+    protected TestTopology(
+            final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties,
+            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde) {
+        this.topologyFactory = topologyFactory;
+        this.properties.putAll(properties);
+        this.defaultKeySerde = defaultKeySerde;
+        this.defaultValueSerde = defaultValueSerde;
+    }
 
     /**
      * <p>Create a new {@link TestTopology} for your topology under test.</p>
@@ -138,9 +143,6 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
         this(props -> topology, properties);
     }
 
-    // ==================
-    // Non-public methods
-    // ==================
     private static void addExternalTopics(final Collection<String> allTopics, final String topics) {
         if (topics.contains("KSTREAM-") || topics.contains("KTABLE-")) {
             // Internal node created by Kafka. Not relevant for testing.
@@ -162,6 +164,19 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
      */
     public StreamsConfig getStreamsConfig() {
         return new StreamsConfig(this.properties);
+    }
+
+    public <V> TestTopology<DefaultK, V> withDefaultValueSerde(Serde<V> defaultValueSerde) {
+        return with(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+    }
+
+    public <K> TestTopology<K, DefaultV> withDefaultKeySerde(Serde<K> defaultKeySerde) {
+        return with(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+    }
+
+    protected <K, V> TestTopology<K, V> with(Function<? super Properties, ? extends Topology> topologyFactory,
+            final Map<?, ?> properties, Serde<K> defaultKeySerde, Serde<V> defaultValueSerde) {
+        return new TestTopology<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
     }
 
     /**
@@ -273,23 +288,27 @@ public class TestTopology<DefaultK, DefaultV> implements BeforeEachCallback, Aft
         return this.schemaRegistry.getUrl();
     }
 
-    @Override
-    public void afterEach(final ExtensionContext context) throws IOException {
+    public void stop() {
         this.testDriver.close();
-        this.schemaRegistry.afterEach(context);
+        this.schemaRegistry.stop();
         try (final Stream<Path> stateFiles = Files.walk(this.stateDirectory)) {
             stateFiles.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot delete state directory", e);
         }
     }
 
-    @Override
-    public void beforeEach(final ExtensionContext context) throws IOException {
-        this.schemaRegistry.beforeEach(context);
+    public void start() {
+        this.schemaRegistry.start();
         this.properties
                 .setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
-        this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
+        try {
+            this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot create temporary state directory", e);
+        }
         this.properties.setProperty(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
         final Topology topology = this.topologyFactory.apply(this.properties);
         this.testDriver = new TopologyTestDriver(topology, this.properties);

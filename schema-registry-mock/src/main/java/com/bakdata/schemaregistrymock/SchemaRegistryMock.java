@@ -48,9 +48,6 @@ import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * <p>The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.</p>
@@ -67,8 +64,17 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * <p>Without the test framework, you can use the mock as follows:</p>
  * <pre><code>
  * class SchemaRegistryMockTest {
- *     {@literal @RegisterExtension}
  *     final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+ *
+ *     {@literal @Before}
+ *     void setup() {
+ *         schemaRegistry.start();
+ *     }
+ *
+ *     {@literal @After}
+ *     void teardown() {
+ *         schemaRegistry.stop();
+ *     }
  *
  *     {@literal @Test}
  *     void shouldRegisterKeySchema() throws IOException, RestClientException {
@@ -83,7 +89,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
  */
 @Slf4j
-public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
+public class SchemaRegistryMock {
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
@@ -95,13 +101,7 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
                     .extensions(this.autoRegistrationHandler, this.listVersionsHandler, this.getVersionHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
-    @Override
-    public void afterEach(final ExtensionContext context) {
-        this.mockSchemaRegistry.stop();
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext context) {
+    public void start() {
         this.mockSchemaRegistry.start();
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
@@ -111,6 +111,10 @@ public class SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback
                 .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+    }
+
+    public void stop() {
+        this.mockSchemaRegistry.stop();
     }
 
     public int registerKeySchema(final String topic, final Schema schema) {

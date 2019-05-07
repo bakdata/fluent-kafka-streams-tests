@@ -1,4 +1,5 @@
 rootProject.name = 'fluent-kafka-streams-tests'
 
-include ':fluent-kafka-streams-tests',
-        ':schema-registry-mock'
+['', '-junit5'].each { suffix ->
+    include ":fluent-kafka-streams-tests$suffix", ":schema-registry-mock$suffix"
+}

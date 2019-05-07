@@ -2,15 +2,25 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.fluent_kafka_streams_tests.test_applications.WordCount;
 import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class WordCountWithStaticTopologyTest {
     private final WordCount app = new WordCount();
 
-    @RegisterExtension
-    final TestTopology<Object, String> testTopology = new TestTopology<>(this.app.getTopology(),
-        this.app.getKafkaProperties());
+    final TestTopology<Object, String> testTopology =
+            new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+
+    @BeforeEach
+    void start() {
+        testTopology.start();
+    }
+
+    @AfterEach
+    void stop() {
+        testTopology.stop();
+    }
 
     @Test
     void shouldAggregateSameWordStream() {
