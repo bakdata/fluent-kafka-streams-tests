@@ -29,7 +29,7 @@ compile group: 'com.bakdata', name: 'schema-registry-mock-junit5', version: '2.0
 
 There is also a junit4 version and one without any dependencies to a specific testing framework.
 
-For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/latest).
+For other build tools or versions, refer to the [overview of sonatype](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:schema-registry-mock*&core=gav).
 
 ## Using it in Tests
 

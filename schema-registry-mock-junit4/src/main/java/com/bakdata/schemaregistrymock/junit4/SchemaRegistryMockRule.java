@@ -59,7 +59,6 @@ import org.junit.runners.model.Statement;
  *
  * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
  */
-@Slf4j
 public class SchemaRegistryMockRule extends SchemaRegistryMock implements TestRule {
 
     @Override

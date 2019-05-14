@@ -1,4 +1,4 @@
-package com.bakdata.fluent_kafka_streams_tests.junit5.test_applications;
+package com.bakdata.fluent_kafka_streams_tests.test_applications;
 
 import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;

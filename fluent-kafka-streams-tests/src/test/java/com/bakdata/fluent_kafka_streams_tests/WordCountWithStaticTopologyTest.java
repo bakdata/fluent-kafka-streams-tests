@@ -1,6 +1,6 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.fluent_kafka_streams_tests.junit5.test_applications.WordCount;
+import com.bakdata.fluent_kafka_streams_tests.test_applications.WordCount;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

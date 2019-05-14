@@ -1,7 +1,7 @@
 [![Build Status](https://dev.azure.com/bakdata/public/_apis/build/status/bakdata.fluent-kafka-streams-tests?branchName=master)](https://dev.azure.com/bakdata/public/_build/latest?definitionId=2&branchName=master)
 [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Code coverage](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=coverage)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
-[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests&core=gav)
+[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests-junit5.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests*&core=gav)
 
 Fluent Kafka Streams Tests
 =========================
@@ -30,7 +30,7 @@ compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests-junit5', version
 
 There is also a junit4 version and one without any dependencies to a specific testing framework.
 
-For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/latest).
+For other build tools or versions, refer to the [overview of sonatype](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-*&core=gav).
 
 ## Using it to Write Tests
 

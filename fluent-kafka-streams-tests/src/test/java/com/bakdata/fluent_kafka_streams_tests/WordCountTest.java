@@ -3,7 +3,7 @@ package com.bakdata.fluent_kafka_streams_tests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.bakdata.fluent_kafka_streams_tests.junit5.test_applications.WordCount;
+import com.bakdata.fluent_kafka_streams_tests.test_applications.WordCount;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;

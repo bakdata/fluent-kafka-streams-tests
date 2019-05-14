@@ -59,7 +59,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  *
  * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
  */
-@Slf4j
 public class SchemaRegistryMockExtension extends SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
     @Override
     public void afterEach(final ExtensionContext context) {
