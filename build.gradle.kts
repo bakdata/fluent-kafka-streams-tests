@@ -1,6 +1,6 @@
 plugins {
     // release
-    id("net.researchgate.release") version "2.6.0"
+    id("net.researchgate.release") version "2.8.0"
     id("com.bakdata.sonar") version "1.1.4"
     id("com.bakdata.sonatype") version "1.1.4"
     id("org.hildan.github.changelog") version "0.8.0"
@@ -15,7 +15,9 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven(url = "http://packages.confluent.io/maven/")
     }
+
 }
 
 configure<com.bakdata.gradle.SonatypeSettings> {
@@ -41,8 +43,8 @@ subprojects {
     apply(plugin = "java-library")
     // build fails for java 11, let"s wait for a newer lombok version
     configure<JavaPluginConvention> {
-        sourceCompatibility = org.gradle.api.JavaVersion.VERSION_11
-        targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     tasks.withType<Javadoc> {
@@ -58,10 +60,6 @@ subprojects {
     }
 
     dependencies {
-        val junit5Version: String by project
-        "testImplementation"(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
-        "testRuntimeOnly"(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
-
         "testImplementation"(group = "org.slf4j", name = "slf4j-log4j12", version = "1.7.25")
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.11.1")
 

@@ -57,9 +57,18 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * class WordCountTest {
  *     private final WordCount app = new WordCount();
  *
- *     {@literal @RegisterExtension
- *     final TestTopology<Object, String> testTopology =
- *         new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());}
+ *     private final TestTopology<Object, String> testTopology =
+ *         new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+ *
+ *     {@literal @BeforeEach}
+ *     void setup() {
+ *         this.testTopology.start();
+ *     }
+ *
+ *     {@literal @AfterEach}
+ *     void teardown() {
+ *         this.testTopology.stop();
+ *     }
  *
  *     {@literal @Test}
  *     void shouldAggregateSameWordStream() {

@@ -1,5 +1,8 @@
-package com.bakdata.fluent_kafka_streams_tests.test_applications;
+package com.bakdata.fluent_kafka_streams_tests.junit5.test_applications;
 
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -10,10 +13,6 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
-
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.regex.Pattern;
 
 public class WordCount {
     @Getter

@@ -21,11 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bakdata.schemaregistrymock;
+package com.bakdata.schemaregistrymock.junit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.bakdata.schemaregistrymock.junit5.SchemaRegistryMockExtension;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import java.io.IOException;
@@ -98,7 +97,7 @@ class SchemaRegistryMockExtensionTest {
         final String topic = "test-topic";
         final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
 
-        List<Schema.Field> fields = Collections.singletonList(
+        final List<Schema.Field> fields = Collections.singletonList(
                 new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", (Object) null));
         final Schema valueSchema2 = Schema.createRecord("value_schema", "no doc", "", false, fields);
         final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
@@ -108,7 +107,7 @@ class SchemaRegistryMockExtensionTest {
 
         final SchemaMetadata metadata =
                 this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
-        int metadataId = metadata.getId();
+        final int metadataId = metadata.getId();
         assertThat(metadataId).isNotEqualTo(id1);
         assertThat(metadataId).isEqualTo(id2);
         final String schemaString = metadata.getSchema();

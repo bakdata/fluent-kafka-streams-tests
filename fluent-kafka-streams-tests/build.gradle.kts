@@ -1,29 +1,18 @@
-buildscript {
-    repositories {
-        maven {
-            url = uri("https://plugins.gradle.org/m2/")
-        }
-    }
-    dependencies {
-        classpath("com.commercehub.gradle.plugin:gradle-avro-plugin:0.16.0")
-    }
+plugins {
+    id("com.commercehub.gradle.plugin.avro") version "0.16.0"
 }
 
 description = "Provides the fluent Kafka Streams test framework."
 
-apply(plugin = "com.commercehub.gradle.plugin.avro")
-
-repositories {
-    // jcenter()
-    maven(url = "http://packages.confluent.io/maven/")
-}
-
 dependencies {
-    val kafkaVersion = "2.2.0"
+    val kafkaVersion: String by project
     "api"(group = "org.apache.kafka", name = "kafka-clients", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
     implementation(project(":schema-registry-mock"))
 
+    val junit5Version: String by project
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
+    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
     testImplementation(group = "org.apache.avro", name = "avro", version = "1.8.2")
 }

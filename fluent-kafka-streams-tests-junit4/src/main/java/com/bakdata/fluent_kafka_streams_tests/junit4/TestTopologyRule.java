@@ -22,10 +22,9 @@
  * SOFTWARE.
  */
 
-package com.bakdata.fluent_kafka_streams_tests.junit5;
+package com.bakdata.fluent_kafka_streams_tests.junit4;
 
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
@@ -33,24 +32,24 @@ import java.util.function.Supplier;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.Topology;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 /**
  * <p>Represents the main interaction with Kafka for testing purposes. Handles all inputs and outputs of the
  * {@link Topology} under test. This should be registered as an extension in your JUnit tests, to ensure that certain
  * setup and teardown methods are called.</p> Usage:
  * <pre><code>
- * class WordCountTest {
+ * public class WordCountTest {
  *     private final WordCount app = new WordCount();
  *
- *     {@literal @RegisterExtension
- *     final TestTopologyExtension<Object, String> testTopology =
- *         new TestTopologyExtension<>(this.app::getTopology, this.app.getKafkaProperties());}
+ *     {@literal @Rule
+ *     public final TestTopologyRule<Object, String> testTopology =
+ *         new TestTopologyRule<>(this.app::getTopology, this.app.getKafkaProperties());}
  *
  *     {@literal @Test}
- *     void shouldAggregateSameWordStream() {
+ *     public void shouldAggregateSameWordStream() {
  *         this.testTopology.input()
  *             .add("cat")
  *             .add("dog")
@@ -67,23 +66,23 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * <p>With {@code app} being any Kafka Streams application that you want to test.</p>
  */
 @Getter
-public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<DefaultK, DefaultV>
-        implements BeforeEachCallback, AfterEachCallback {
-    public TestTopologyExtension(
+public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK, DefaultV>
+        implements TestRule {
+    public TestTopologyRule(
             final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties) {
         super(topologyFactory, properties);
     }
 
-    public TestTopologyExtension(
+    public TestTopologyRule(
             final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
         super(topologyFactory, properties);
     }
 
-    public TestTopologyExtension(final Topology topology, final Map<?, ?> properties) {
+    public TestTopologyRule(final Topology topology, final Map<?, ?> properties) {
         super(topology, properties);
     }
 
-    protected TestTopologyExtension(
+    protected TestTopologyRule(
             final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties,
             final Serde<DefaultK> defaultKeySerde,
             final Serde<DefaultV> defaultValueSerde) {
@@ -91,28 +90,33 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     }
 
     @Override
-    public void afterEach(final ExtensionContext context) throws IOException {
-        this.stop();
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext context) throws IOException {
-        this.start();
+    public Statement apply(Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                start();
+                try {
+                    base.evaluate();
+                } finally {
+                    stop();
+                }
+            }
+        };
     }
 
     @Override
     protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
             final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
-        return new TestTopologyExtension<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+        return new TestTopologyRule<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
     }
 
     @Override
-    public <V> TestTopologyExtension<DefaultK, V> withDefaultValueSerde(final Serde<V> defaultValueSerde) {
-        return (TestTopologyExtension<DefaultK, V>) super.withDefaultValueSerde(defaultValueSerde);
+    public <V> TestTopologyRule<DefaultK, V> withDefaultValueSerde(final Serde<V> defaultValueSerde) {
+        return (TestTopologyRule<DefaultK, V>) super.withDefaultValueSerde(defaultValueSerde);
     }
 
     @Override
-    public <K> TestTopologyExtension<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
-        return (TestTopologyExtension<K, DefaultV>) super.withDefaultKeySerde(defaultKeySerde);
+    public <K> TestTopologyRule<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
+        return (TestTopologyRule<K, DefaultV>) super.withDefaultKeySerde(defaultKeySerde);
     }
 }

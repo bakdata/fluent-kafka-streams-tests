@@ -2,8 +2,8 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.bakdata.fluent_kafka_streams_tests.junit5.test_applications.ErrorEventsPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
-import com.bakdata.fluent_kafka_streams_tests.test_applications.ErrorEventsPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
@@ -25,12 +25,12 @@ class ErrorEventsPerMinuteTest {
 
     @BeforeEach
     void start() {
-        testTopology.start();
+        this.testTopology.start();
     }
 
     @AfterEach
     void stop() {
-        testTopology.stop();
+        this.testTopology.stop();
     }
 
     @Test

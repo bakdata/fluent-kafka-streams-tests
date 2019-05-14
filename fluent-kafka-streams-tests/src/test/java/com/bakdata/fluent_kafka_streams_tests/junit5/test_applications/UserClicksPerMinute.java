@@ -1,8 +1,10 @@
-package com.bakdata.fluent_kafka_streams_tests.test_applications;
+package com.bakdata.fluent_kafka_streams_tests.junit5.test_applications;
 
 import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickOutput;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -15,9 +17,6 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
-
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 public class UserClicksPerMinute {
     @Getter

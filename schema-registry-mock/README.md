@@ -15,19 +15,21 @@ You can find the Schema Registry Mock via Maven Central.
 
 #### Gradle
 ```gradle
-compile group: 'com.bakdata', name: 'schema-registry-mock', version: '1.0.0'
+compile group: 'com.bakdata', name: 'schema-registry-mock-junit5', version: '2.0.0'
 ```
 
 #### Maven
 ```xml
 <dependency>
     <groupId>com.bakdata</groupId>
-    <artifactId>schema-registry-mock</artifactId>
-    <version>1.0.0</version>
+    <artifactId>schema-registry-mock-junit5</artifactId>
+    <version>2.0.0</version>
 </dependency>
 ```
 
-For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/schema-registry-mock/latest).
+There is also a junit4 version and one without any dependencies to a specific testing framework.
+
+For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/latest).
 
 ## Using it in Tests
 
@@ -66,10 +68,11 @@ To use this in your tests, you need to do three things:
 ```java
 class SchemaRegistryMockTest {
     @RegisterExtension
-    final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+    final SchemaRegistryMockExtension schemaRegistry = new SchemaRegistryMockExtension();
     ...
 }
 ```
+You can also use the junit4 rule or set it up manually by using the version without framework dependencies.
  - Set the serde of your key and/or value to `GenericAvroSerde` or `SpecificAvroSerde`, so that your topology actually needs to use the Schema Registry.
  - Set the `AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG` to `schemaRegistry.getSchemaRegistryUrl()`, so that your test knows where to find the Schema Registry.
 ```java

@@ -64,14 +64,14 @@ import org.apache.avro.Schema;
  * <p>Without the test framework, you can use the mock as follows:</p>
  * <pre><code>
  * class SchemaRegistryMockTest {
- *     final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+ *     private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
  *
- *     {@literal @Before}
+ *     {@literal @BeforeEach}
  *     void setup() {
  *         schemaRegistry.start();
  *     }
  *
- *     {@literal @After}
+ *     {@literal @AfterEach}
  *     void teardown() {
  *         schemaRegistry.stop();
  *     }

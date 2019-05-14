@@ -22,30 +22,29 @@
  * SOFTWARE.
  */
 
-package com.bakdata.fluent_kafka_streams_tests;
+package com.bakdata.fluent_kafka_streams_tests.junit4;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.bakdata.fluent_kafka_streams_tests.junit5.TestTopologyExtension;
-import com.bakdata.fluent_kafka_streams_tests.test_applications.WordCount;
+import com.bakdata.fluent_kafka_streams_tests.junit4.test_applications.WordCount;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.Rule;
+import org.junit.Test;
 
-class WordCountTest {
+public class WordCountTest {
     private final WordCount app = new WordCount();
 
-    @RegisterExtension
-    final TestTopologyExtension<Object, String> testTopology = new TestTopologyExtension<>(this.app::getTopology,
+    @Rule
+    public final TestTopologyRule<Object, String> testTopology = new TestTopologyRule<>(this.app::getTopology,
             this.app.getKafkaProperties());
 
     @Test
-    void shouldAggregateSameWordStream() {
+    public void shouldAggregateSameWordStream() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla");
@@ -58,7 +57,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldAggregateSameWordTable() {
+    public void shouldAggregateSameWordTable() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla");
@@ -69,7 +68,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldNotAggregateDifferentWordsStream() {
+    public void shouldNotAggregateDifferentWordsStream() {
         this.testTopology.input().add("bla")
                 .add("foo")
                 .add("blub");
@@ -82,7 +81,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldNotAggregateDifferentWordsTable() {
+    public void shouldNotAggregateDifferentWordsTable() {
         this.testTopology.input().add("bla")
                 .add("foo")
                 .add("blub");
@@ -95,19 +94,19 @@ class WordCountTest {
     }
 
     @Test
-    void shouldReturnNoInputAndOutputStream() {
+    public void shouldReturnNoInputAndOutputStream() {
         this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNoMoreRecord();
     }
 
     @Test
-    void shouldReturnNoInputAndOutputTable() {
+    public void shouldReturnNoInputAndOutputTable() {
         this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNoMoreRecord();
     }
 
     @Test
-    void shouldAggregateSameWordOrderTable() {
+    public void shouldAggregateSameWordOrderTable() {
         this.testTopology.input().add("blub") // 1 blub
                 .add("bla") // 1 bla
                 .add("blub") // 2 blub
@@ -128,7 +127,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldReturnSingleInputAndOutputStream() {
+    public void shouldReturnSingleInputAndOutputStream() {
         this.testTopology.input().add("bla");
 
         this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
@@ -137,7 +136,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldReturnSingleInputAndOutputTable() {
+    public void shouldReturnSingleInputAndOutputTable() {
         this.testTopology.input().add("bla");
 
         this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
@@ -146,7 +145,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldReturnCorrectIteratorStream() {
+    public void shouldReturnCorrectIteratorStream() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla")
@@ -159,7 +158,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldReturnCorrectIteratorExplicitStream() {
+    public void shouldReturnCorrectIteratorExplicitStream() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla")
@@ -172,7 +171,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldReturnCorrectIteratorTable() {
+    public void shouldReturnCorrectIteratorTable() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla")
@@ -185,21 +184,21 @@ class WordCountTest {
     }
 
     @Test
-    void shouldFailCorrectIteratorStreamNoHasNextCheck() {
+    public void shouldFailCorrectIteratorStreamNoHasNextCheck() {
         final Iterator<ProducerRecord<String, Long>> output = this.testTopology.streamOutput()
                 .withSerde(Serdes.String(), Serdes.Long()).iterator();
-        assertThrows(NoSuchElementException.class, output::next);
+        assertThatThrownBy(output::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
-    void shouldFailCorrectIteratorTableNoHasNextCheck() {
+    public void shouldFailCorrectIteratorTableNoHasNextCheck() {
         final Iterator<ProducerRecord<String, Long>> output = this.testTopology.tableOutput()
                 .withSerde(Serdes.String(), Serdes.Long()).iterator();
-        assertThrows(NoSuchElementException.class, output::next);
+        assertThatThrownBy(output::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
-    void shouldReturnCorrectIteratorExplicitTable() {
+    public void shouldReturnCorrectIteratorExplicitTable() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla")
@@ -212,7 +211,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldWorkOnTableToStream() {
+    public void shouldWorkOnTableToStream() {
         this.testTopology.input()
                 .add("bla")
                 .add("blub")
@@ -228,19 +227,19 @@ class WordCountTest {
     }
 
     @Test
-    void singleWordShouldBePresent() {
+    public void singleWordShouldBePresent() {
         this.testTopology.input().add("bla");
         this.testTopology.tableOutput().expectNextRecord().isPresent();
     }
 
     @Test
-    void shouldBeDoneAfterSingleWord() {
+    public void shouldBeDoneAfterSingleWord() {
         this.testTopology.input().add("bla");
         this.testTopology.tableOutput().expectNextRecord().isPresent().expectNextRecord().toBeEmpty();
     }
 
     @Test
-    void shouldDoNothingOnEmptyInput() {
+    public void shouldDoNothingOnEmptyInput() {
         this.testTopology.streamOutput().expectNoMoreRecord().and().expectNoMoreRecord().toBeEmpty();
     }
 }

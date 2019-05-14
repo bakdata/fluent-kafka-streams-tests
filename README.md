@@ -16,20 +16,21 @@ You can add Fluent Kafka Streams Tests via Maven Central.
 
 #### Gradle
 ```gradle
-compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests', version: '1.0.0'
+compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests-junit5', version: '2.0.0'
 ```
 
 #### Maven
 ```xml
 <dependency>
     <groupId>com.bakdata</groupId>
-    <artifactId>fluent-kafka-streams-tests</artifactId>
-    <version>1.0.0</version>
+    <artifactId>fluent-kafka-streams-tests-junit5</artifactId>
+    <version>2.0.0</version>
 </dependency>
 ```
 
-For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests/latest).
+There is also a junit4 version and one without any dependencies to a specific testing framework.
 
+For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/latest).
 
 ## Using it to Write Tests
 
@@ -52,8 +53,8 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
-    final TestTopology<Object, String> testTopology =
-        new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopologyExtension<Object, String> testTopology =
+        new TestTopologyExtension<>(this.app::getTopology, this.app.getKafkaProperties());
 }
 ```
 
@@ -71,8 +72,8 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
-    final TestTopology<Object, String> testTopology =
-        new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopologyExtension<Object, String> testTopology =
+        new TestTopologyExtension<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldAggregateSameWordStream() {
