@@ -1,4 +1,14 @@
-rootProject.name = 'fluent-kafka-streams-tests'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        jcenter()
+        maven {
+            name "JCenter Gradle Plugins"
+            url "https://dl.bintray.com/gradle/gradle-plugins"
+        }
+    }
+}
 
-include ':fluent-kafka-streams-tests',
-        ':schema-registry-mock'
+['', '-junit5', '-junit4'].each { suffix ->
+    include ":fluent-kafka-streams-tests$suffix", ":schema-registry-mock$suffix"
+}

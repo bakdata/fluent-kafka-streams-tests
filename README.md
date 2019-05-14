@@ -1,7 +1,7 @@
 [![Build Status](https://dev.azure.com/bakdata/public/_apis/build/status/bakdata.fluent-kafka-streams-tests?branchName=master)](https://dev.azure.com/bakdata/public/_build/latest?definitionId=2&branchName=master)
 [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Code coverage](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=coverage)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
-[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests&core=gav)
+[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests-junit5.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests*&core=gav)
 
 Fluent Kafka Streams Tests
 =========================
@@ -16,20 +16,21 @@ You can add Fluent Kafka Streams Tests via Maven Central.
 
 #### Gradle
 ```gradle
-compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests', version: '1.1.0'
+compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests-junit5', version: '2.0.0'
 ```
 
 #### Maven
 ```xml
 <dependency>
     <groupId>com.bakdata</groupId>
-    <artifactId>fluent-kafka-streams-tests</artifactId>
-    <version>1.1.0</version>
+    <artifactId>fluent-kafka-streams-tests-junit5</artifactId>
+    <version>2.0.0</version>
 </dependency>
 ```
 
-For other build tools or versions, refer to the [latest version in MvnRepository](https://mvnrepository.com/artifact/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests/latest).
+There is also a junit4 version and one without any dependencies to a specific testing framework.
 
+For other build tools or versions, refer to the [overview of sonatype](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-*&core=gav).
 
 ## Using it to Write Tests
 
@@ -52,8 +53,8 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
-    final TestTopology<Object, String> testTopology =
-        new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopologyExtension<Object, String> testTopology =
+        new TestTopologyExtension<>(this.app::getTopology, this.app.getKafkaProperties());
 }
 ```
 
@@ -71,8 +72,8 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
-    final TestTopology<Object, String> testTopology =
-        new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    final TestTopologyExtension<Object, String> testTopology =
+        new TestTopologyExtension<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     void shouldAggregateSameWordStream() {
@@ -90,6 +91,7 @@ class WordCountTest {
 }
 ```
 
+See the tests for the [junit4](fluent-kafka-streams-tests-junit4/src/test/java/com/bakdata/fluent_kafka_streams_tests/junit4/WordCountTest.java) and [framework agnostic](fluent-kafka-streams-tests/src/test/java/com/bakdata/fluent_kafka_streams_tests/WordCountTest.java) setup.
 
 The `TestTopology` has a method `.input()` to retrieve the input topic (or `.input(String topic)`) if more than one input topic is present).
 You can simply add values to your input stream by calling `.add(V value)` or `.add(K key, V value)`.

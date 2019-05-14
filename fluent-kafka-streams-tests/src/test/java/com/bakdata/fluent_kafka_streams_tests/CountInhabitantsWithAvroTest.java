@@ -28,18 +28,27 @@ import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitants
 import com.bakdata.fluent_kafka_streams_tests.test_types.City;
 import com.bakdata.fluent_kafka_streams_tests.test_types.Person;
 import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 
 class CountInhabitantsWithAvroTest {
 
     private final CountInhabitantsWithAvro app = new CountInhabitantsWithAvro();
 
-    @RegisterExtension
-    final TestTopology<String, Person> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    private final TestTopology<String, Person> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
 
+    @BeforeEach
+    void start() {
+        this.testTopology.start();
+    }
+
+    @AfterEach
+    void stop() {
+        this.testTopology.stop();
+    }
 
     @Test
     void shouldAggregateInhabitants() {

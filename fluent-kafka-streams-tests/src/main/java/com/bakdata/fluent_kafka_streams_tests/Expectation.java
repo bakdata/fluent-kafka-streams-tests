@@ -26,7 +26,6 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.Assertions;
 
 /**
  * Represents a single output {@link ProducerRecord} from {@link TestOutput} to be tested.
@@ -43,7 +42,9 @@ public class Expectation<K, V> {
      * Asserts whether a record exists.
      */
     public Expectation<K, V> isPresent() {
-        Assertions.assertNotNull(this.record, "No more records found");
+        if (this.record == null) {
+            throw new AssertionError("No more records found");
+        }
         return this.and();
     }
 
@@ -52,7 +53,9 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
-        Assertions.assertEquals(expectedKey, this.record.key(), "Record key does not match");
+        if (!this.record.key().equals(expectedKey)) {
+            throw new AssertionError("Record key does not match");
+        }
         return this.and();
     }
 
@@ -61,7 +64,9 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> hasValue(final V expectedValue) {
         this.isPresent();
-        Assertions.assertEquals(expectedValue, this.record.value(), "Record value does not match");
+        if (!this.record.value().equals(expectedValue)) {
+            throw new AssertionError("Record value does not match");
+        }
         return this.and();
     }
 
@@ -110,7 +115,9 @@ public class Expectation<K, V> {
      * <p>This method should be used when there are no records at all expected.</p>
      */
     public Expectation<K, V> toBeEmpty() {
-        Assertions.assertNull(this.record);
+        if (this.record != null) {
+            throw new AssertionError("More records found");
+        }
         return this.and();
     }
 }

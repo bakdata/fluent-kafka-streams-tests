@@ -28,18 +28,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaBuilder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class SchemaRegistryMockTest {
-    @RegisterExtension
-    final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+    private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+
+    @BeforeEach
+    void start() {
+        this.schemaRegistry.start();
+    }
+
+    @AfterEach
+    void stop() {
+        this.schemaRegistry.stop();
+    }
 
     @Test
     void shouldRegisterKeySchema() throws IOException, RestClientException {
@@ -99,7 +106,7 @@ class SchemaRegistryMockTest {
         final String topic = "test-topic";
         final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
 
-        List<Schema.Field> fields = Collections.singletonList(
+        final List<Schema.Field> fields = Collections.singletonList(
                 new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", (Object) null));
         final Schema valueSchema2 = Schema.createRecord("value_schema", "no doc", "", false, fields);
         final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
@@ -108,7 +115,7 @@ class SchemaRegistryMockTest {
         assertThat(versions.size()).isEqualTo(2);
 
         final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
-        int metadataId = metadata.getId();
+        final int metadataId = metadata.getId();
         assertThat(metadataId).isNotEqualTo(id1);
         assertThat(metadataId).isEqualTo(id2);
         final String schemaString = metadata.getSchema();
