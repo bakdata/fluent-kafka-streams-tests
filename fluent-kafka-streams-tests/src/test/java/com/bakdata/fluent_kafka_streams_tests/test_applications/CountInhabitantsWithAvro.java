@@ -39,7 +39,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 
-public class CountInhabitantsWithAvro {
+class CountInhabitantsWithAvro {
 
     @Getter
     private final String inputTopic = "person-input";
@@ -57,7 +57,7 @@ public class CountInhabitantsWithAvro {
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 
-    public Properties getKafkaProperties() {
+    private Properties getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Properties kafkaConfig = new Properties();
         kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
@@ -68,7 +68,7 @@ public class CountInhabitantsWithAvro {
         return kafkaConfig;
     }
 
-    public Topology getTopology() {
+    private Topology getTopology() {
         final StreamsBuilder builder = new StreamsBuilder();
         final KStream<String, Person> persons = builder.stream(this.inputTopic);
 

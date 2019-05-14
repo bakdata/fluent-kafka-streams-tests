@@ -24,7 +24,6 @@
 package com.bakdata.schemaregistrymock.junit4;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -62,15 +61,15 @@ import org.junit.runners.model.Statement;
 public class SchemaRegistryMockRule extends SchemaRegistryMock implements TestRule {
 
     @Override
-    public Statement apply(Statement base, Description description) {
+    public Statement apply(final Statement base, final Description description) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                start();
+                SchemaRegistryMockRule.this.start();
                 try {
                     base.evaluate();
                 } finally {
-                    stop();
+                    SchemaRegistryMockRule.this.stop();
                 }
             }
         };

@@ -91,12 +91,12 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     }
 
     @Override
-    public void afterEach(final ExtensionContext context) throws IOException {
+    public void afterEach(final ExtensionContext context) {
         this.stop();
     }
 
     @Override
-    public void beforeEach(final ExtensionContext context) throws IOException {
+    public void beforeEach(final ExtensionContext context) {
         this.start();
     }
 

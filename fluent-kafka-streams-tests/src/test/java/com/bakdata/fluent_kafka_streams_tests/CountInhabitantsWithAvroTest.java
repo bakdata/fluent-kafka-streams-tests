@@ -24,7 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.fluent_kafka_streams_tests.junit5.test_applications.CountInhabitantsWithAvro;
+import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitantsWithAvro;
 import com.bakdata.fluent_kafka_streams_tests.test_types.City;
 import com.bakdata.fluent_kafka_streams_tests.test_types.Person;
 import org.apache.kafka.common.serialization.Serdes;

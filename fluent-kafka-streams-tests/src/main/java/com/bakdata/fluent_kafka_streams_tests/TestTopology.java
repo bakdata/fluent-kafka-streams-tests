@@ -47,6 +47,7 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
+import org.apache.kafka.streams.TopologyDescription.Source;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 /**
@@ -153,20 +154,13 @@ public class TestTopology<DefaultK, DefaultV> {
         this(props -> topology, properties);
     }
 
-    private static void addExternalTopics(final Collection<String> allTopics, final String topics) {
-        if (topics.contains("KSTREAM-") || topics.contains("KTABLE-")) {
+    private static void addExternalTopics(final Collection<String> allTopics, final String topic) {
+        if (topic.contains("KSTREAM-") || topic.contains("KTABLE-")) {
             // Internal node created by Kafka. Not relevant for testing.
             return;
         }
 
-        // TODO: support wildcards
-        if (topics.startsWith("[")) {
-            // A list of topics in the form of [topic1,...,topicN]
-            allTopics.addAll(Arrays.asList(topics.substring(1, topics.length() - 1).split(",")));
-        } else {
-            // Only one topic present without leading '['
-            allTopics.add(topics);
-        }
+        allTopics.add(topic);
     }
 
     /**
@@ -176,16 +170,16 @@ public class TestTopology<DefaultK, DefaultV> {
         return new StreamsConfig(this.properties);
     }
 
-    public <V> TestTopology<DefaultK, V> withDefaultValueSerde(Serde<V> defaultValueSerde) {
-        return with(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+    public <V> TestTopology<DefaultK, V> withDefaultValueSerde(final Serde<V> defaultValueSerde) {
+        return this.with(this.topologyFactory, this.properties, this.defaultKeySerde, defaultValueSerde);
     }
 
-    public <K> TestTopology<K, DefaultV> withDefaultKeySerde(Serde<K> defaultKeySerde) {
-        return with(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+    public <K> TestTopology<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
+        return this.with(this.topologyFactory, this.properties, defaultKeySerde, this.defaultValueSerde);
     }
 
-    protected <K, V> TestTopology<K, V> with(Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<?, ?> properties, Serde<K> defaultKeySerde, Serde<V> defaultValueSerde) {
+    protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
         return new TestTopology<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
     }
 
@@ -305,7 +299,7 @@ public class TestTopology<DefaultK, DefaultV> {
             stateFiles.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new UncheckedIOException("Cannot delete state directory", e);
         }
     }
@@ -316,7 +310,7 @@ public class TestTopology<DefaultK, DefaultV> {
                 .setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
         try {
             this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new UncheckedIOException("Cannot create temporary state directory", e);
         }
         this.properties.setProperty(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
@@ -329,7 +323,9 @@ public class TestTopology<DefaultK, DefaultV> {
         for (final TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
             for (final TopologyDescription.Node node : subtopology.nodes()) {
                 if (node instanceof TopologyDescription.Source) {
-                    addExternalTopics(this.inputTopics, ((TopologyDescription.Source) node).topics());
+                    for (final String topic : ((Source) node).topicSet()) {
+                        addExternalTopics(this.inputTopics, topic);
+                    }
                 } else if (node instanceof TopologyDescription.Sink) {
                     addExternalTopics(this.outputTopics, ((TopologyDescription.Sink) node).topic());
                 }

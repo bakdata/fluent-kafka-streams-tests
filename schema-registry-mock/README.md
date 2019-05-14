@@ -72,7 +72,7 @@ class SchemaRegistryMockTest {
     ...
 }
 ```
-You can also use the junit4 rule or set it up manually by using the version without framework dependencies.
+See the tests for the [junit4](../schema-registry-mock-junit4/src/test/java/com/bakdata/schemaregistrymock/junit4/SchemaRegistryMockRuleTest.java) and [framework agnostic](../schema-registry-mock/src/test/java/com/bakdata/schemaregistrymock/SchemaRegistryMockTest.java) setup.
  - Set the serde of your key and/or value to `GenericAvroSerde` or `SpecificAvroSerde`, so that your topology actually needs to use the Schema Registry.
  - Set the `AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG` to `schemaRegistry.getSchemaRegistryUrl()`, so that your test knows where to find the Schema Registry.
 ```java

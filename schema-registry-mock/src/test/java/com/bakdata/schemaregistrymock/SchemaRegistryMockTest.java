@@ -40,12 +40,12 @@ class SchemaRegistryMockTest {
 
     @BeforeEach
     void start() {
-        schemaRegistry.start();
+        this.schemaRegistry.start();
     }
 
     @AfterEach
     void stop() {
-        schemaRegistry.stop();
+        this.schemaRegistry.stop();
     }
 
     @Test
@@ -106,7 +106,7 @@ class SchemaRegistryMockTest {
         final String topic = "test-topic";
         final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
 
-        List<Schema.Field> fields = Collections.singletonList(
+        final List<Schema.Field> fields = Collections.singletonList(
                 new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", (Object) null));
         final Schema valueSchema2 = Schema.createRecord("value_schema", "no doc", "", false, fields);
         final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
@@ -115,7 +115,7 @@ class SchemaRegistryMockTest {
         assertThat(versions.size()).isEqualTo(2);
 
         final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
-        int metadataId = metadata.getId();
+        final int metadataId = metadata.getId();
         assertThat(metadataId).isNotEqualTo(id1);
         assertThat(metadataId).isEqualTo(id2);
         final String schemaString = metadata.getSchema();

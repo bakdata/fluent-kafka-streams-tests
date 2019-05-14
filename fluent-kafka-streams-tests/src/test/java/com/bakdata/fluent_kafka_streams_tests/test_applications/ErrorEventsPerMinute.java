@@ -4,6 +4,7 @@ import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
@@ -53,8 +55,8 @@ public class ErrorEventsPerMinute {
         final KTable<Windowed<Integer>, Long> counts = clickEvents
                 .selectKey(((key, value) -> value.getStatus()))
                 .filter(((key, value) -> key >= 400))
-                .groupByKey(Serialized.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)))
-                .windowedBy(TimeWindows.of(TimeUnit.MINUTES.toMillis(1)))  // 1 Minute in ms
+                .groupByKey(Grouped.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)))
+                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))  // 1 Minute in ms
                 .count();
 
         // Status codes

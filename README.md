@@ -91,6 +91,7 @@ class WordCountTest {
 }
 ```
 
+See the tests for the [junit4](fluent-kafka-streams-tests-junit4/src/test/java/com/bakdata/fluent_kafka_streams_tests/junit4/WordCountTest.java) and [framework agnostic](fluent-kafka-streams-tests/src/test/java/com/bakdata/fluent_kafka_streams_tests/WordCountTest.java) setup.
 
 The `TestTopology` has a method `.input()` to retrieve the input topic (or `.input(String topic)`) if more than one input topic is present).
 You can simply add values to your input stream by calling `.add(V value)` or `.add(K key, V value)`.
