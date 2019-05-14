@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.0) (2019-05-14)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.1.0...2.0.0)
+
+**Merged pull requests:**
+
+- Extract junit support [\#27](https://github.com/bakdata/fluent-kafka-streams-tests/pull/27) ([@AHeise](https://github.com/AHeise))
+
 ## [1.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.1.0) (2019-04-30)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.1...1.1.0)
 
