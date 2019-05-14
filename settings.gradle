@@ -9,6 +9,8 @@ pluginManagement {
     }
 }
 
+rootProject.name = 'fluent-kafka-streams-tests'
+
 ['', '-junit5', '-junit4'].each { suffix ->
     include ":fluent-kafka-streams-tests$suffix", ":schema-registry-mock$suffix"
 }
