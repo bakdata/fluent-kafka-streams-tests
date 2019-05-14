@@ -169,7 +169,7 @@ public class SchemaRegistryMock {
         return "http://localhost:" + this.mockSchemaRegistry.port();
     }
 
-    private abstract class SubjectsVersioHandler extends ResponseDefinitionTransformer {
+    private abstract static class SubjectsVersionHandler extends ResponseDefinitionTransformer {
         // Expected url pattern /subjects/.*-value/versions
         protected final Splitter urlSplitter = Splitter.on('/').omitEmptyStrings();
 
@@ -183,7 +183,7 @@ public class SchemaRegistryMock {
         }
     }
 
-    private class AutoRegistrationHandler extends SubjectsVersioHandler {
+    private class AutoRegistrationHandler extends SubjectsVersionHandler {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
@@ -207,7 +207,7 @@ public class SchemaRegistryMock {
         }
     }
 
-    private class ListVersionsHandler extends SubjectsVersioHandler {
+    private class ListVersionsHandler extends SubjectsVersionHandler {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
@@ -223,7 +223,7 @@ public class SchemaRegistryMock {
         }
     }
 
-    private class GetVersionHandler extends SubjectsVersioHandler {
+    private class GetVersionHandler extends SubjectsVersionHandler {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,

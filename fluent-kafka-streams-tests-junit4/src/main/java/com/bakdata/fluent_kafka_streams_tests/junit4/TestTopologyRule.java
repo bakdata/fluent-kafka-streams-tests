@@ -119,4 +119,8 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
     public <K> TestTopologyRule<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
         return (TestTopologyRule<K, DefaultV>) super.withDefaultKeySerde(defaultKeySerde);
     }
+
+    public <K, V> TestTopologyRule<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+        return (TestTopologyRule<K, V>) super.withDefaultSerde(defaultKeySerde, defaultValueSerde);
+    }
 }

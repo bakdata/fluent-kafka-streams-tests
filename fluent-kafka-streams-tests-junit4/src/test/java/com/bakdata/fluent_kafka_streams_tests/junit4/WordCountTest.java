@@ -40,8 +40,8 @@ public class WordCountTest {
     private final WordCount app = new WordCount();
 
     @Rule
-    public final TestTopologyRule<Object, String> testTopology = new TestTopologyRule<>(this.app::getTopology,
-            this.app.getKafkaProperties());
+    public final TestTopologyRule<Object, String> testTopology =
+            new TestTopologyRule<>(this.app::getTopology, this.app.getKafkaProperties());
 
     @Test
     public void shouldAggregateSameWordStream() {

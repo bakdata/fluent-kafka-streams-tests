@@ -115,4 +115,8 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     public <K> TestTopologyExtension<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
         return (TestTopologyExtension<K, DefaultV>) super.withDefaultKeySerde(defaultKeySerde);
     }
+
+    public <K, V> TestTopologyExtension<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+        return (TestTopologyExtension<K, V>) super.withDefaultSerde(defaultKeySerde, defaultValueSerde);
+    }
 }

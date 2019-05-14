@@ -171,11 +171,15 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     public <V> TestTopology<DefaultK, V> withDefaultValueSerde(final Serde<V> defaultValueSerde) {
-        return this.with(this.topologyFactory, this.properties, this.defaultKeySerde, defaultValueSerde);
+        return this.withDefaultSerde(this.defaultKeySerde, defaultValueSerde);
     }
 
     public <K> TestTopology<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
-        return this.with(this.topologyFactory, this.properties, defaultKeySerde, this.defaultValueSerde);
+        return this.withDefaultSerde(defaultKeySerde, this.defaultValueSerde);
+    }
+
+    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+        return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde);
     }
 
     protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
