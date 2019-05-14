@@ -57,8 +57,9 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * class WordCountTest {
  *     private final WordCount app = new WordCount();
  *
+ *     {@literal
  *     private final TestTopology<Object, String> testTopology =
- *         new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+ *         new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());}
  *
  *     {@literal @BeforeEach}
  *     void setup() {
