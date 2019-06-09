@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.1) (2019-06-09)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.0...2.0.1)
+
+**Closed issues:**
+
+- \[schema\-registry\] MockedSchemaRegistry 5.2.1 returns Schema id \-1 for some Schema registrations [\#28](https://github.com/bakdata/fluent-kafka-streams-tests/issues/28)
+
+**Merged pull requests:**
+
+- Downgraded confluent version to 5.1.3 to avoid schema registry bug as… [\#29](https://github.com/bakdata/fluent-kafka-streams-tests/pull/29) ([@AHeise](https://github.com/AHeise))
+
 ## [2.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.0) (2019-05-14)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.1.0...2.0.0)
 
