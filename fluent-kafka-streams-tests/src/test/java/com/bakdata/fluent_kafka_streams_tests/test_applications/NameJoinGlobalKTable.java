@@ -50,11 +50,7 @@ public class NameJoinGlobalKTable {
                         (id, name) -> name)
                 .to(OUTPUT_TOPIC, Produced.with(Serdes.Long(), Serdes.String()));
 
-        final Topology topology = builder.build();
-        System.out.println(topology.describe());
-        System.out.println(topology.describe().subtopologies());
-        System.out.println(topology.describe().globalStores());
-        return topology;
+        return builder.build();
     }
 
     public Topology getTopologyWithIntermediateTopic() {
@@ -74,11 +70,7 @@ public class NameJoinGlobalKTable {
                         (id, name) -> name)
                 .to(OUTPUT_TOPIC, Produced.with(Serdes.Long(), Serdes.String()));
 
-        final Topology topology = builder.build();
-        System.out.println(topology.describe());
-        System.out.println(topology.describe().subtopologies());
-        System.out.println(topology.describe().globalStores());
-        return topology;
+        return builder.build();
     }
 
 }
