@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -47,6 +46,7 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
+import org.apache.kafka.streams.TopologyDescription.GlobalStore;
 import org.apache.kafka.streams.TopologyDescription.Source;
 import org.apache.kafka.streams.TopologyTestDriver;
 
@@ -178,7 +178,8 @@ public class TestTopology<DefaultK, DefaultV> {
         return this.withDefaultSerde(defaultKeySerde, this.defaultValueSerde);
     }
 
-    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
         return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde);
     }
 
@@ -334,6 +335,10 @@ public class TestTopology<DefaultK, DefaultV> {
                     addExternalTopics(this.outputTopics, ((TopologyDescription.Sink) node).topic());
                 }
             }
+        }
+
+        for (final GlobalStore store : topology.describe().globalStores()) {
+            store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
         }
     }
 }
