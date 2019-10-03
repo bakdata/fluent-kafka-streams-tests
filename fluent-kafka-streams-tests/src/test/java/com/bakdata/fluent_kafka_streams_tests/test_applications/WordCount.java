@@ -12,6 +12,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
 public class WordCount {
@@ -49,7 +50,7 @@ public class WordCount {
         final KTable<String, Long> wordCounts = textLines
                 .flatMapValues(value -> Arrays.asList(pattern.split(value.toLowerCase())))
                 .groupBy((key, word) -> word)
-                .count();
+                .count(Materialized.as("count"));
 
         wordCounts.toStream().to(this.outputTopic, Produced.with(stringSerde, longSerde));
         return builder.build();
