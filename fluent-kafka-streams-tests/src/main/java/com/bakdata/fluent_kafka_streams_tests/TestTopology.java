@@ -155,7 +155,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     private static void addExternalTopics(final Collection<String> allTopics, final String topic) {
-        if (topic.contains("KSTREAM-") || topic.contains("KTABLE-")) {
+        if (topic.contains("KSTREAM-") || topic.contains("KTABLE-") || topic.contains("-repartition")) {
             // Internal node created by Kafka. Not relevant for testing.
             return;
         }
