@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.0.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.2) (2019-10-11)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.1...2.0.2)
+
+**Closed issues:**
+
+- \[schema\-registry\] Topology with manually created SpecificAvroSerde needs to know the schema\-registry URL upfront [\#30](https://github.com/bakdata/fluent-kafka-streams-tests/issues/30)
+
+**Merged pull requests:**
+
+- Exclude repartition topics [\#34](https://github.com/bakdata/fluent-kafka-streams-tests/pull/34) ([@torbsto](https://github.com/torbsto))
+- Fix GlobalKTable Sources [\#32](https://github.com/bakdata/fluent-kafka-streams-tests/pull/32) ([@torbsto](https://github.com/torbsto))
+
 ## [2.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.1) (2019-06-09)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.0...2.0.1)
 
