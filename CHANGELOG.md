@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.0.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.3) (2019-10-30)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.2...2.0.3)
+
+**Closed issues:**
+
+- fluent\-kafka\-streams\-tests\-junit4 for JDK 8 [\#33](https://github.com/bakdata/fluent-kafka-streams-tests/issues/33)
+
+**Merged pull requests:**
+
+- Add support for deleteSubject and getAllSubjects [\#35](https://github.com/bakdata/fluent-kafka-streams-tests/pull/35) ([@torbsto](https://github.com/torbsto))
+
 ## [2.0.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.2) (2019-10-11)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.1...2.0.2)
 
