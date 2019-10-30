@@ -139,7 +139,7 @@ public class SchemaRegistryMock {
     private int register(final String subject, final Schema schema) {
         try {
             final int id = this.schemaRegistryClient.register(subject, schema);
-            this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectPattern(id))
+            this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
                     .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
             log.debug("Registered schema {}", id);
             return id;
@@ -159,7 +159,7 @@ public class SchemaRegistryMock {
     private List<Integer> delete(final String subject) {
         try {
             final List<Integer> ids = this.schemaRegistryClient.getAllVersions(subject);
-            ids.forEach(id -> this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectPattern(id))));
+            ids.forEach(id -> this.mockSchemaRegistry.removeStub(WireMock.get(getSchemaPattern(id))));
             this.schemaRegistryClient.deleteSubject(subject);
             return ids;
         } catch (final IOException | RestClientException e) {
@@ -208,7 +208,7 @@ public class SchemaRegistryMock {
     }
 
 
-    private static UrlPattern getSubjectPattern(final Integer id) {
+    private static UrlPattern getSchemaPattern(final Integer id) {
         return WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id);
     }
 
