@@ -26,8 +26,10 @@ package com.bakdata.schemaregistrymock;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.avro.Schema;
@@ -121,6 +123,66 @@ class SchemaRegistryMockTest {
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
         assertThat(retrievedSchema).isEqualTo(valueSchema2);
+    }
+
+    @Test
+    void shouldReturnAllSubjects() throws IOException, RestClientException {
+        this.schemaRegistry.registerKeySchema("test-topic", this.createSchema("key_schema"));
+        this.schemaRegistry.registerValueSchema("test-topic", this.createSchema("value_schema"));
+        final Collection<String> allSubjects = this.schemaRegistry.getSchemaRegistryClient().getAllSubjects();
+        assertThat(allSubjects).hasSize(2).containsExactly("test-topic-key", "test-topic-value");
+    }
+
+    @Test
+    void shouldReturnEmptyListForNoSubjects() throws IOException, RestClientException {
+        final Collection<String> allSubjects = this.schemaRegistry.getSchemaRegistryClient().getAllSubjects();
+        assertThat(allSubjects).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteKeySchema() throws IOException, RestClientException {
+        this.schemaRegistry.registerKeySchema("test-topic", this.createSchema("key_schema"));
+        final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
+        final Collection<String> allSubjects = client.getAllSubjects();
+        assertThat(allSubjects).hasSize(1).containsExactly("test-topic-key");
+        this.schemaRegistry.deleteKeySchema("test-topic");
+        final Collection<String> subjectsAfterDeletion = client.getAllSubjects();
+        assertThat(subjectsAfterDeletion).isEmpty();
+    }
+
+
+    @Test
+    void shouldDeleteValueSchema() throws IOException, RestClientException {
+        final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
+        this.schemaRegistry.registerValueSchema("test-topic", this.createSchema("value_schema"));
+        final Collection<String> allSubjects = client.getAllSubjects();
+        assertThat(allSubjects).hasSize(1).containsExactly("test-topic-value");
+        this.schemaRegistry.deleteValueSchema("test-topic");
+        final Collection<String> subjectsAfterDeletion = client.getAllSubjects();
+        assertThat(subjectsAfterDeletion).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteKeySchemaWithClient() throws IOException, RestClientException {
+        final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
+        this.schemaRegistry.registerKeySchema("test-topic", this.createSchema("key_schema"));
+        final Collection<String> allSubjects = client.getAllSubjects();
+        assertThat(allSubjects).hasSize(1).containsExactly("test-topic-key");
+        client.deleteSubject("test-topic-key");
+        final Collection<String> subjectsAfterDeletion = client.getAllSubjects();
+        assertThat(subjectsAfterDeletion).isEmpty();
+    }
+
+
+    @Test
+    void shouldDeleteValueSchemaWithClient() throws IOException, RestClientException {
+        final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
+        this.schemaRegistry.registerValueSchema("test-topic", this.createSchema("value_schema"));
+        final Collection<String> allSubjects = client.getAllSubjects();
+        assertThat(allSubjects).hasSize(1).containsExactly("test-topic-value");
+        client.deleteSubject("test-topic-value");
+        final Collection<String> subjectsAfterDeletion = client.getAllSubjects();
+        assertThat(subjectsAfterDeletion).isEmpty();
     }
 
     private Schema createSchema(final String name) {
