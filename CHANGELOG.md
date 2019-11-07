@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.0.4](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.4) (2019-11-07)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.3...2.0.4)
+
+**Merged pull requests:**
+
+- Fix schema registry behavior if a subject does not exist or has been deleted [\#36](https://github.com/bakdata/fluent-kafka-streams-tests/pull/36) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.0.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.3) (2019-10-30)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.2...2.0.3)
 
