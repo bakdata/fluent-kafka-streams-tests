@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -108,18 +109,34 @@ public class SchemaRegistryMock {
                             this.deleteSubjectHandler, this.allSubjectsHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
+    private static UrlPattern getSchemaPattern(final Integer id) {
+        return WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id);
+    }
+
+    private static UrlPattern getSubjectPattern(final String subject) {
+        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject);
+    }
+
+    private static UrlPattern getSubjectVersionsPattern(final String subject) {
+        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "/versions");
+    }
+
+    private static UrlPathPattern getSubjectVersionPattern(final String subject) {
+        return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject + "/versions/(?:latest|\\d+)");
+    }
+
     public void start() {
         this.mockSchemaRegistry.start();
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
-                .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
+                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN + "/(?:latest|\\d+)"))
-                .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
+                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.delete(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/[^/]+"))
-                .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
+                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
     }
@@ -136,18 +153,6 @@ public class SchemaRegistryMock {
         return this.register(topic + "-value", schema);
     }
 
-    private int register(final String subject, final Schema schema) {
-        try {
-            final int id = this.schemaRegistryClient.register(subject, schema);
-            this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
-                    .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
-            log.debug("Registered schema {}", id);
-            return id;
-        } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
-        }
-    }
-
     public List<Integer> deleteKeySchema(final String subject) {
         return this.delete(subject + "-key");
     }
@@ -156,10 +161,39 @@ public class SchemaRegistryMock {
         return this.delete(subject + "-value");
     }
 
+    public SchemaRegistryClient getSchemaRegistryClient() {
+        return new CachedSchemaRegistryClient(this.getUrl(), IDENTITY_MAP_CAPACITY);
+    }
+
+    public String getUrl() {
+        return "http://localhost:" + this.mockSchemaRegistry.port();
+    }
+
+    private int register(final String subject, final Schema schema) {
+        try {
+            final int id = this.schemaRegistryClient.register(subject, schema);
+            this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
+                    .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
+            this.mockSchemaRegistry.stubFor(WireMock.delete(getSubjectPattern(subject))
+                    .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
+            this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionsPattern(subject))
+                    .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
+            this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionPattern(subject))
+                    .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
+            log.debug("Registered schema {}", id);
+            return id;
+        } catch (final IOException | RestClientException e) {
+            throw new IllegalStateException("Internal error in mock schema registry client", e);
+        }
+    }
+
     private List<Integer> delete(final String subject) {
         try {
             final List<Integer> ids = this.schemaRegistryClient.getAllVersions(subject);
             ids.forEach(id -> this.mockSchemaRegistry.removeStub(WireMock.get(getSchemaPattern(id))));
+            this.mockSchemaRegistry.removeStub(WireMock.delete(getSubjectPattern(subject)));
+            this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionsPattern(subject)));
+            this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionPattern(subject)));
             this.schemaRegistryClient.deleteSubject(subject);
             return ids;
         } catch (final IOException | RestClientException e) {
@@ -191,7 +225,7 @@ public class SchemaRegistryMock {
         }
     }
 
-    private Collection<String> listAllSubjectes() {
+    private Collection<String> listAllSubjects() {
         try {
             return this.schemaRegistryClient.getAllSubjects();
         } catch (final IOException | RestClientException e) {
@@ -199,30 +233,17 @@ public class SchemaRegistryMock {
         }
     }
 
-    public SchemaRegistryClient getSchemaRegistryClient() {
-        return new CachedSchemaRegistryClient(this.getUrl(), IDENTITY_MAP_CAPACITY);
-    }
-
-    public String getUrl() {
-        return "http://localhost:" + this.mockSchemaRegistry.port();
-    }
-
-
-    private static UrlPattern getSchemaPattern(final Integer id) {
-        return WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id);
-    }
-
     private abstract static class SubjectsHandler extends ResponseDefinitionTransformer {
         // Expected url pattern /subjects(/.*-value/versions)
         protected final Splitter urlSplitter = Splitter.on('/').omitEmptyStrings();
 
-        protected String getSubject(final Request request) {
-            return Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
-        }
-
         @Override
         public boolean applyGlobally() {
             return false;
+        }
+
+        protected String getSubject(final Request request) {
+            return Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
         }
     }
 
@@ -230,7 +251,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final String subject = Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
             try {
                 final int id = SchemaRegistryMock.this.register(subject,
@@ -254,7 +275,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final List<Integer> versions = SchemaRegistryMock.this.listVersions(this.getSubject(request));
             log.debug("Got versions {}", versions);
             return ResponseDefinitionBuilder.jsonResponse(versions);
@@ -270,7 +291,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final String versionStr = Iterables.get(this.urlSplitter.split(request.getUrl()), 3);
             final SchemaMetadata metadata;
             if (versionStr.equals("latest")) {
@@ -291,7 +312,7 @@ public class SchemaRegistryMock {
     private class DeleteSubjectHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final List<Integer> ids = SchemaRegistryMock.this.delete(this.getSubject(request));
             return ResponseDefinitionBuilder.jsonResponse(ids);
         }
@@ -305,8 +326,8 @@ public class SchemaRegistryMock {
     private class AllSubjectsHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
-            final Collection<String> body = SchemaRegistryMock.this.listAllSubjectes();
+                final FileSource files, final Parameters parameters) {
+            final Collection<String> body = SchemaRegistryMock.this.listAllSubjects();
             return ResponseDefinitionBuilder.jsonResponse(body);
         }
 
