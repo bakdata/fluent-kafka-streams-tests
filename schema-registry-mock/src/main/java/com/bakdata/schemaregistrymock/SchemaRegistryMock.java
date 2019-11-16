@@ -23,6 +23,7 @@
  */
 package com.bakdata.schemaregistrymock;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -42,6 +43,7 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.rest.entities.ErrorMessage;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaRequest;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaResponse;
@@ -96,6 +98,7 @@ public class SchemaRegistryMock {
     private static final String ALL_SUBJECT_PATTERN = "/subjects";
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
+    private static final String SCHEMA_VERSION_PATTERN = "/subjects/[^/]+\\?deleted=true";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
 
     private final ListVersionsHandler listVersionsHandler = new ListVersionsHandler();
@@ -103,10 +106,11 @@ public class SchemaRegistryMock {
     private final AutoRegistrationHandler autoRegistrationHandler = new AutoRegistrationHandler();
     private final DeleteSubjectHandler deleteSubjectHandler = new DeleteSubjectHandler();
     private final AllSubjectsHandler allSubjectsHandler = new AllSubjectsHandler();
+    private final SchemaVersionHandler schemaVersionHandler = new SchemaVersionHandler();
     private final WireMockServer mockSchemaRegistry = new WireMockServer(
             WireMockConfiguration.wireMockConfig().dynamicPort()
                     .extensions(this.autoRegistrationHandler, this.listVersionsHandler, this.getVersionHandler,
-                            this.deleteSubjectHandler, this.allSubjectsHandler));
+                            this.deleteSubjectHandler, this.allSubjectsHandler, this.schemaVersionHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
     private static UrlPattern getSchemaPattern(final Integer id) {
@@ -139,6 +143,8 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
+        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlMatching(SCHEMA_VERSION_PATTERN))
+                .willReturn(WireMock.aResponse().withTransformers(this.schemaVersionHandler.getName())));
     }
 
     public void stop() {
@@ -251,7 +257,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final String subject = Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
             try {
                 final int id = SchemaRegistryMock.this.register(subject,
@@ -275,7 +281,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final List<Integer> versions = SchemaRegistryMock.this.listVersions(this.getSubject(request));
             log.debug("Got versions {}", versions);
             return ResponseDefinitionBuilder.jsonResponse(versions);
@@ -291,7 +297,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final String versionStr = Iterables.get(this.urlSplitter.split(request.getUrl()), 3);
             final SchemaMetadata metadata;
             if (versionStr.equals("latest")) {
@@ -312,7 +318,7 @@ public class SchemaRegistryMock {
     private class DeleteSubjectHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final List<Integer> ids = SchemaRegistryMock.this.delete(this.getSubject(request));
             return ResponseDefinitionBuilder.jsonResponse(ids);
         }
@@ -326,7 +332,7 @@ public class SchemaRegistryMock {
     private class AllSubjectsHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files, final Parameters parameters) {
+                                            final FileSource files, final Parameters parameters) {
             final Collection<String> body = SchemaRegistryMock.this.listAllSubjects();
             return ResponseDefinitionBuilder.jsonResponse(body);
         }
@@ -336,4 +342,42 @@ public class SchemaRegistryMock {
             return AllSubjectsHandler.class.getSimpleName();
         }
     }
+
+    private class SchemaVersionHandler extends SubjectsHandler {
+        @Override
+        public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
+                                            final FileSource files, final Parameters parameters) {
+            try {
+                final Schema schema = new Schema.Parser()
+                        .parse(RegisterSchemaRequest.fromJson(request.getBodyAsString()).getSchema());
+                final String subject = this.getSubject(request);
+                final int schemaVersion = SchemaRegistryMock.this.schemaRegistryClient.getVersion(subject, schema);
+                final int schemaId = SchemaRegistryMock.this.schemaRegistryClient.getId(subject, schema);
+
+                return ResponseDefinitionBuilder
+                        .jsonResponse(new io.confluent.kafka.schemaregistry.client.rest.entities.Schema(
+                                subject, schemaVersion, schemaId, schema.toString()
+                        ));
+            } catch (final IOException | RestClientException e) {
+                final ErrorMessage error = new ErrorMessage(HTTP_BAD_REQUEST, "Cannot fetch schema version");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_BAD_REQUEST);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return SchemaVersionHandler.class.getSimpleName();
+        }
+
+        @Override
+        protected String getSubject(final Request request) {
+            String subject = super.getSubject(request);
+            // remove request parameters
+            if (subject.contains("?")) {
+                subject = subject.split("\\?")[0];
+            }
+            return subject;
+        }
+    }
+
 }
