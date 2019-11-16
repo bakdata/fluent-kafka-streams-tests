@@ -56,11 +56,14 @@ import org.apache.avro.Schema;
 
 /**
  * <p>The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.</p>
- * In particular,
+ * In particular, you can
  * <ul>
- * <li>you can register a schema</li>
- * <li>retrieve a schema by id.</li>
+ * <li> register a schema</li>
+ * <li>retrieve a schema by id</li>
  * <li>list and get schema versions of a subject</li>
+ * <li>list all subjects</li>
+ * <li>delete a schema</li>
+ * <li>retrieve the version of a schema</li>
  * </ul>
  *
  * <p>If you use the TestTopology of the fluent Kafka Streams test, you don't have to interact with this class at
