@@ -23,7 +23,7 @@
  */
 package com.bakdata.schemaregistrymock;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
@@ -63,7 +64,7 @@ import org.apache.avro.Schema;
  * <li>list and get schema versions of a subject</li>
  * <li>list all subjects</li>
  * <li>delete a schema</li>
- * <li>retrieve the version of a schema</li>
+ * <li>retrieve version and subject of a schema</li>
  * </ul>
  *
  * <p>If you use the TestTopology of the fluent Kafka Streams test, you don't have to interact with this class at
@@ -101,7 +102,7 @@ public class SchemaRegistryMock {
     private static final String ALL_SUBJECT_PATTERN = "/subjects";
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
-    private static final String SCHEMA_VERSION_PATTERN = "/subjects/[^/]+\\?deleted=true";
+    private static final String SPECIFIC_SCHEMA_PATTERN = "/subjects/[^/]+";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
 
     private final ListVersionsHandler listVersionsHandler = new ListVersionsHandler();
@@ -109,11 +110,11 @@ public class SchemaRegistryMock {
     private final AutoRegistrationHandler autoRegistrationHandler = new AutoRegistrationHandler();
     private final DeleteSubjectHandler deleteSubjectHandler = new DeleteSubjectHandler();
     private final AllSubjectsHandler allSubjectsHandler = new AllSubjectsHandler();
-    private final SchemaVersionHandler schemaVersionHandler = new SchemaVersionHandler();
+    private final SchemaHandler schemaHandler = new SchemaHandler();
     private final WireMockServer mockSchemaRegistry = new WireMockServer(
             WireMockConfiguration.wireMockConfig().dynamicPort()
                     .extensions(this.autoRegistrationHandler, this.listVersionsHandler, this.getVersionHandler,
-                            this.deleteSubjectHandler, this.allSubjectsHandler, this.schemaVersionHandler));
+                            this.deleteSubjectHandler, this.allSubjectsHandler, this.schemaHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
     private static UrlPattern getSchemaPattern(final Integer id) {
@@ -146,8 +147,8 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlMatching(SCHEMA_VERSION_PATTERN))
-                .willReturn(WireMock.aResponse().withTransformers(this.schemaVersionHandler.getName())));
+        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SPECIFIC_SCHEMA_PATTERN))
+                .willReturn(WireMock.aResponse().withTransformers(this.schemaHandler.getName())));
     }
 
     public void stop() {
@@ -243,8 +244,8 @@ public class SchemaRegistryMock {
     }
 
     private abstract static class SubjectsHandler extends ResponseDefinitionTransformer {
-        // Expected url pattern /subjects(/.*-value/versions)
-        protected final Splitter urlSplitter = Splitter.on('/').omitEmptyStrings();
+        // Expected url pattern /subjects(/.*-value/(versions|?param))
+        protected final Splitter urlSplitter = Splitter.on(CharMatcher.anyOf("/?")).omitEmptyStrings();
 
         @Override
         public boolean applyGlobally() {
@@ -346,41 +347,69 @@ public class SchemaRegistryMock {
         }
     }
 
-    private class SchemaVersionHandler extends SubjectsHandler {
+    private class SchemaHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
                 final FileSource files, final Parameters parameters) {
-            try {
-                final Schema schema = new Schema.Parser()
-                        .parse(RegisterSchemaRequest.fromJson(request.getBodyAsString()).getSchema());
-                final String subject = this.getSubject(request);
-                final int schemaVersion = SchemaRegistryMock.this.schemaRegistryClient.getVersion(subject, schema);
-                final int schemaId = SchemaRegistryMock.this.schemaRegistryClient.getId(subject, schema);
+            final String requestSubject = this.getSubject(request);
+            final boolean deletedAllowed = this.isDeletedAllowed(request);
+            // Check if requestSubject exists. This is required because the mock always throws an exception
+            // with 'Schema not found'
+            final boolean subjectExists = SchemaRegistryMock.this.listAllSubjects().stream()
+                    .anyMatch(subject -> subject.equals(requestSubject));
 
+            if (!subjectExists) {
+                final ErrorMessage error = new ErrorMessage(40401, "Subject not found");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_NOT_FOUND);
+            }
+
+            final Schema schema;
+            try {
+                schema = new Schema.Parser()
+                        .parse(RegisterSchemaRequest.fromJson(request.getBodyAsString()).getSchema());
+            } catch (final IOException e) {
+                final ErrorMessage error =
+                        new ErrorMessage(HTTP_INTERNAL_ERROR, "Error while looking up schema under subject topic");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_INTERNAL_ERROR);
+            }
+
+            try {
+                final int schemaId = SchemaRegistryMock.this.schemaRegistryClient.getId(requestSubject, schema);
+                final int schemaVersion = this.getSchemaVersion(requestSubject, deletedAllowed, schema);
                 return ResponseDefinitionBuilder
                         .jsonResponse(new io.confluent.kafka.schemaregistry.client.rest.entities.Schema(
-                                subject, schemaVersion, schemaId, schema.toString()
-                        ));
-            } catch (final IOException | RestClientException e) {
-                final ErrorMessage error = new ErrorMessage(HTTP_BAD_REQUEST, "Cannot fetch schema version");
-                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_BAD_REQUEST);
+                                requestSubject, schemaVersion, schemaId, schema.toString()));
+            } catch (final RestClientException | IOException e) {
+                final ErrorMessage error = new ErrorMessage(40403, "Schema not found");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_NOT_FOUND);
             }
+        }
+
+        private int getSchemaVersion(final String requestSubject, final boolean deletedAllowed, final Schema schema)
+                throws IOException, RestClientException {
+            final int schemaVersion;
+            if (deletedAllowed) {
+                schemaVersion = SchemaRegistryMock.this.schemaRegistryClient.getVersion(requestSubject, schema);
+            } else {
+                // throws an exception if schema was deleted
+                schemaVersion = SchemaRegistryMock.this.getSchemaRegistryClient().getVersion(requestSubject, schema);
+            }
+            return schemaVersion;
+        }
+
+        private boolean isDeletedAllowed(final Request request) {
+            boolean deletedAllowed = false;
+            if (request.getUrl().contains("?deleted=")) {
+                deletedAllowed = Boolean.parseBoolean(request.getUrl().split("=")[1]);
+            }
+            return deletedAllowed;
         }
 
         @Override
         public String getName() {
-            return SchemaVersionHandler.class.getSimpleName();
+            return SchemaHandler.class.getSimpleName();
         }
 
-        @Override
-        protected String getSubject(final Request request) {
-            String subject = super.getSubject(request);
-            // remove request parameters
-            if (subject.contains("?")) {
-                subject = subject.split("\\?")[0];
-            }
-            return subject;
-        }
     }
 
 }
