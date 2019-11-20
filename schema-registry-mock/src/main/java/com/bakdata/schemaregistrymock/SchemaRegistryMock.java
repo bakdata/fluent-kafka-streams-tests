@@ -260,7 +260,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final String subject = Iterables.get(this.urlSplitter.split(request.getUrl()), 1);
             try {
                 final int id = SchemaRegistryMock.this.register(subject,
@@ -284,7 +284,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final List<Integer> versions = SchemaRegistryMock.this.listVersions(this.getSubject(request));
             log.debug("Got versions {}", versions);
             return ResponseDefinitionBuilder.jsonResponse(versions);
@@ -300,7 +300,7 @@ public class SchemaRegistryMock {
 
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final String versionStr = Iterables.get(this.urlSplitter.split(request.getUrl()), 3);
             final SchemaMetadata metadata;
             if (versionStr.equals("latest")) {
@@ -321,7 +321,7 @@ public class SchemaRegistryMock {
     private class DeleteSubjectHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final List<Integer> ids = SchemaRegistryMock.this.delete(this.getSubject(request));
             return ResponseDefinitionBuilder.jsonResponse(ids);
         }
@@ -335,7 +335,7 @@ public class SchemaRegistryMock {
     private class AllSubjectsHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             final Collection<String> body = SchemaRegistryMock.this.listAllSubjects();
             return ResponseDefinitionBuilder.jsonResponse(body);
         }
@@ -349,7 +349,7 @@ public class SchemaRegistryMock {
     private class SchemaVersionHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                                            final FileSource files, final Parameters parameters) {
+                final FileSource files, final Parameters parameters) {
             try {
                 final Schema schema = new Schema.Parser()
                         .parse(RegisterSchemaRequest.fromJson(request.getBodyAsString()).getSchema());
