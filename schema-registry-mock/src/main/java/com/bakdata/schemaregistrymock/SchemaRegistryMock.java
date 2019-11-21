@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
@@ -348,12 +347,17 @@ public class SchemaRegistryMock {
         }
     }
 
+    /**
+     * The SchemaHandler returns version and id for a given schema.
+     *
+     * Note: It returns "Schema not found, Error code 40403" for a deleted schema even if the request parameter
+     * 'deleted' is set to true. The MockSchemaRegistryClient does not save the version of a deleted schema.
+     */
     private class SchemaHandler extends SubjectsHandler {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
                 final FileSource files, final Parameters parameters) {
             final String requestSubject = this.getSubject(request);
-            final boolean deletedAllowed = this.isDeletedAllowed(request);
             // Check if requestSubject exists. This is required because the mock always throws an exception
             // with 'Schema not found'
             final boolean subjectExists = SchemaRegistryMock.this.listAllSubjects().stream()
@@ -376,7 +380,8 @@ public class SchemaRegistryMock {
 
             try {
                 final int schemaId = SchemaRegistryMock.this.schemaRegistryClient.getId(requestSubject, schema);
-                final int schemaVersion = this.getSchemaVersion(requestSubject, deletedAllowed, schema);
+                final int schemaVersion =
+                        SchemaRegistryMock.this.schemaRegistryClient.getVersion(requestSubject, schema);
                 return ResponseDefinitionBuilder
                         .jsonResponse(new io.confluent.kafka.schemaregistry.client.rest.entities.Schema(
                                 requestSubject, schemaVersion, schemaId, schema.toString()));
@@ -384,27 +389,6 @@ public class SchemaRegistryMock {
                 final ErrorMessage error = new ErrorMessage(40403, "Schema not found");
                 return ResponseDefinitionBuilder.jsonResponse(error, HTTP_NOT_FOUND);
             }
-        }
-
-        private int getSchemaVersion(final String requestSubject, final boolean deletedAllowed, final Schema schema)
-                throws IOException, RestClientException {
-            final int schemaVersion;
-            if (deletedAllowed) {
-                schemaVersion = SchemaRegistryMock.this.schemaRegistryClient.getVersion(requestSubject, schema);
-            } else {
-                // throws an exception if schema was deleted
-                schemaVersion = SchemaRegistryMock.this.getSchemaRegistryClient().getVersion(requestSubject, schema);
-            }
-            return schemaVersion;
-        }
-
-        private boolean isDeletedAllowed(final Request request) {
-            boolean deletedAllowed = false;
-            final QueryParameter deleted = request.queryParameter("deleted");
-            if (deleted.isPresent()) {
-                deletedAllowed = Boolean.parseBoolean(deleted.firstValue());
-            }
-            return deletedAllowed;
         }
 
         @Override

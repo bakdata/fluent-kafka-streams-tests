@@ -318,39 +318,6 @@ class SchemaRegistryMockTest {
                 .hasMessage("Subject not found; error code: 40401");
     }
 
-    @Test
-    void shouldReturnVersionForDeletedSchema() throws IOException, RestClientException {
-        final Schema testSchema = createSchema("value_schema");
-        this.schemaRegistry.registerKeySchema("test-topic", testSchema);
-
-        final int version = this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", testSchema);
-        assertThat(version).isEqualTo(1);
-
-        this.schemaRegistry.deleteValueSchema("test-topic");
-        this.schemaRegistry.registerValueSchema("test-topic", createSchema("new_schema"));
-
-        final Integer versionAfterDeletion =
-                this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", testSchema);
-        assertThat(versionAfterDeletion).isEqualTo(1);
-    }
-
-    @Test
-    void shouldNotReturnIdForDeletedSchema() throws IOException, RestClientException {
-        final Schema testSchema = createSchema("value_schema");
-        this.schemaRegistry.registerKeySchema("test-topic", testSchema);
-
-        final Integer version = this.schemaRegistry.getSchemaRegistryClient().getId("test-topic-key", testSchema);
-        assertThat(version).isEqualTo(1);
-
-        this.schemaRegistry.deleteKeySchema("test-topic");
-        this.schemaRegistry.registerKeySchema("test-topic", createSchema("new_schema"));
-
-        assertThatThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getId("test-topic-key", testSchema))
-                .isInstanceOfSatisfying(RestClientException.class,
-                        e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND))
-                .hasMessage("Schema not found; error code: 40403");
-    }
-
     private static Schema createSchema(final String name) {
         return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
     }
