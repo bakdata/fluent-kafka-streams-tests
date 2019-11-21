@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
@@ -59,12 +60,12 @@ import org.apache.avro.Schema;
  * <p>The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.</p>
  * In particular, you can
  * <ul>
- * <li> register a schema</li>
+ * <li>register a schema</li>
  * <li>retrieve a schema by id</li>
  * <li>list and get schema versions of a subject</li>
  * <li>list all subjects</li>
- * <li>delete a schema</li>
- * <li>retrieve version and subject of a schema</li>
+ * <li>delete a subject</li>
+ * <li>retrieve version and id of a schema</li>
  * </ul>
  *
  * <p>If you use the TestTopology of the fluent Kafka Streams test, you don't have to interact with this class at
@@ -399,8 +400,9 @@ public class SchemaRegistryMock {
 
         private boolean isDeletedAllowed(final Request request) {
             boolean deletedAllowed = false;
-            if (request.getUrl().contains("?deleted=")) {
-                deletedAllowed = Boolean.parseBoolean(request.getUrl().split("=")[1]);
+            final QueryParameter deleted = request.queryParameter("deleted");
+            if (deleted.isPresent()) {
+                deletedAllowed = Boolean.parseBoolean(deleted.firstValue());
             }
             return deletedAllowed;
         }
