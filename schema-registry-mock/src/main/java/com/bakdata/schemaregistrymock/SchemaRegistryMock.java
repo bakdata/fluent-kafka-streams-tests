@@ -110,7 +110,7 @@ public class SchemaRegistryMock {
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
     private static UrlPattern getSchemaPattern(final Integer id) {
-        return WireMock.urlEqualTo(SCHEMA_BY_ID_PATTERN + id);
+        return WireMock.urlPathEqualTo(SCHEMA_BY_ID_PATTERN + id);
     }
 
     private static UrlPattern getSubjectPattern(final String subject) {
@@ -173,6 +173,7 @@ public class SchemaRegistryMock {
         try {
             final int id = this.schemaRegistryClient.register(subject, schema);
             this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
+                    .withQueryParam("fetchMaxId", WireMock.matching("false|true"))
                     .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
             this.mockSchemaRegistry.stubFor(WireMock.delete(getSubjectPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
