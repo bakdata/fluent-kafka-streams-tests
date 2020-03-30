@@ -237,29 +237,6 @@ class SchemaRegistryMockTest {
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
 
-    @Test
-    void shouldHaveLatestSchemaVersion() throws IOException, RestClientException {
-        final Schema valueSchema1 = this.createSchema("value_schema");
-        final String topic = "test-topic";
-        final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
-
-        List<Schema.Field> fields = Collections.singletonList(
-                new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", (Object) null));
-        final Schema valueSchema2 = Schema.createRecord("value_schema", "no doc", "", false, fields);
-        final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
-
-        final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
-        assertThat(versions.size()).isEqualTo(2);
-
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
-        int metadataId = metadata.getId();
-        assertThat(metadataId).isNotEqualTo(id1);
-        assertThat(metadataId).isEqualTo(id2);
-        final String schemaString = metadata.getSchema();
-        final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
-        assertThat(retrievedSchema).isEqualTo(valueSchema2);
-    }
-
     private static Schema createSchema(final String name) {
         return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
     }
