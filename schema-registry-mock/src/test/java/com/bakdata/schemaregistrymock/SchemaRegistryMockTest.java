@@ -33,8 +33,11 @@ import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientExcept
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -169,7 +172,6 @@ class SchemaRegistryMockTest {
         assertThat(subjectsAfterDeletion).isEmpty();
     }
 
-
     @Test
     void shouldDeleteValueSchema() throws IOException, RestClientException {
         final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
@@ -192,7 +194,6 @@ class SchemaRegistryMockTest {
         assertThat(subjectsAfterDeletion).isEmpty();
     }
 
-
     @Test
     void shouldDeleteValueSchemaWithClient() throws IOException, RestClientException {
         final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
@@ -210,7 +211,6 @@ class SchemaRegistryMockTest {
                 .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().deleteSubject("does_not_exist"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
-
 
     @Test
     void shouldNotHaveSchemaVersionsForDeletedSubject() throws IOException, RestClientException {
