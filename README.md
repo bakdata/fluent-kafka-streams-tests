@@ -16,15 +16,15 @@ You can add Fluent Kafka Streams Tests via Maven Central.
 
 #### Gradle
 ```gradle
-compile group: 'com.bakdata', name: 'fluent-kafka-streams-tests-junit5', version: '2.0.0'
+compile group: 'com.bakdata.fluent-kafka-streams-tests', name: 'fluent-kafka-streams-tests-junit5', version: '2.1.0'
 ```
 
 #### Maven
 ```xml
 <dependency>
-    <groupId>com.bakdata</groupId>
+    <groupId>com.bakdata.fluent-kafka-streams-tests</groupId>
     <artifactId>fluent-kafka-streams-tests-junit5</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
