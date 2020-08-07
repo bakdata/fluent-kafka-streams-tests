@@ -312,7 +312,7 @@ public class SchemaRegistryMock {
 
     private static String removeQueryParameters(final String url) {
         final int index = url.indexOf("?");
-        return index == -1? url : url.substring(0, index);
+        return index == -1 ? url : url.substring(0, index);
     }
 
     private class DeleteSubjectHandler extends SubjectsHandler {
