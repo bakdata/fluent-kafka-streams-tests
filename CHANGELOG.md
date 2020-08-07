@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.2.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.2.0) (2020-08-07)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.1.0...2.2.0)
+
+**Merged pull requests:**
+
+- Update Kafka to 2.5.0 [\#41](https://github.com/bakdata/fluent-kafka-streams-tests/pull/41) ([@philipp94831](https://github.com/philipp94831))
+- Fix maven dependency documentation [\#40](https://github.com/bakdata/fluent-kafka-streams-tests/pull/40) ([@linuxidefix](https://github.com/linuxidefix))
+
 ## [2.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.1.0) (2020-01-21)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.4...2.1.0)
 
@@ -73,7 +81,7 @@
 
 - Pinning jackson version to avoid conflict between wiremock and schema… [\#26](https://github.com/bakdata/fluent-kafka-streams-tests/pull/26) ([@AHeise](https://github.com/AHeise))
 - Set java version of SR mock to java 8 [\#24](https://github.com/bakdata/fluent-kafka-streams-tests/pull/24) ([@AHeise](https://github.com/AHeise))
-- \(\#19\) Mock subject version endpoints [\#20](https://github.com/bakdata/fluent-kafka-streams-tests/pull/20) ([@cricket007](https://github.com/cricket007))
+- \(\#19\) Mock subject version endpoints [\#20](https://github.com/bakdata/fluent-kafka-streams-tests/pull/20) ([@OneCricketeer](https://github.com/OneCricketeer))
 
 ## [1.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.0.1) (2019-02-22)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.0...1.0.1)
