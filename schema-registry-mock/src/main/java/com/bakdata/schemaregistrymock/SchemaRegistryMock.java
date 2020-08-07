@@ -293,7 +293,7 @@ public class SchemaRegistryMock {
         @Override
         public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
                 final FileSource files, final Parameters parameters) {
-            final String versionStr = Iterables.get(this.urlSplitter.split(request.getUrl()), 3);
+            final String versionStr = Iterables.get(this.urlSplitter.split(removeQueryParameters(request.getUrl())), 3);
             final SchemaMetadata metadata;
             if (versionStr.equals("latest")) {
                 metadata = SchemaRegistryMock.this.getSubjectVersion(this.getSubject(request), versionStr);
@@ -308,6 +308,11 @@ public class SchemaRegistryMock {
         public String getName() {
             return GetVersionHandler.class.getSimpleName();
         }
+    }
+
+    private static String removeQueryParameters(final String url) {
+        final int index = url.indexOf("?");
+        return index == -1? url : url.substring(0, index);
     }
 
     private class DeleteSubjectHandler extends SubjectsHandler {
