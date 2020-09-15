@@ -87,6 +87,41 @@ void customTest() {
 
 After that, you can write a test that uses the Schema Registry in your testing framework. 
 
+#### Spring boot with Junit5 Example
+- Setup the SchemaRegistryMock as an extension of your spring boot test and start schema server.
+```java
+@ContextConfiguration(classes = {SpringApplication.class},initializers = {SchemaRegistryURLUpdater.class})
+class SpringBootTest {
+    @RegisterExtension
+    final static SchemaRegistryMockExtension schemaRegistry = new SchemaRegistryMockExtension();
+   
+    @BeforeAll
+    static void startSchemaServer(){
+        schemaRegistry.start();
+    }
+    
+    @Test
+    void someTest(){
+    // Create kafka consumer and producer for plain kafka usage, here they were configured on embedded kafka
+    ...
+    props.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistry.getUrl());
+    }   
+
+}
+```
+- Create Context Initializer for setting url in kafka stream config.
+```java
+public class SchemaRegistryURLUpdater implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    @Override
+    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+        TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                configurableApplicationContext, "spring.cloud.stream.kafka.streams.binder.configuration.schema.registry.url=" + SpringBootTest.schemaRegistry.getUrl());
+
+    }
+}
+
+```
 
 ## Development
 
