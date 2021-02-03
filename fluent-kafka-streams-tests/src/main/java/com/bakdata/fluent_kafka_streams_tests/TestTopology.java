@@ -26,7 +26,7 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -178,7 +178,8 @@ public class TestTopology<DefaultK, DefaultV> {
         return this.withDefaultSerde(defaultKeySerde, this.defaultValueSerde);
     }
 
-    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
         return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde);
     }
 
@@ -311,7 +312,7 @@ public class TestTopology<DefaultK, DefaultV> {
     public void start() {
         this.schemaRegistry.start();
         this.properties
-                .setProperty(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
+                .setProperty(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.getSchemaRegistryUrl());
         try {
             this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
         } catch (final IOException e) {

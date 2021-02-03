@@ -24,17 +24,29 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.test.TestRecord;
 
-@RequiredArgsConstructor
 abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     protected final TopologyTestDriver testDriver;
+    protected final TestOutputTopic<K, V> testOutputTopic;
     protected final String topic;
     protected final Serde<K> keySerde;
     protected final Serde<V> valueSerde;
+
+    protected BaseOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
+            final Serde<V> valueSerde) {
+        this.testDriver = testDriver;
+        this.topic = topic;
+        this.keySerde = keySerde;
+        this.valueSerde = valueSerde;
+
+        this.testOutputTopic = this.testDriver
+                .createOutputTopic(this.topic, this.keySerde.deserializer(), this.valueSerde.deserializer());
+    }
 
     /**
      * Set new serde for this output.<br/>
@@ -106,8 +118,17 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     // Non-public methods
     // ==================
     protected ProducerRecord<K, V> readFromTestDriver() {
-        return this.testDriver.readOutput(this.topic, this.keySerde.deserializer(), this.valueSerde.deserializer());
+        // the Expectation implementation requires null if the topic is empty but outputTopic.readRecord() throws a
+        // NoSuchElementException. Thus, we have to check beforehand.
+        if (this.testOutputTopic.isEmpty()) {
+            return null;
+        }
+        final TestRecord<K, V> testRecord = this.testOutputTopic.readRecord();
+        // partition is always 0, see TopologyTestDriver.PARTITION_ID
+        return new ProducerRecord<>(this.topic, 0, testRecord.timestamp(), testRecord.key(), testRecord.value(),
+                testRecord.getHeaders());
     }
+
 
     protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
             Serde<KR> keySerde, Serde<VR> valueSerde);
