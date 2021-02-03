@@ -91,8 +91,8 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * <p>With {@code app} being any Kafka Streams application that you want to test.</p>
  *
  * <p>In case the topology uses a {@link org.apache.kafka.streams.processor.TopicNameExtractor} to select output topics
- * dynamically, you must manually register these topics. You can add them to the set of output topics returned by {@link
- * #getOutputTopics()}.</p>
+ * dynamically, you must manually register these topics. You can add them to the set of output topics returned by
+ * #getOutputTopics().</p>
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
@@ -183,7 +183,8 @@ public class TestTopology<DefaultK, DefaultV> {
         return this.withDefaultSerde(defaultKeySerde, this.defaultValueSerde);
     }
 
-    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+    public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
         return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde);
     }
 
