@@ -303,7 +303,9 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     public void stop() {
-        this.testDriver.close();
+        if (this.testDriver != null) {
+            this.testDriver.close();
+        }
         this.schemaRegistry.stop();
         try (final Stream<Path> stateFiles = Files.walk(this.stateDirectory)) {
             stateFiles.sorted(Comparator.reverseOrder())

@@ -175,7 +175,7 @@ public class SchemaRegistryMock {
             this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
                     .withQueryParam("fetchMaxId", WireMock.matching("false|true"))
                     .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
-            this.mockSchemaRegistry.stubFor(WireMock.delete(getSubjectPattern(subject))
+            this.mockSchemaRegistry.stubFor(WireMock.delete(WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "?permanent=false"))
                     .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionsPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
@@ -188,11 +188,12 @@ public class SchemaRegistryMock {
         }
     }
 
-    private List<Integer> delete(final String subject) {
+    private List<Integer> delete(final String rawSubject) {
         try {
+            final String subject = removeQueryParameters(rawSubject);
             final List<Integer> ids = this.schemaRegistryClient.getAllVersions(subject);
             ids.forEach(id -> this.mockSchemaRegistry.removeStub(WireMock.get(getSchemaPattern(id))));
-            this.mockSchemaRegistry.removeStub(WireMock.delete(getSubjectPattern(subject)));
+            this.mockSchemaRegistry.removeStub(WireMock.delete(WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "?permanent=false")));
             this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionsPattern(subject)));
             this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionPattern(subject)));
             this.schemaRegistryClient.deleteSubject(subject);
