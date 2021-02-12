@@ -1,5 +1,20 @@
 # Change Log
 
+## [2.2.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.2.1) (2021-02-03)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.0...2.2.1)
+
+**Closed issues:**
+
+- NullPointerException thrown when using TopicNameExtractor for sinks in topology [\#46](https://github.com/bakdata/fluent-kafka-streams-tests/issues/46)
+- No records returned when using Suppression [\#42](https://github.com/bakdata/fluent-kafka-streams-tests/issues/42)
+- Allow checking output value contents using matchers \(e.g. AssertJ matchers\) [\#45](https://github.com/bakdata/fluent-kafka-streams-tests/issues/45)
+- Code example on how to use schema registry client for standalone spring test [\#43](https://github.com/bakdata/fluent-kafka-streams-tests/issues/43)
+
+**Merged pull requests:**
+
+- Support topolgies with dynamic output topics [\#47](https://github.com/bakdata/fluent-kafka-streams-tests/pull/47) ([@torbsto](https://github.com/torbsto))
+- Example with springboot and junit5  [\#44](https://github.com/bakdata/fluent-kafka-streams-tests/pull/44) ([@ghost](https://github.com/ghost))
+
 ## [2.2.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.2.0) (2020-08-07)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.1.0...2.2.0)
 

@@ -113,8 +113,8 @@ public class SchemaRegistryMock {
         return WireMock.urlPathEqualTo(SCHEMA_BY_ID_PATTERN + id);
     }
 
-    private static UrlPattern getSubjectPattern(final String subject) {
-        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject);
+    private static UrlPattern getDeleteSubjectPattern(final String subject) {
+        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "?permanent=false");
     }
 
     private static UrlPattern getSubjectVersionsPattern(final String subject) {
@@ -123,6 +123,11 @@ public class SchemaRegistryMock {
 
     private static UrlPathPattern getSubjectVersionPattern(final String subject) {
         return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject + "/versions/(?:latest|\\d+)");
+    }
+
+    private static String removeQueryParameters(final String url) {
+        final int index = url.indexOf('?');
+        return index == -1 ? url : url.substring(0, index);
     }
 
     public void start() {
@@ -175,7 +180,7 @@ public class SchemaRegistryMock {
             this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
                     .withQueryParam("fetchMaxId", WireMock.matching("false|true"))
                     .willReturn(ResponseDefinitionBuilder.okForJson(new SchemaString(schema.toString()))));
-            this.mockSchemaRegistry.stubFor(WireMock.delete(getSubjectPattern(subject))
+            this.mockSchemaRegistry.stubFor(WireMock.delete(getDeleteSubjectPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionsPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
@@ -188,11 +193,12 @@ public class SchemaRegistryMock {
         }
     }
 
-    private List<Integer> delete(final String subject) {
+    private List<Integer> delete(final String rawSubject) {
         try {
+            final String subject = removeQueryParameters(rawSubject);
             final List<Integer> ids = this.schemaRegistryClient.getAllVersions(subject);
             ids.forEach(id -> this.mockSchemaRegistry.removeStub(WireMock.get(getSchemaPattern(id))));
-            this.mockSchemaRegistry.removeStub(WireMock.delete(getSubjectPattern(subject)));
+            this.mockSchemaRegistry.removeStub(WireMock.delete(getDeleteSubjectPattern(subject)));
             this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionsPattern(subject)));
             this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionPattern(subject)));
             this.schemaRegistryClient.deleteSubject(subject);
@@ -295,7 +301,7 @@ public class SchemaRegistryMock {
                 final FileSource files, final Parameters parameters) {
             final String versionStr = Iterables.get(this.urlSplitter.split(removeQueryParameters(request.getUrl())), 3);
             final SchemaMetadata metadata;
-            if (versionStr.equals("latest")) {
+            if ("latest".equals(versionStr)) {
                 metadata = SchemaRegistryMock.this.getSubjectVersion(this.getSubject(request), versionStr);
             } else {
                 final int version = Integer.parseInt(versionStr);
@@ -308,11 +314,6 @@ public class SchemaRegistryMock {
         public String getName() {
             return GetVersionHandler.class.getSimpleName();
         }
-    }
-
-    private static String removeQueryParameters(final String url) {
-        final int index = url.indexOf("?");
-        return index == -1 ? url : url.substring(0, index);
     }
 
     private class DeleteSubjectHandler extends SubjectsHandler {

@@ -47,6 +47,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
 import org.apache.kafka.streams.TopologyDescription.GlobalStore;
+import org.apache.kafka.streams.TopologyDescription.Sink;
 import org.apache.kafka.streams.TopologyDescription.Source;
 import org.apache.kafka.streams.TopologyTestDriver;
 
@@ -88,6 +89,10 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * }
  * </code></pre>
  * <p>With {@code app} being any Kafka Streams application that you want to test.</p>
+ *
+ * <p>In case the topology uses a {@link org.apache.kafka.streams.processor.TopicNameExtractor} to select output topics
+ * dynamically, you must manually register these topics. You can add them to the set of output topics returned by
+ * #getOutputTopics().</p>
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
@@ -298,7 +303,9 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     public void stop() {
-        this.testDriver.close();
+        if (this.testDriver != null) {
+            this.testDriver.close();
+        }
         this.schemaRegistry.stop();
         try (final Stream<Path> stateFiles = Files.walk(this.stateDirectory)) {
             stateFiles.sorted(Comparator.reverseOrder())
@@ -332,7 +339,11 @@ public class TestTopology<DefaultK, DefaultV> {
                         addExternalTopics(this.inputTopics, topic);
                     }
                 } else if (node instanceof TopologyDescription.Sink) {
-                    addExternalTopics(this.outputTopics, ((TopologyDescription.Sink) node).topic());
+                    // might be null if a TopicNameExtractor is used
+                    final String topic = ((Sink) node).topic();
+                    if (topic != null) {
+                        addExternalTopics(this.outputTopics, topic);
+                    }
                 }
             }
         }
