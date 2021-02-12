@@ -1,9 +1,9 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import com.bakdata.fluent_kafka_streams_tests.test_applications.ErrorEventsPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.serde.JsonSerde;
+import com.bakdata.fluent_kafka_streams_tests.test_applications.ErrorEventsPerMinute;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
@@ -43,7 +43,8 @@ class ErrorEventsPerMinuteTest {
                 .at(time).add(USER, new ClickEvent(USER, 500));
 
         // Test Stream semantics
-        this.testTopology.streamOutput(this.app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
+        this.testTopology.streamOutput(this.app.getErrorOutputTopic())
+                .withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time, "Internal Server Error"))
                 .expectNoMoreRecord();
     }
@@ -78,7 +79,8 @@ class ErrorEventsPerMinuteTest {
                 .at(time).add(USER, new ClickEvent(USER, 500));
 
         // Test Stream semantics
-        this.testTopology.streamOutput(this.app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class))
+        this.testTopology.streamOutput(this.app.getErrorOutputTopic())
+                .withValueSerde(new JsonSerde<>(ErrorOutput.class))
                 .expectNextRecord().hasKey(500).hasValue(new ErrorOutput(500, 1L, time, "Internal Server Error"))
                 .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 1L, time, "Access Forbidden"))
                 .expectNextRecord().hasKey(403).hasValue(new ErrorOutput(403, 2L, time, "Access Forbidden"))
@@ -89,8 +91,8 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldCountSingleUserMultipleCodesCorrectlyTable() {
-        final TestInput<Integer, StatusCode> statusInput =
-                this.testTopology.input(this.app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
+        final TestInput<Integer, StatusCode> statusInput = this.testTopology.input(this.app.getStatusInputTopic())
+                .withValueSerde(new JsonSerde<>(StatusCode.class));
         statusInput.add(500, new StatusCode(500, "Internal Server Error"));
         statusInput.add(403, new StatusCode(403, "Access Forbidden"));
 
@@ -111,8 +113,8 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldCountMultiUserMultipleCodesMultipleWindowCorrectly() {
-        final TestInput<Integer, StatusCode> statusInput =
-                this.testTopology.input(this.app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
+        final TestInput<Integer, StatusCode> statusInput = this.testTopology.input(this.app.getStatusInputTopic())
+                .withValueSerde(new JsonSerde<>(StatusCode.class));
         statusInput.add(500, new StatusCode(500, "Internal Server Error"));
         statusInput.add(403, new StatusCode(403, "Access Forbidden"));
         statusInput.add(502, new StatusCode(502, "Bad Gateway"));
@@ -150,10 +152,10 @@ class ErrorEventsPerMinuteTest {
                 .at(time3).add(USER1, new ClickEvent(USER1, 500))
                 .at(time3).add(USER1, new ClickEvent(USER1, 500));
 
-
         // Test Stream semantics
         final TestOutput<Integer, ErrorOutput> errorOutut =
-                this.testTopology.streamOutput(this.app.getErrorOutputTopic()).withValueSerde(new JsonSerde<>(ErrorOutput.class));
+                this.testTopology.streamOutput(this.app.getErrorOutputTopic())
+                        .withValueSerde(new JsonSerde<>(ErrorOutput.class));
         errorOutut
                 // First window
                 .expectNextRecord().hasKey(502).hasValue(new ErrorOutput(502, 1L, time1, "Bad Gateway"))
@@ -182,8 +184,8 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldAlertOnSixErrors() {
-        final TestInput<Integer, StatusCode> statusInput =
-                this.testTopology.input(this.app.getStatusInputTopic()).withValueSerde(new JsonSerde<>(StatusCode.class));
+        final TestInput<Integer, StatusCode> statusInput = this.testTopology.input(this.app.getStatusInputTopic())
+                .withValueSerde(new JsonSerde<>(StatusCode.class));
         statusInput.add(500, new StatusCode(500, "Internal Server Error"));
 
         final long time = TimeUnit.MINUTES.toMillis(1);
@@ -206,31 +208,43 @@ class ErrorEventsPerMinuteTest {
 
     @Test
     void shouldFailOnTooManyInputsForUnnamedCall() {
-        assertThrows(IllegalStateException.class, this.testTopology::input);
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(this.testTopology::input)
+                .withMessageStartingWith("#input() works with exactly 1 topic");
     }
 
     @Test
     void shouldFailOnTooManyOutputsForUnnamedCallStream() {
-        assertThrows(IllegalStateException.class, this.testTopology::streamOutput);
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(this.testTopology::streamOutput)
+                .withMessage("Please use #output(String) to select a topic");
     }
 
     @Test
     void shouldFailOnTooManyOutputsForUnnamedCallTable() {
-        assertThrows(IllegalStateException.class, this.testTopology::tableOutput);
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(this.testTopology::streamOutput)
+                .withMessage("Please use #output(String) to select a topic");
     }
 
     @Test
     void shouldFailOnBadInputName() {
-        assertThrows(NoSuchElementException.class, () -> this.testTopology.input("bad-name"));
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() -> this.testTopology.input("bad-name"))
+                .withMessage("Input topic 'bad-name' not found");
     }
 
     @Test
     void shouldFailOnBadOutputNameStream() {
-        assertThrows(NoSuchElementException.class, () -> this.testTopology.streamOutput("bad-name"));
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() -> this.testTopology.streamOutput("bad-name"))
+                .withMessage("Output topic 'bad-name' not found");
     }
 
     @Test
     void shouldFailOnBadOutputNameTable() {
-        assertThrows(NoSuchElementException.class, () -> this.testTopology.tableOutput("bad-name"));
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() -> this.testTopology.tableOutput("bad-name"))
+                .withMessage("Output topic 'bad-name' not found");
     }
 }

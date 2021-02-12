@@ -26,12 +26,10 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.apache.kafka.streams.test.ConsumerRecordFactory;
 
 /**
  * Represents the input topic for the tested app via {@link TestTopology}.
@@ -41,11 +39,12 @@ import org.apache.kafka.streams.test.ConsumerRecordFactory;
  */
 public class TestInput<K, V> {
     private final TopologyTestDriver testDriver;
+    private final TestInputTopic<K, V> testInputTopic;
     private final String topic;
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
-    private final ConsumerRecordFactory<K, V> consumerFactory;
-    private Long timestamp;
+
+    private Long timestamp = null;
 
     /**
      * <p>Constructor for the test input topic.</p>
@@ -62,23 +61,16 @@ public class TestInput<K, V> {
         this.keySerde = keySerde;
         this.valueSerde = valueSerde;
 
-        this.consumerFactory = new ConsumerRecordFactory<>(topic,
-                keySerde == null ? new UnspecifiedSerializer<K>() : keySerde.serializer(),
-                valueSerde == null ? new UnspecifiedSerializer<V>() : valueSerde.serializer()) {
-            @Override
-            public ConsumerRecord<byte[], byte[]> create(final String topicName, final K key, final V value,
-                    final Headers headers, final long timestampMs) {
-                final ConsumerRecord<byte[], byte[]> record = super.create(topicName, key, value, headers, timestampMs);
-                testDriver.pipeInput(record);
-                return record;
-            }
-        };
+        this.testInputTopic = this.testDriver.createInputTopic(this.topic,
+                this.keySerde == null ? new UnspecifiedSerializer<>() : this.keySerde.serializer(),
+                this.valueSerde == null ? new UnspecifiedSerializer<>() : this.valueSerde.serializer()
+        );
     }
 
     /**
      * Set new serde for this input.
      *
-     * @param keySerde   The serializer/deserializer to be used for the keys in the input.
+     * @param keySerde The serializer/deserializer to be used for the keys in the input.
      * @param valueSerde The serializer/deserializer to be used for the values in the input.
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
@@ -125,9 +117,8 @@ public class TestInput<K, V> {
     }
 
     /**
-     * Add a value to the input topic. The key will default to null. If a timestamp was specified with
-     * {@link #at(long, TimeUnit)} or {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will
-     * default to 0.
+     * Add a value to the input topic. The key will default to null. If a timestamp was specified with {@link #at(long,
+     * TimeUnit)} or {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will default to 0.
      *
      * @param value Value to be inserted into topic.
      * @return This input, so it can be chained.
@@ -137,8 +128,8 @@ public class TestInput<K, V> {
     }
 
     /**
-     * Add a key and value to the input topic. If a timestamp was specified with {@link #at(long, TimeUnit)} or
-     * {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will default to 0.
+     * Add a key and value to the input topic. If a timestamp was specified with {@link #at(long, TimeUnit)} or {@link
+     * #at(long)}, that timestamp will be used here. Otherwise, the timestamp will default to 0.
      *
      * @param key Key to be inserted into the topic.
      * @param value Value to be inserted into topic.
@@ -149,8 +140,8 @@ public class TestInput<K, V> {
     }
 
     /**
-     * Add a key and value to the input topic with a given timestamp. The recommended way is to use
-     * {@link #at(long, TimeUnit)} or {@link #at(long)}, as they are easier to read and more expressive.
+     * Add a key and value to the input topic with a given timestamp. The recommended way is to use {@link #at(long,
+     * TimeUnit)} or {@link #at(long)}, as they are easier to read and more expressive.
      *
      * @param key Key to be inserted into the topic.
      * @param value Value to be inserted into topic.
@@ -165,7 +156,7 @@ public class TestInput<K, V> {
     // Non-public methods
     // ==================
     private TestInput<K, V> addInternal(final K key, final V value, final Long timestamp) {
-        this.consumerFactory.create(key, value, timestamp == null ? 0 : timestamp);
+        this.testInputTopic.pipeInput(key, value, timestamp == null ? 0 : timestamp);
         return this;
     }
 

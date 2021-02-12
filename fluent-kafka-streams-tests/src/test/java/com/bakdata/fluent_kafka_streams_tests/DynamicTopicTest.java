@@ -1,8 +1,9 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.bakdata.fluent_kafka_streams_tests.test_applications.TopicExtractorApplication;
 import java.util.NoSuchElementException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,15 +44,15 @@ public class DynamicTopicTest {
 
     @Test
     void shouldThrowExceptionForNonExistingStreamOutputTopic() {
-        Assertions.assertThatExceptionOfType(NoSuchElementException.class)
+        assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> this.testTopology.streamOutput("non-existing"))
                 .withMessage("Output topic 'non-existing' not found");
     }
 
     @Test
     void shouldThrowExceptionForNonExistingTableOutputTopic() {
-        Assertions.assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(() -> this.testTopology.streamOutput("non-existing"))
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() -> this.testTopology.tableOutput("non-existing"))
                 .withMessage("Output topic 'non-existing' not found");
     }
 

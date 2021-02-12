@@ -1,6 +1,7 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -182,6 +183,40 @@ class WordCountTest {
         final Iterator<ProducerRecord<String, Long>> output = this.testTopology.tableOutput()
                 .withSerde(Serdes.String(), Serdes.Long()).iterator();
         assertThrows(NoSuchElementException.class, output::next);
+    }
+
+    @Test
+    void shouldThrowAssertionErrorIfNotPresent() {
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().isPresent())
+                .withMessage("No more records found");
+    }
+
+    @Test
+    void shouldThrowAssertionErrorIfKeyNotMatching() {
+        this.testTopology.input().add("bla", "blub");
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().hasKey("nope"))
+                .withMessage("Record key does not match");
+    }
+
+    @Test
+    void shouldThrowAssertionErrorIfValueNotMatching() {
+        this.testTopology.input().add("bla", "blub");
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().hasValue("nope"))
+                .withMessage("Record value does not match");
+    }
+
+    @Test
+    void shouldThrowAssertionErrorIfNotEmpty() {
+        this.testTopology.input().add("bla").add("blub");
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().toBeEmpty())
+                .withMessage("More records found");
     }
 
     @Test
