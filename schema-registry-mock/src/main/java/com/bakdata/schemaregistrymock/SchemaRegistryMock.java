@@ -114,7 +114,7 @@ public class SchemaRegistryMock {
     }
 
     private static UrlPattern getDeleteSubjectPattern(final String subject) {
-        return WireMock.urlEqualTo((ALL_SUBJECT_PATTERN + "/" + subject) + "?permanent=false");
+        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "?permanent=false");
     }
 
     private static UrlPattern getSubjectVersionsPattern(final String subject) {
