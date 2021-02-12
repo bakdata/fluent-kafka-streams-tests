@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.3.0) (2021-02-12)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.1...2.3.0)
+
+**Merged pull requests:**
+
+- Replace deprecated TopologyTestDriver API [\#49](https://github.com/bakdata/fluent-kafka-streams-tests/pull/49) ([@torbsto](https://github.com/torbsto))
+- Update Kafka to 2.7 [\#48](https://github.com/bakdata/fluent-kafka-streams-tests/pull/48) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.2.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.2.1) (2021-02-03)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.0...2.2.1)
 
