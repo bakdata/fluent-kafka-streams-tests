@@ -23,6 +23,7 @@
  */
 package com.bakdata.schemaregistrymock;
 
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -36,12 +37,14 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.rest.entities.ErrorMessage;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaRequest;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaResponse;
@@ -54,11 +57,14 @@ import org.apache.avro.Schema;
 
 /**
  * <p>The schema registry mock implements a few basic HTTP endpoints that are used by the Avro serdes.</p>
- * In particular,
+ * In particular, you can
  * <ul>
- * <li>you can register a schema</li>
- * <li>retrieve a schema by id.</li>
+ * <li>register a schema</li>
+ * <li>retrieve a schema by id</li>
  * <li>list and get schema versions of a subject</li>
+ * <li>list all subjects</li>
+ * <li>delete a subject</li>
+ * <li>retrieve version and id of a schema</li>
  * </ul>
  *
  * <p>If you use the TestTopology of the fluent Kafka Streams test, you don't have to interact with this class at
@@ -96,6 +102,7 @@ public class SchemaRegistryMock {
     private static final String ALL_SUBJECT_PATTERN = "/subjects";
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
+    private static final String SPECIFIC_SCHEMA_PATTERN = "/subjects/[^/]+";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
 
     private final ListVersionsHandler listVersionsHandler = new ListVersionsHandler();
@@ -103,10 +110,11 @@ public class SchemaRegistryMock {
     private final AutoRegistrationHandler autoRegistrationHandler = new AutoRegistrationHandler();
     private final DeleteSubjectHandler deleteSubjectHandler = new DeleteSubjectHandler();
     private final AllSubjectsHandler allSubjectsHandler = new AllSubjectsHandler();
+    private final SchemaHandler schemaHandler = new SchemaHandler();
     private final WireMockServer mockSchemaRegistry = new WireMockServer(
             WireMockConfiguration.wireMockConfig().dynamicPort()
                     .extensions(this.autoRegistrationHandler, this.listVersionsHandler, this.getVersionHandler,
-                            this.deleteSubjectHandler, this.allSubjectsHandler));
+                            this.deleteSubjectHandler, this.allSubjectsHandler, this.schemaHandler));
     private final SchemaRegistryClient schemaRegistryClient = new MockSchemaRegistryClient();
 
     private static UrlPattern getSchemaPattern(final Integer id) {
@@ -144,6 +152,8 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
+        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SPECIFIC_SCHEMA_PATTERN))
+                .willReturn(WireMock.aResponse().withTransformers(this.schemaHandler.getName())));
     }
 
     public void stop() {
@@ -241,8 +251,8 @@ public class SchemaRegistryMock {
     }
 
     private abstract static class SubjectsHandler extends ResponseDefinitionTransformer {
-        // Expected url pattern /subjects(/.*-value/versions)
-        protected final Splitter urlSplitter = Splitter.on('/').omitEmptyStrings();
+        // Expected url pattern /subjects(/.*-value/(versions|?param))
+        protected final Splitter urlSplitter = Splitter.on(CharMatcher.anyOf("/?")).omitEmptyStrings();
 
         @Override
         public boolean applyGlobally() {
@@ -343,4 +353,56 @@ public class SchemaRegistryMock {
             return AllSubjectsHandler.class.getSimpleName();
         }
     }
+
+    /**
+     * The SchemaHandler returns version and id for a given schema.
+     *
+     * Note: It returns "Schema not found, Error code 40403" for a deleted schema even if the request parameter
+     * 'deleted' is set to true. The MockSchemaRegistryClient does not save the version of a deleted schema.
+     */
+    private class SchemaHandler extends SubjectsHandler {
+        @Override
+        public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
+                final FileSource files, final Parameters parameters) {
+            final String requestSubject = this.getSubject(request);
+            // Check if requestSubject exists. This is required because the mock always throws an exception
+            // with 'Schema not found'
+            final boolean subjectExists = SchemaRegistryMock.this.listAllSubjects().stream()
+                    .anyMatch(subject -> subject.equals(requestSubject));
+
+            if (!subjectExists) {
+                final ErrorMessage error = new ErrorMessage(40401, "Subject not found");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_NOT_FOUND);
+            }
+
+            final Schema schema;
+            try {
+                schema = new Schema.Parser()
+                        .parse(RegisterSchemaRequest.fromJson(request.getBodyAsString()).getSchema());
+            } catch (final IOException e) {
+                final ErrorMessage error =
+                        new ErrorMessage(HTTP_INTERNAL_ERROR, "Error while looking up schema under subject topic");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_INTERNAL_ERROR);
+            }
+
+            try {
+                final int schemaId = SchemaRegistryMock.this.schemaRegistryClient.getId(requestSubject, schema);
+                final int schemaVersion =
+                        SchemaRegistryMock.this.schemaRegistryClient.getVersion(requestSubject, schema);
+                return ResponseDefinitionBuilder
+                        .jsonResponse(new io.confluent.kafka.schemaregistry.client.rest.entities.Schema(
+                                requestSubject, schemaVersion, schemaId, schema.toString()));
+            } catch (final RestClientException | IOException e) {
+                final ErrorMessage error = new ErrorMessage(40403, "Schema not found");
+                return ResponseDefinitionBuilder.jsonResponse(error, HTTP_NOT_FOUND);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return SchemaHandler.class.getSimpleName();
+        }
+
+    }
+
 }

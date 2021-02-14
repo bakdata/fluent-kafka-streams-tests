@@ -26,6 +26,7 @@ package com.bakdata.schemaregistrymock;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -97,7 +98,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isOne();
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
+        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient()
+                .getSchemaMetadata(topic + "-value", versions.get(0));
         assertThat(metadata.getId()).isEqualTo(id);
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
@@ -128,7 +130,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isEqualTo(2);
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
+        final SchemaMetadata metadata =
+                this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
         final int metadataId = metadata.getId();
         assertThat(metadataId).isNotEqualTo(id1);
         assertThat(metadataId).isEqualTo(id2);
@@ -140,7 +143,8 @@ class SchemaRegistryMockTest {
     @Test
     void shouldNotHaveLatestSchemaVersionForUnknownSubject() {
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata("does_not_exist"))
+                .isThrownBy(
+                        () -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata("does_not_exist"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
 
@@ -211,30 +215,107 @@ class SchemaRegistryMockTest {
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
 
-
     @Test
     void shouldNotHaveSchemaVersionsForDeletedSubject() throws IOException, RestClientException {
         final Schema valueSchema = createSchema("value_schema");
         final String topic = "test-topic";
         final int id = this.schemaRegistry.registerValueSchema(topic, valueSchema);
 
-        final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
+        final SchemaRegistryClient schemaRegistryClient = this.schemaRegistry.getSchemaRegistryClient();
+        final List<Integer> versions = schemaRegistryClient.getAllVersions(topic + "-value");
         assertThat(versions.size()).isOne();
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
+        final SchemaMetadata metadata = schemaRegistryClient.getSchemaMetadata(topic + "-value", versions.get(0));
         assertThat(metadata.getId()).isEqualTo(id);
-        assertThat(this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
+        assertThat(schemaRegistryClient.getLatestSchemaMetadata(topic + "-value"))
                 .isNotNull();
         this.schemaRegistry.deleteValueSchema(topic);
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value"))
+                .isThrownBy(() -> schemaRegistryClient.getAllVersions(topic + "-value"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0)))
+                .isThrownBy(() -> schemaRegistryClient.getSchemaMetadata(topic + "-value", versions.get(0)))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
+                .isThrownBy(() -> schemaRegistryClient.getLatestSchemaMetadata(topic + "-value"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
+    }
+
+    @Test
+    void shouldReturnValueSchemaVersion() throws IOException, RestClientException {
+        final Schema valueSchema = createSchema("value_schema");
+        this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
+
+        final Integer version =
+                this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-value", valueSchema);
+        assertThat(version).isEqualTo(1);
+    }
+
+    @Test
+    void shouldReturnKeySchemaVersion() throws IOException, RestClientException {
+        final Schema valueSchema = createSchema("value_schema");
+        this.schemaRegistry.registerKeySchema("test-topic", valueSchema);
+
+        final Integer version = this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", valueSchema);
+        assertThat(version).isEqualTo(1);
+    }
+
+    @Test
+    void shouldReturnValueSchemaId() throws IOException, RestClientException {
+        final Schema valueSchema = createSchema("value_schema");
+        this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
+
+        final Integer id = this.schemaRegistry.getSchemaRegistryClient().getId("test-topic-value", valueSchema);
+        assertThat(id).isEqualTo(1);
+    }
+
+    @Test
+    void shouldReturnKeySchemaId() throws IOException, RestClientException {
+        final Schema valueSchema = createSchema("value_schema");
+        this.schemaRegistry.registerKeySchema("test-topic", valueSchema);
+
+        final Integer id = this.schemaRegistry.getSchemaRegistryClient().getId("test-topic-key", valueSchema);
+        assertThat(id).isEqualTo(1);
+    }
+
+    @Test
+    void shouldNotReturnVersionForNonExistingSchema() {
+        final Schema test = createSchema("test");
+        final Schema other = createSchema("other");
+        this.schemaRegistry.registerValueSchema("test-topic", other);
+        assertThatThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-value", test))
+                .isInstanceOfSatisfying(RestClientException.class,
+                        e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND))
+                .hasMessage("Schema not found; error code: 40403");
+    }
+
+    @Test
+    void shouldNotReturnIdForNonExistingSchema() {
+        final Schema test = createSchema("test");
+        final Schema other = createSchema("other");
+        this.schemaRegistry.registerValueSchema("test-topic", other);
+        assertThatThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getId("test-topic-value", test))
+                .isInstanceOfSatisfying(RestClientException.class,
+                        e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND))
+                .hasMessage("Schema not found; error code: 40403");
+    }
+
+    @Test
+    void shouldNotReturnVersionForNonExistingSubject() {
+        final Schema test = createSchema("test");
+        assertThatThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-value", test))
+                .isInstanceOfSatisfying(RestClientException.class,
+                        e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND))
+                .hasMessage("Subject not found; error code: 40401");
+    }
+
+    @Test
+    void shouldNotReturnIdForNonExistingSubject() {
+        final Schema test = createSchema("test");
+        assertThatThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getId("test-topic-value", test))
+                .isInstanceOfSatisfying(RestClientException.class,
+                        e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND))
+                .hasMessage("Subject not found; error code: 40401");
     }
 
     private static Schema createSchema(final String name) {
