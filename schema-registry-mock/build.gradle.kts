@@ -11,7 +11,9 @@ dependencies {
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
-  
+    testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
+
+
     // resolve dependency issues between wiremock and schema registry
     val jacksonVersion = "2.9.6"
     implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = jacksonVersion)
