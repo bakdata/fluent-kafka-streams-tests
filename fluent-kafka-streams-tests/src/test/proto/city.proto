@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package com.bakdata.fluent_kafka_streams_tests.test_types.proto;
+
+message City {
+  string  name = 1;
+  int32  inhabitants = 2;
+}
