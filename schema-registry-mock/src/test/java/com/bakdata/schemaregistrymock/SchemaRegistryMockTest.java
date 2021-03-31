@@ -211,7 +211,6 @@ class SchemaRegistryMockTest {
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
 
-
     @Test
     void shouldNotHaveSchemaVersionsForDeletedSubject() throws IOException, RestClientException {
         final Schema valueSchema = createSchema("value_schema");
