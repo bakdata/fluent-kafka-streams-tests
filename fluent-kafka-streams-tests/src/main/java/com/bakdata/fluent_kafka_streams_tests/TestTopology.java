@@ -164,14 +164,17 @@ public class TestTopology<DefaultK, DefaultV> {
     /**
      * <p>Create a new {@link TestTopology} for your topology under test.</p>
      *
-     * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
-     * affected by other test runs. Otherwise, side-effects could impact your tests.
+     * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
+     * ensure strict separation of each test run.
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      * @param schemaProviders The list of schemaProviders to be used by the SchemaRegistryMock on your tests.
      */
-    public TestTopology(final Topology topology, final Map<?, ?> properties, final List<SchemaProvider> schemaProviders) {
-        this(props -> topology, properties);
+    public TestTopology(
+            final Supplier<? extends Topology> topologyFactory,
+            final Map<?, ?> properties,
+            final List<SchemaProvider> schemaProviders) {
+        this(props -> topologyFactory.get(), properties);
         this.schemaRegistry = new SchemaRegistryMock(schemaProviders);
     }
 
