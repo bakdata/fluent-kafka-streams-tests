@@ -25,6 +25,7 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
@@ -32,12 +33,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.security.Provider;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -96,7 +93,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
-    private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+    private SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
     private final Function<? super Properties, ? extends Topology> topologyFactory;
     private final Properties properties = new Properties();
     private final Collection<String> inputTopics = new HashSet<>();
@@ -157,6 +154,20 @@ public class TestTopology<DefaultK, DefaultV> {
      */
     public TestTopology(final Topology topology, final Map<?, ?> properties) {
         this(props -> topology, properties);
+    }
+
+    /**
+     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     *
+     * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
+     * affected by other test runs. Otherwise, side-effects could impact your tests.
+     * @param properties The properties of the Kafka Streams application under test. Required entries:
+     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * @param schemaProviders The list of schemaProviders to be used by the SchemaRegistryMock on your tests.
+     */
+    public TestTopology(final Topology topology, final Map<?, ?> properties, final List<SchemaProvider> schemaProviders) {
+        this(props -> topology, properties);
+        this.schemaRegistry = new SchemaRegistryMock(schemaProviders);
     }
 
     private static void addExternalTopics(final Collection<String> allTopics, final String topic) {
