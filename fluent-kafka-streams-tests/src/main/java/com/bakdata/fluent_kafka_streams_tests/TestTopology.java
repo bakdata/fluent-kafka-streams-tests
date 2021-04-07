@@ -177,6 +177,22 @@ public class TestTopology<DefaultK, DefaultV> {
         this(props -> topologyFactory.get(), properties);
         this.schemaRegistry = new SchemaRegistryMock(schemaProviders);
     }
+    /**
+     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     *
+     * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
+     * affected by other test runs. Otherwise, side-effects could impact your tests.
+     * @param properties The properties of the Kafka Streams application under test. Required entries:
+     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * @param schemaProviders The list of schemaProviders to be used by the SchemaRegistryMock on your tests.
+     */
+    public TestTopology(
+            final Topology topology,
+            final Map<?, ?> properties,
+            final List<SchemaProvider> schemaProviders) {
+        this(props -> topology, properties);
+        this.schemaRegistry = new SchemaRegistryMock(schemaProviders);
+    }
 
     private static void addExternalTopics(final Collection<String> allTopics, final String topic) {
         if (topic.contains("KSTREAM-") || topic.contains("KTABLE-") || topic.contains("-repartition")) {

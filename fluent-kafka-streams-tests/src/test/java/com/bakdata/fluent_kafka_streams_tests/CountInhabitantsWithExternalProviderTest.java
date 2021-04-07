@@ -5,6 +5,7 @@ import static com.bakdata.fluent_kafka_streams_tests.test_types.proto.PersonOute
 
 import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitantsWithProto;
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.util.List;
 import org.apache.kafka.common.serialization.Serdes;
@@ -13,12 +14,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CountInhabitantsWithProtoTest {
+public class CountInhabitantsWithExternalProviderTest {
+
     private final CountInhabitantsWithProto app = new CountInhabitantsWithProto();
 
-    private final SchemaRegistryMock mock = new SchemaRegistryMock(List.of(new ProtobufSchemaProvider()));
+    private final List<SchemaProvider> listSchemaProviders = List.of(new ProtobufSchemaProvider());
     private final TestTopology<Object, Object> testTopology =
-            new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+            new TestTopology<>(this.app.getTopology(), this.app.getKafkaProperties(), this.listSchemaProviders);
 
     static Person newPerson(final String name, final String city) {
         return Person.newBuilder().setName(name).setCity(city).build();
@@ -29,11 +31,7 @@ public class CountInhabitantsWithProtoTest {
     }
 
     @BeforeEach
-    void start() {
-        this.mock.start();
-        this.app.setSchemaRegistryUrl(this.mock.getUrl());
-        this.testTopology.start();
-    }
+    void start() { this.testTopology.start(); }
 
     @AfterEach
     void stop() {
