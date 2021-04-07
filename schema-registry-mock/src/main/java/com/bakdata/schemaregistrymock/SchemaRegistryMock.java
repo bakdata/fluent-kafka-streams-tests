@@ -149,19 +149,26 @@ public class SchemaRegistryMock {
     }
 
     public void start() {
-        this.mockSchemaRegistry.start();
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
-                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
-        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
-                .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN + "/(?:latest|\\d+)"))
-                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
-                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
-        this.mockSchemaRegistry.stubFor(WireMock.delete(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/[^/]+"))
-                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
-        this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
-                .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
+        if(!this.isRunning()){
+            this.mockSchemaRegistry.start();
+            this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
+                    .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+            this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
+                    .willReturn(WireMock.aResponse().withTransformers(this.autoRegistrationHandler.getName())));
+            this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN + "/(?:latest|\\d+)"))
+                    .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+            this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_BY_ID_PATTERN + "\\d+"))
+                    .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+            this.mockSchemaRegistry.stubFor(WireMock.delete(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/[^/]+"))
+                    .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
+            this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
+                    .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
+        }
+    }
+
+
+    public boolean isRunning() {
+        return this.mockSchemaRegistry.isRunning();
     }
 
     public void stop() {

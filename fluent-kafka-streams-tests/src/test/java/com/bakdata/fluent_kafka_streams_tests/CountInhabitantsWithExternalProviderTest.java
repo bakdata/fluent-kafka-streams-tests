@@ -18,9 +18,9 @@ public class CountInhabitantsWithExternalProviderTest {
 
     private final CountInhabitantsWithProto app = new CountInhabitantsWithProto();
     private final List<SchemaProvider> listSchemaProviders = List.of(new ProtobufSchemaProvider());
-    //private final SchemaRegistryMock mock = new SchemaRegistryMock(this.listSchemaProviders);
+    private final SchemaRegistryMock mock = new SchemaRegistryMock(this.listSchemaProviders);
     private final TestTopology<Object, Object> testTopology =
-            new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties(), this.listSchemaProviders);
+            new TestTopology<>(this.app.getTopology(), this.app.getKafkaProperties(), this.mock);
 
     static Person newPerson(final String name, final String city) {
         return Person.newBuilder().setName(name).setCity(city).build();
@@ -32,7 +32,7 @@ public class CountInhabitantsWithExternalProviderTest {
 
     @BeforeEach
     void start() {
-        //this.mock.start();
+        this.mock.start();
         this.app.setSchemaRegistryUrl(this.testTopology.getSchemaRegistryUrl());
         this.testTopology.start();
     }
