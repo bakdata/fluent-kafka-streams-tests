@@ -31,6 +31,7 @@ public class CountInhabitantsWithProto {
 
     @Getter
     private final String outputTopic = "city-output";
+
     @Setter
     private String schemaRegistryUrl;
 
