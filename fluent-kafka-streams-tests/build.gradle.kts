@@ -5,6 +5,7 @@ plugins {
     id("com.commercehub.gradle.plugin.avro") version "0.16.0"
     id("com.google.protobuf") version "0.8.15"
     java
+    idea // required for protobuf support in intellij
 }
 
 description = "Provides the fluent Kafka Streams test framework."

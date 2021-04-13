@@ -7,7 +7,9 @@ import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitants
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.util.List;
+import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.Topology;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +21,8 @@ public class CountInhabitantsWithProtoTest {
 
     private final SchemaRegistryMock mock = new SchemaRegistryMock(List.of(new ProtobufSchemaProvider()));
     private final TestTopology<Object, Object> testTopology =
-            new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+            new TestTopology<>(this::topology, this.app.getKafkaProperties())
+                    .withSchemaRegistryMock(this.mock);
 
     static Person newPerson(final String name, final String city) {
         return Person.newBuilder().setName(name).setCity(city).build();
@@ -31,8 +34,6 @@ public class CountInhabitantsWithProtoTest {
 
     @BeforeEach
     void start() {
-        this.mock.start();
-        this.app.setSchemaRegistryUrl(this.mock.getUrl());
         this.testTopology.start();
     }
 
@@ -64,5 +65,10 @@ public class CountInhabitantsWithProtoTest {
     @Test
     void shouldGetSchemaRegistryClient() {
         Assertions.assertNotNull(this.testTopology.getSchemaRegistry());
+    }
+
+    private Topology topology(final Properties props) {
+        this.app.setSchemaRegistryUrl(props.getProperty("schema.registry.url"));
+        return this.app.getTopology();
     }
 }

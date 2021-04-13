@@ -149,6 +149,10 @@ public class SchemaRegistryMock {
     }
 
     public void start() {
+        if (this.mockSchemaRegistry.isRunning()) {
+            return;
+        }
+
         this.mockSchemaRegistry.start();
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(SCHEMA_PATH_PATTERN))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));

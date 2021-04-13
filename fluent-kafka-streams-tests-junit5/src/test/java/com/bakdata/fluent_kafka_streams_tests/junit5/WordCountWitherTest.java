@@ -25,17 +25,21 @@
 package com.bakdata.fluent_kafka_streams_tests.junit5;
 
 import com.bakdata.fluent_kafka_streams_tests.junit5.test_applications.WordCount;
+import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
+import java.util.List;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-class WordCountWithDefaultSerdeTest {
+class WordCountWitherTest {
     private final WordCount app = new WordCount();
 
     @RegisterExtension
     final TestTopologyExtension<Object, String> testTopology =
             new TestTopologyExtension<>(this.app::getTopology, this.app.getKafkaProperties())
-            .withDefaultValueSerde(Serdes.String());
+                    .withDefaultValueSerde(Serdes.String())
+                    .withSchemaRegistryMock(new SchemaRegistryMock(List.of(new AvroSchemaProvider())));
 
     @Test
     void shouldAggregateSameWordStream() {

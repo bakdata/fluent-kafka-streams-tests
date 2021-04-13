@@ -25,7 +25,7 @@
 package com.bakdata.fluent_kafka_streams_tests.junit5;
 
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
-import java.io.IOException;
+import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
@@ -85,9 +85,9 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
 
     protected TestTopologyExtension(
             final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties,
-            final Serde<DefaultK> defaultKeySerde,
-            final Serde<DefaultV> defaultValueSerde) {
-        super(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
+            final SchemaRegistryMock schemaRegistryMock) {
+        super(topologyFactory, properties, defaultKeySerde, defaultValueSerde, schemaRegistryMock);
     }
 
     @Override
@@ -102,8 +102,10 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
 
     @Override
     protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
-        return new TestTopologyExtension<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde,
+            final SchemaRegistryMock schemaRegistry) {
+        return new TestTopologyExtension<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde,
+                schemaRegistry);
     }
 
     @Override
@@ -116,7 +118,15 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
         return (TestTopologyExtension<K, DefaultV>) super.withDefaultKeySerde(defaultKeySerde);
     }
 
-    public <K, V> TestTopologyExtension<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+    @Override
+    public <K, V> TestTopologyExtension<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
         return (TestTopologyExtension<K, V>) super.withDefaultSerde(defaultKeySerde, defaultValueSerde);
+    }
+
+    @Override
+    public TestTopologyExtension<DefaultK, DefaultV> withSchemaRegistryMock(
+            final SchemaRegistryMock schemaRegistryMock) {
+        return (TestTopologyExtension<DefaultK, DefaultV>) super.withSchemaRegistryMock(schemaRegistryMock);
     }
 }
