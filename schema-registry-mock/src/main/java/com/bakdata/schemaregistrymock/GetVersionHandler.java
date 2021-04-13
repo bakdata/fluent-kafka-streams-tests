@@ -7,9 +7,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.Iterables;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 class GetVersionHandler extends SubjectsHandler {
 
     private final SchemaRegistryMock schemaRegistryMock;
