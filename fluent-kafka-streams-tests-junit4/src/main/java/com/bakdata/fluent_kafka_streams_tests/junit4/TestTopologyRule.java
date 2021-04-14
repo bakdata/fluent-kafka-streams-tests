@@ -25,6 +25,7 @@
 package com.bakdata.fluent_kafka_streams_tests.junit4;
 
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
+import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
@@ -84,9 +85,9 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
 
     protected TestTopologyRule(
             final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties,
-            final Serde<DefaultK> defaultKeySerde,
-            final Serde<DefaultV> defaultValueSerde) {
-        super(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
+            final SchemaRegistryMock schemaRegistryMock) {
+        super(topologyFactory, properties, defaultKeySerde, defaultValueSerde, schemaRegistryMock);
     }
 
     @Override
@@ -105,9 +106,11 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
     }
 
     @Override
-    protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
-        return new TestTopologyRule<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+    protected <K, V> TestTopologyRule<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde,
+            final SchemaRegistryMock schemaRegistryMock) {
+        return new TestTopologyRule<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde,
+                schemaRegistryMock);
     }
 
     @Override
@@ -120,7 +123,15 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
         return (TestTopologyRule<K, DefaultV>) super.withDefaultKeySerde(defaultKeySerde);
     }
 
-    public <K, V> TestTopologyRule<K, V> withDefaultSerde(final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
+    @Override
+    public <K, V> TestTopologyRule<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
         return (TestTopologyRule<K, V>) super.withDefaultSerde(defaultKeySerde, defaultValueSerde);
     }
+
+    @Override
+    public TestTopologyRule<DefaultK, DefaultV> withSchemaRegistryMock(final SchemaRegistryMock schemaRegistryMock) {
+        return (TestTopologyRule<DefaultK, DefaultV>) super.withSchemaRegistryMock(schemaRegistryMock);
+    }
+
 }

@@ -25,6 +25,7 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -96,7 +98,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
-    private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+    private final SchemaRegistryMock schemaRegistry;
     private final Function<? super Properties, ? extends Topology> topologyFactory;
     private final Properties properties = new Properties();
     private final Collection<String> inputTopics = new HashSet<>();
@@ -110,9 +112,10 @@ public class TestTopology<DefaultK, DefaultV> {
     /**
      * Used by wither methods.
      */
-    protected TestTopology(
-            final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties,
-            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde) {
+    protected TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Map<?, ?> properties, final Serde<DefaultK> defaultKeySerde,
+            final Serde<DefaultV> defaultValueSerde, final SchemaRegistryMock schemaRegistry) {
+        this.schemaRegistry = schemaRegistry;
         this.topologyFactory = topologyFactory;
         this.properties.putAll(properties);
         this.defaultKeySerde = defaultKeySerde;
@@ -129,10 +132,7 @@ public class TestTopology<DefaultK, DefaultV> {
      */
     public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
             final Map<?, ?> properties) {
-        this.topologyFactory = topologyFactory;
-        this.properties.putAll(properties);
-        this.defaultKeySerde = null;
-        this.defaultValueSerde = null;
+        this(topologyFactory, properties, null, null, new SchemaRegistryMock());
     }
 
     /**
@@ -185,12 +185,18 @@ public class TestTopology<DefaultK, DefaultV> {
 
     public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
             final Serde<V> defaultValueSerde) {
-        return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde);
+        return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde, this.schemaRegistry);
+    }
+
+    public TestTopology<DefaultK, DefaultV> withSchemaRegistryMock(final SchemaRegistryMock schemaRegistryMock) {
+        return this.with(this.topologyFactory, this.properties, this.defaultKeySerde, this.defaultValueSerde,
+                schemaRegistryMock);
     }
 
     protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde) {
-        return new TestTopology<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde);
+            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde,
+            final SchemaRegistryMock schemaRegistry) {
+        return new TestTopology<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde, schemaRegistry);
     }
 
     /**
