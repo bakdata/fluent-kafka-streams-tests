@@ -11,8 +11,7 @@ import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientExcept
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -25,9 +24,10 @@ class ProtobufRegistryMockTest {
 
     ProtobufRegistryMockTest() throws IOException {
         this.schemaRegistry = new SchemaRegistryMock(List.of(new ProtobufSchemaProvider()));
-        
-        final Path resources = Path.of("src", "test", "resources");
-        this.schema = new ProtobufSchema(Files.readString(resources.resolve("record.proto")));
+
+        try (final InputStream input = ProtobufRegistryMockTest.class.getResourceAsStream("/record.proto")) {
+            this.schema = new ProtobufSchema(new String(input.readAllBytes()));
+        }
     }
 
     @BeforeEach
