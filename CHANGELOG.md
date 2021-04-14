@@ -1,5 +1,18 @@
 # Change Log
 
+## [2.3.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.3.1) (2021-04-14)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.0...2.3.1)
+
+**Closed issues:**
+
+- Support JsonSchema and Protobuf providers on SchemaRegistryMock [\#50](https://github.com/bakdata/fluent-kafka-streams-tests/issues/50)
+
+**Merged pull requests:**
+
+- Support SchemaProvider [\#51](https://github.com/bakdata/fluent-kafka-streams-tests/pull/51) ([@torbsto](https://github.com/torbsto))
+- Add optional external SchemaRegistryMock to TestTopology class [\#52](https://github.com/bakdata/fluent-kafka-streams-tests/pull/52) ([@sergialonsaco](https://github.com/sergialonsaco))
+- Extract wiremock handler [\#53](https://github.com/bakdata/fluent-kafka-streams-tests/pull/53) ([@torbsto](https://github.com/torbsto))
+
 ## [2.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.3.0) (2021-02-12)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.1...2.3.0)
 
