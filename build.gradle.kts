@@ -62,9 +62,9 @@ subprojects {
             (this as StandardJavadocDocletOptions).apply {
                 addBooleanOption("html5", true)
                 stylesheetFile(File("$rootDir/src/main/javadoc/assertj-javadoc.css"))
+                addBooleanOption("-allow-script-in-comments", true)
                 header("<script src=\"http://cdn.jsdelivr.net/highlight.js/8.6/highlight.min.js\"></script>")
                 footer("<script type=\"text/javascript\">hljs.initHighlightingOnLoad();</script>")
-                addBooleanOption("-allow-script-in-comments", true)
             }
         }
     }
