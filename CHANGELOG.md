@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.4.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.0) (2021-09-13)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.1...2.4.0)
+
+**Merged pull requests:**
+
+- Fix changelog generation [\#55](https://github.com/bakdata/fluent-kafka-streams-tests/pull/55) ([@philipp94831](https://github.com/philipp94831))
+- Update to Kafka 2.8 [\#54](https://github.com/bakdata/fluent-kafka-streams-tests/pull/54) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.3.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.3.1) (2021-04-14)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.0...2.3.1)
 
