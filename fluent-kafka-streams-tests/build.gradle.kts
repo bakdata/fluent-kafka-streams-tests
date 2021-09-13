@@ -2,8 +2,8 @@ import com.google.protobuf.gradle.*
 import org.gradle.kotlin.dsl.provider.gradleKotlinDslOf
 
 plugins {
-    id("com.commercehub.gradle.plugin.avro") version "0.16.0"
-    id("com.google.protobuf") version "0.8.15"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
+    id("com.google.protobuf") version "0.8.17"
     java
     idea // required for protobuf support in intellij
 }

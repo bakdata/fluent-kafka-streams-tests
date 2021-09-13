@@ -154,6 +154,7 @@ class WordCountTest {
         final List<String> expected = List.of("bla", "blub", "bla", "foo");
 
         assertThat(this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
+                .toIterable()
                 .extracting(ProducerRecord::key)
                 .containsAll(expected);
     }
@@ -228,6 +229,7 @@ class WordCountTest {
         final List<String> expected = List.of("bla", "blub", "foo");
 
         assertThat(this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
+                .toIterable()
                 .extracting(ProducerRecord::key)
                 .containsAll(expected);
     }
