@@ -2,26 +2,27 @@ package com.bakdata.fluent_kafka_streams_tests.test_applications;
 
 import java.util.Properties;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 
-@Getter
+@UtilityClass
 public class TopicExtractorApplication {
-    private final String inputTopic = "input";
-    private final String outputTopic = "output";
+    public static final String INPUT_TOPIC = "input";
+    public static final String OUTPUT_TOPIC = "output";
 
 
-    public Topology getTopology() {
-        final var builder = new StreamsBuilder();
-        builder.stream(this.inputTopic, Consumed.with(Serdes.String(), Serdes.String()))
-                .to((key, value, recordContext) -> this.outputTopic);
+    public static Topology getTopology() {
+        final StreamsBuilder builder = new StreamsBuilder();
+        builder.stream(INPUT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
+                .to((key, value, recordContext) -> OUTPUT_TOPIC);
         return builder.build();
     }
 
-    public Properties getProperties() {
+    public static Properties getProperties() {
         final Properties properties = new Properties();
         properties.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "dynamic-test-stream");
         properties.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:123");
