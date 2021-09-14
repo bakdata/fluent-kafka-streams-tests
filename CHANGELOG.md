@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.2) (2021-09-14)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.1...2.4.2)
+
+**Merged pull requests:**
+
+- Make Java 8 compatible [\#57](https://github.com/bakdata/fluent-kafka-streams-tests/pull/57) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.4.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.1) (2021-09-14)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.0...2.4.1)
 
