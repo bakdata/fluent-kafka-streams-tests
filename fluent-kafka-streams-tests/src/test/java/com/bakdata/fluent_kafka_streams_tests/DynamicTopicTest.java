@@ -8,19 +8,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DynamicTopicTest {
+class DynamicTopicTest {
 
-    private final String key = "key";
-    private final String value = "value";
-    private final TopicExtractorApplication app = new TopicExtractorApplication();
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
     private final TestTopology<String, String> testTopology =
-            new TestTopology<>(this.app::getTopology, this.app.getProperties());
+            new TestTopology<>(TopicExtractorApplication::getTopology, TopicExtractorApplication.getProperties());
 
     @BeforeEach
     void start() {
         this.testTopology.start();
-        this.testTopology.input().add(this.key, this.value);
-        this.testTopology.getOutputTopics().add(this.app.getOutputTopic());
+        this.testTopology.input().add(KEY, VALUE);
+        this.testTopology.getOutputTopics().add(TopicExtractorApplication.OUTPUT_TOPIC);
     }
 
     @AfterEach
@@ -30,16 +29,16 @@ public class DynamicTopicTest {
 
     @Test
     void shouldHaveOutputForTopicName() {
-        this.testTopology.streamOutput(this.app.getOutputTopic())
+        this.testTopology.streamOutput(TopicExtractorApplication.OUTPUT_TOPIC)
                 .expectNextRecord()
-                .hasKey(this.key).and().hasValue(this.value);
+                .hasKey(KEY).and().hasValue(VALUE);
     }
 
     @Test
     void shouldHaveOutputWithoutTopicName() {
         this.testTopology.streamOutput()
                 .expectNextRecord()
-                .hasKey(this.key).and().hasValue(this.value);
+                .hasKey(KEY).and().hasValue(VALUE);
     }
 
     @Test

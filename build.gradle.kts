@@ -51,10 +51,9 @@ configure<org.hildan.github.changelog.plugin.GitHubChangelogExtension> {
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "io.freefair.lombok")
-    // build fails for java 11, let"s wait for a newer lombok version
     configure<JavaPluginConvention> {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     tasks.withType<Javadoc> {

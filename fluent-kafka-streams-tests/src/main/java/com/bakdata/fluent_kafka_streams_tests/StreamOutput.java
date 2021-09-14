@@ -62,7 +62,7 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
      */
     @Override
     public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
-        return new Iterator<>() {
+        return new Iterator<ProducerRecord<K, V>>() {
             private ProducerRecord<K, V> current = StreamOutput.this.readFromTestDriver();
 
             @Override
