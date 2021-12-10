@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.3) (2021-12-10)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.2...2.4.3)
+
+**Merged pull requests:**
+
+- Update log4j to 2.15.0 [\#58](https://github.com/bakdata/fluent-kafka-streams-tests/pull/58) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.4.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.2) (2021-09-14)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.1...2.4.2)
 
