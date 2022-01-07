@@ -17,7 +17,7 @@ class UserClicksPerMinuteTest {
     private final UserClicksPerMinute app = new UserClicksPerMinute();
 
     private final TestTopology<Integer, ClickEvent> testTopology =
-            new TestTopology<>(this.app::getTopology, UserClicksPerMinute.getKafkaProperties());
+            new TestTopology<>(UserClicksPerMinute::getTopology, UserClicksPerMinute.getKafkaProperties());
 
     @BeforeEach
     void start() {

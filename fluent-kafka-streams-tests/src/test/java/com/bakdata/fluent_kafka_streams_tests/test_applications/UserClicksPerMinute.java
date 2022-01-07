@@ -23,8 +23,7 @@ public class UserClicksPerMinute {
     private static final String OUTPUT_TOPIC = "user-click-output";
 
     public static void main(final String[] args) {
-        final UserClicksPerMinute clickCount = new UserClicksPerMinute();
-        final KafkaStreams streams = new KafkaStreams(clickCount.getTopology(), getKafkaProperties());
+        final KafkaStreams streams = new KafkaStreams(getTopology(), getKafkaProperties());
         streams.start();
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
@@ -39,7 +38,7 @@ public class UserClicksPerMinute {
         return kafkaConfig;
     }
 
-    public Topology getTopology() {
+    public static Topology getTopology() {
         final StreamsBuilder builder = new StreamsBuilder();
         final KStream<Integer, ClickEvent> clickEvents = builder.stream(INPUT_TOPIC);
 
