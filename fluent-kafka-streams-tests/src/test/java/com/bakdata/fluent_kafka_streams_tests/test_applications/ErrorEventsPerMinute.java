@@ -54,7 +54,7 @@ public class ErrorEventsPerMinute {
                 .selectKey(((key, value) -> value.getStatus()))
                 .filter(((key, value) -> key >= 400))
                 .groupByKey(Grouped.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)))
-                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))  // 1 Minute in ms
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(1)))  // 1 Minute in ms
                 .count();
 
         // Status codes
@@ -68,7 +68,8 @@ public class ErrorEventsPerMinute {
                         new ErrorOutput(key.key(), value, key.window().start(), null /*empty definition*/)))
                 .join(statusCodes,
                         (countRecord, code) -> new ErrorOutput(
-                                countRecord.getStatusCode(), countRecord.getCount(), countRecord.getTime(), code.getDefinition()),
+                                countRecord.getStatusCode(), countRecord.getCount(), countRecord.getTime(),
+                                code.getDefinition()),
                         Joined.valueSerde(new JsonSerde<>(ErrorOutput.class)));
         errors.to(this.errorOutputTopic);
 

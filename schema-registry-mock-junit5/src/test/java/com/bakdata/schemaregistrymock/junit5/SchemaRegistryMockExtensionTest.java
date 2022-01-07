@@ -25,6 +25,7 @@ package com.bakdata.schemaregistrymock.junit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import java.io.IOException;
@@ -43,8 +44,8 @@ class SchemaRegistryMockExtensionTest {
         final Schema keySchema = this.createSchema("key_schema");
         final int id = this.schemaRegistry.registerKeySchema("test-topic", keySchema);
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(keySchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(keySchema);
     }
 
     @Test
@@ -52,26 +53,28 @@ class SchemaRegistryMockExtensionTest {
         final Schema valueSchema = this.createSchema("value_schema");
         final int id = this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(valueSchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(valueSchema);
     }
 
     @Test
     void shouldRegisterKeySchemaWithClient() throws IOException, RestClientException {
         final Schema keySchema = this.createSchema("key_schema");
-        final int id = this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", keySchema);
+        final int id =
+                this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", new AvroSchema(keySchema));
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(keySchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(keySchema);
     }
 
     @Test
     void shouldRegisterValueSchemaWithClient() throws IOException, RestClientException {
         final Schema valueSchema = this.createSchema("value_schema");
-        final int id = this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", valueSchema);
+        final int id =
+                this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", new AvroSchema(valueSchema));
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(valueSchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(valueSchema);
     }
 
     @Test

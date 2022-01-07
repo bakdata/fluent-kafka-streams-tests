@@ -27,6 +27,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
@@ -41,6 +42,10 @@ import org.junit.jupiter.api.Test;
 
 class SchemaRegistryMockTest {
     private final SchemaRegistryMock schemaRegistry = new SchemaRegistryMock();
+
+    private static Schema createSchema(final String name) {
+        return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
+    }
 
     @BeforeEach
     void start() {
@@ -57,8 +62,8 @@ class SchemaRegistryMockTest {
         final Schema keySchema = createSchema("key_schema");
         final int id = this.schemaRegistry.registerKeySchema("test-topic", keySchema);
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(keySchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(keySchema);
     }
 
     @Test
@@ -66,26 +71,28 @@ class SchemaRegistryMockTest {
         final Schema valueSchema = createSchema("value_schema");
         final int id = this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(valueSchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(valueSchema);
     }
 
     @Test
     void shouldRegisterKeySchemaWithClient() throws IOException, RestClientException {
         final Schema keySchema = createSchema("key_schema");
-        final int id = this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", keySchema);
+        final int id =
+                this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", new AvroSchema(keySchema));
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(keySchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(keySchema);
     }
 
     @Test
     void shouldRegisterValueSchemaWithClient() throws IOException, RestClientException {
         final Schema valueSchema = createSchema("value_schema");
-        final int id = this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", valueSchema);
+        final int id =
+                this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", new AvroSchema(valueSchema));
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(valueSchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(valueSchema);
     }
 
     @Test
@@ -97,7 +104,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isOne();
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
+        final SchemaMetadata metadata =
+                this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
         assertThat(metadata.getId()).isEqualTo(id);
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
@@ -128,7 +136,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isEqualTo(2);
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
+        final SchemaMetadata metadata =
+                this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
         final int metadataId = metadata.getId();
         assertThat(metadataId).isNotEqualTo(id1);
         assertThat(metadataId).isEqualTo(id2);
@@ -140,7 +149,8 @@ class SchemaRegistryMockTest {
     @Test
     void shouldNotHaveLatestSchemaVersionForUnknownSubject() {
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata("does_not_exist"))
+                .isThrownBy(
+                        () -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata("does_not_exist"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
 
@@ -169,7 +179,6 @@ class SchemaRegistryMockTest {
         assertThat(subjectsAfterDeletion).isEmpty();
     }
 
-
     @Test
     void shouldDeleteValueSchema() throws IOException, RestClientException {
         final SchemaRegistryClient client = this.schemaRegistry.getSchemaRegistryClient();
@@ -191,7 +200,6 @@ class SchemaRegistryMockTest {
         final Collection<String> subjectsAfterDeletion = client.getAllSubjects();
         assertThat(subjectsAfterDeletion).isEmpty();
     }
-
 
     @Test
     void shouldDeleteValueSchemaWithClient() throws IOException, RestClientException {
@@ -220,7 +228,8 @@ class SchemaRegistryMockTest {
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
         assertThat(versions.size()).isOne();
 
-        final SchemaMetadata metadata = this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
+        final SchemaMetadata metadata =
+                this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
         assertThat(metadata.getId()).isEqualTo(id);
         assertThat(this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
                 .isNotNull();
@@ -229,14 +238,12 @@ class SchemaRegistryMockTest {
                 .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0)))
+                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient()
+                        .getSchemaMetadata(topic + "-value", versions.get(0)))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
         assertThatExceptionOfType(RestClientException.class)
-                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
+                .isThrownBy(
+                        () -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
-    }
-
-    private static Schema createSchema(final String name) {
-        return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
     }
 }
