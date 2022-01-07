@@ -6,7 +6,6 @@ import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
 import java.time.Duration;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -18,7 +17,6 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
