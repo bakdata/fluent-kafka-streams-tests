@@ -5,8 +5,6 @@ import com.bakdata.fluent_kafka_streams_tests.test_types.ClickEvent;
 import com.bakdata.fluent_kafka_streams_tests.test_types.ClickOutput;
 import java.time.Duration;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
@@ -20,20 +18,17 @@ import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
 public class UserClicksPerMinute {
-    @Getter
-    private final String inputTopic = "user-click-input";
+    private static final String INPUT_TOPIC = "user-click-input";
 
-    @Getter
-    private final String outputTopic = "user-click-output";
+    private static final String OUTPUT_TOPIC = "user-click-output";
 
     public static void main(final String[] args) {
-        final UserClicksPerMinute clickCount = new UserClicksPerMinute();
-        final KafkaStreams streams = new KafkaStreams(clickCount.getTopology(), clickCount.getKafkaProperties());
+        final KafkaStreams streams = new KafkaStreams(getTopology(), getKafkaProperties());
         streams.start();
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 
-    public Properties getKafkaProperties() {
+    public static Properties getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Properties kafkaConfig = new Properties();
         kafkaConfig.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "user-clicks-per-minute");
@@ -43,20 +38,20 @@ public class UserClicksPerMinute {
         return kafkaConfig;
     }
 
-    public Topology getTopology() {
+    public static Topology getTopology() {
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<Integer, ClickEvent> clickEvents = builder.stream(this.inputTopic);
+        final KStream<Integer, ClickEvent> clickEvents = builder.stream(INPUT_TOPIC);
 
         final KTable<Windowed<Integer>, Long> counts = clickEvents
                 .groupByKey()
-                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(1)))
                 .count();
 
         counts.toStream()
                 .map((key, value) -> KeyValue.pair(
                         key.key(),
                         new ClickOutput(key.key(), value, key.window().start())))
-                .to(this.outputTopic, Produced.with(Serdes.Integer(), new JsonSerde<>(ClickOutput.class)));
+                .to(OUTPUT_TOPIC, Produced.with(Serdes.Integer(), new JsonSerde<>(ClickOutput.class)));
 
         return builder.build();
     }

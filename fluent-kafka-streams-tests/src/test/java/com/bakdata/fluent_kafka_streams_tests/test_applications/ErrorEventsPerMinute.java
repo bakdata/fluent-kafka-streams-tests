@@ -6,7 +6,6 @@ import com.bakdata.fluent_kafka_streams_tests.test_types.ErrorOutput;
 import com.bakdata.fluent_kafka_streams_tests.test_types.StatusCode;
 import java.time.Duration;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -18,7 +17,6 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
@@ -56,7 +54,7 @@ public class ErrorEventsPerMinute {
                 .selectKey(((key, value) -> value.getStatus()))
                 .filter(((key, value) -> key >= 400))
                 .groupByKey(Grouped.with(Serdes.Integer(), new JsonSerde<>(ClickEvent.class)))
-                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))  // 1 Minute in ms
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(1)))  // 1 Minute in ms
                 .count();
 
         // Status codes
@@ -70,7 +68,8 @@ public class ErrorEventsPerMinute {
                         new ErrorOutput(key.key(), value, key.window().start(), null /*empty definition*/)))
                 .join(statusCodes,
                         (countRecord, code) -> new ErrorOutput(
-                                countRecord.getStatusCode(), countRecord.getCount(), countRecord.getTime(), code.getDefinition()),
+                                countRecord.getStatusCode(), countRecord.getCount(), countRecord.getTime(),
+                                code.getDefinition()),
                         Joined.valueSerde(new JsonSerde<>(ErrorOutput.class)));
         errors.to(this.errorOutputTopic);
 

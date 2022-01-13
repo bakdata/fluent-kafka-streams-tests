@@ -25,6 +25,7 @@ package com.bakdata.schemaregistrymock.junit4;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import java.io.IOException;
@@ -38,45 +39,51 @@ public class SchemaRegistryMockRuleTest {
     @Rule
     public final SchemaRegistryMockRule schemaRegistry = new SchemaRegistryMockRule();
 
+    private static Schema createSchema(final String name) {
+        return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
+    }
+
     @Test
     public void shouldRegisterKeySchema() throws IOException, RestClientException {
-        final Schema keySchema = this.createSchema("key_schema");
+        final Schema keySchema = createSchema("key_schema");
         final int id = this.schemaRegistry.registerKeySchema("test-topic", keySchema);
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(keySchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(keySchema);
     }
 
     @Test
     public void shouldRegisterValueSchema() throws IOException, RestClientException {
-        final Schema valueSchema = this.createSchema("value_schema");
+        final Schema valueSchema = createSchema("value_schema");
         final int id = this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(valueSchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(valueSchema);
     }
 
     @Test
     public void shouldRegisterKeySchemaWithClient() throws IOException, RestClientException {
-        final Schema keySchema = this.createSchema("key_schema");
-        final int id = this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", keySchema);
+        final Schema keySchema = createSchema("key_schema");
+        final int id =
+                this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", new AvroSchema(keySchema));
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(keySchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(keySchema);
     }
 
     @Test
     public void shouldRegisterValueSchemaWithClient() throws IOException, RestClientException {
-        final Schema valueSchema = this.createSchema("value_schema");
-        final int id = this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", valueSchema);
+        final Schema valueSchema = createSchema("value_schema");
+        final int id =
+                this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", new AvroSchema(valueSchema));
 
-        final Schema retrievedSchema = this.schemaRegistry.getSchemaRegistryClient().getById(id);
-        assertThat(retrievedSchema).isEqualTo(valueSchema);
+        final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
+        assertThat(retrievedSchema.rawSchema()).isEqualTo(valueSchema);
     }
 
     @Test
     public void shouldHaveSchemaVersions() throws IOException, RestClientException {
-        final Schema valueSchema = this.createSchema("value_schema");
+        final Schema valueSchema = createSchema("value_schema");
         final String topic = "test-topic";
         final int id = this.schemaRegistry.registerValueSchema(topic, valueSchema);
 
@@ -93,12 +100,12 @@ public class SchemaRegistryMockRuleTest {
 
     @Test
     public void shouldHaveLatestSchemaVersion() throws IOException, RestClientException {
-        final Schema valueSchema1 = this.createSchema("value_schema");
+        final Schema valueSchema1 = createSchema("value_schema");
         final String topic = "test-topic";
         final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
 
         final List<Schema.Field> fields = Collections.singletonList(
-                new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", (Object) null));
+                new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", null));
         final Schema valueSchema2 = Schema.createRecord("value_schema", "no doc", "", false, fields);
         final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
 
@@ -113,9 +120,5 @@ public class SchemaRegistryMockRuleTest {
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
         assertThat(retrievedSchema).isEqualTo(valueSchema2);
-    }
-
-    private Schema createSchema(final String name) {
-        return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
     }
 }
