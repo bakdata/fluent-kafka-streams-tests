@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.5.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.0) (2022-01-13)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.3...2.5.0)
+
+**Merged pull requests:**
+
+- Update to Kafka 3.0.0 [\#59](https://github.com/bakdata/fluent-kafka-streams-tests/pull/59) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.4.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.3) (2021-12-10)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.2...2.4.3)
 
