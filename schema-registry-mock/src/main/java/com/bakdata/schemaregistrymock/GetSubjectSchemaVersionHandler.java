@@ -10,11 +10,11 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaRequest;
 import java.io.IOException;
 
-class LookupVersionHandler extends SubjectsHandler {
+class GetSubjectSchemaVersionHandler extends SubjectsHandler {
 
     private final SchemaRegistryMock schemaRegistryMock;
 
-    LookupVersionHandler(final SchemaRegistryMock schemaRegistryMock) {
+    GetSubjectSchemaVersionHandler(final SchemaRegistryMock schemaRegistryMock) {
         this.schemaRegistryMock = schemaRegistryMock;
     }
 
@@ -34,6 +34,6 @@ class LookupVersionHandler extends SubjectsHandler {
 
     @Override
     public String getName() {
-        return LookupVersionHandler.class.getSimpleName();
+        return GetSubjectSchemaVersionHandler.class.getSimpleName();
     }
 }

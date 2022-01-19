@@ -259,8 +259,8 @@ class SchemaRegistryMockTest {
         this.schemaRegistry.registerKeySchema("test-topic", keySchema);
         this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
         assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", keySchema)).isEqualTo(1);
-        assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-value", valueSchema)).isEqualTo(
-                1);
+        assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-value", valueSchema))
+                .isEqualTo(1);
     }
 
     @Test
