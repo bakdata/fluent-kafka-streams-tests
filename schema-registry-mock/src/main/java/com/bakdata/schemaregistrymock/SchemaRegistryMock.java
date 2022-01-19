@@ -173,8 +173,7 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.post(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/[^/]+"
-                        + "(?:\\?(?:deleted|normalize)=(?:true|false)(?:&(?:deleted|normalize)=(?:true|false))*)?"))
+        this.mockSchemaRegistry.stubFor(WireMock.post(getSubjectSchemaVersionPattern("[^/]+"))
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
     }
 
