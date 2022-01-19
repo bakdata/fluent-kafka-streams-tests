@@ -27,6 +27,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -245,5 +246,30 @@ class SchemaRegistryMockTest {
                 .isThrownBy(
                         () -> this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value"))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
+        assertThatExceptionOfType(RestClientException.class)
+                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient()
+                        .getVersion(topic + "-value", new AvroSchema(valueSchema)))
+                .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
+    }
+
+    @Test
+    void shouldReturnVersion() throws IOException, RestClientException {
+        final ParsedSchema keySchema = new AvroSchema(createSchema("key_schema"));
+        final ParsedSchema valueSchema = new AvroSchema(createSchema("value_schema"));
+        this.schemaRegistry.registerKeySchema("test-topic", keySchema);
+        this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
+        assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", keySchema)).isEqualTo(1);
+        assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-value", valueSchema)).isEqualTo(
+                1);
+    }
+
+    @Test
+    void shouldUpdateVersion() throws IOException, RestClientException {
+        final ParsedSchema keySchema1 = new AvroSchema(createSchema("key_schema1"));
+        final ParsedSchema keySchema2 = new AvroSchema(createSchema("key_schema2"));
+        this.schemaRegistry.registerKeySchema("test-topic", keySchema1);
+        this.schemaRegistry.registerKeySchema("test-topic", keySchema2);
+        assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", keySchema1)).isEqualTo(1);
+        assertThat(this.schemaRegistry.getSchemaRegistryClient().getVersion("test-topic-key", keySchema2)).isEqualTo(2);
     }
 }
