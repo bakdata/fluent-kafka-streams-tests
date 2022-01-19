@@ -269,7 +269,7 @@ public class SchemaRegistryMock {
 
     io.confluent.kafka.schemaregistry.client.rest.entities.Schema getSchema(final String subject,
             final ParsedSchema parsedSchema) {
-        log.debug("Getting version for subject {}", subject);
+        log.debug("Getting schema version for subject {}", subject);
         try {
             final int version = this.client.getVersion(subject, parsedSchema);
             final int id = this.client.getId(subject, parsedSchema);
