@@ -49,7 +49,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -104,16 +103,19 @@ public class SchemaRegistryMock {
     private final SchemaRegistryClient client;
     private final ListVersionsHandler listVersionsHandler;
     private final GetVersionHandler getVersionHandler;
+    private final GetSubjectSchemaVersionHandler getSubjectSchemaVersionHandler;
     private final AutoRegistrationHandler autoRegistrationHandler;
     private final DeleteSubjectHandler deleteSubjectHandler;
     private final AllSubjectsHandler allSubjectsHandler;
     private final WireMockServer mockSchemaRegistry;
 
     public SchemaRegistryMock(final List<SchemaProvider> schemaProviders) {
-        this.schemaProviders = Objects.requireNonNullElseGet(schemaProviders, () -> List.of(new AvroSchemaProvider()));
+        this.schemaProviders = Optional.ofNullable(schemaProviders)
+                .orElseGet(() -> Collections.singletonList(new AvroSchemaProvider()));
         this.client = new MockSchemaRegistryClient(schemaProviders);
         this.listVersionsHandler = new ListVersionsHandler(this);
         this.getVersionHandler = new GetVersionHandler(this);
+        this.getSubjectSchemaVersionHandler = new GetSubjectSchemaVersionHandler(this);
         this.autoRegistrationHandler = new AutoRegistrationHandler(this);
         this.deleteSubjectHandler = new DeleteSubjectHandler(this);
         this.allSubjectsHandler = new AllSubjectsHandler(this);
@@ -131,6 +133,11 @@ public class SchemaRegistryMock {
 
     private static UrlPattern getDeleteSubjectPattern(final String subject) {
         return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "?permanent=false");
+    }
+
+    private static UrlPattern getSubjectSchemaVersionPattern(final String subject) {
+        return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject
+                + "(?:\\?(?:deleted|normalize)=(?:true|false)(?:&(?:deleted|normalize)=(?:true|false))*)?");
     }
 
     private static UrlPattern getSubjectVersionsPattern(final String subject) {
@@ -166,6 +173,8 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
+        this.mockSchemaRegistry.stubFor(WireMock.post(getSubjectSchemaVersionPattern("[^/]+"))
+                .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
     }
 
     public void stop() {
@@ -201,7 +210,8 @@ public class SchemaRegistryMock {
     }
 
     public SchemaRegistryClient getSchemaRegistryClient(final Map<String, ?> config) {
-        return new CachedSchemaRegistryClient(List.of(this.getUrl()), IDENTITY_MAP_CAPACITY, this.schemaProviders,
+        return new CachedSchemaRegistryClient(Collections.singletonList(this.getUrl()), IDENTITY_MAP_CAPACITY,
+                this.schemaProviders,
                 config);
     }
 
@@ -223,6 +233,8 @@ public class SchemaRegistryMock {
                     .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
+            this.mockSchemaRegistry.stubFor(WireMock.post(getSubjectSchemaVersionPattern(subject))
+                    .willReturn(WireMock.aResponse().withTransformers(this.getSubjectSchemaVersionHandler.getName())));
 
             return id;
         } catch (final IOException | RestClientException e) {
@@ -239,6 +251,7 @@ public class SchemaRegistryMock {
             this.mockSchemaRegistry.removeStub(WireMock.delete(getDeleteSubjectPattern(subject)));
             this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionsPattern(subject)));
             this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionPattern(subject)));
+            this.mockSchemaRegistry.removeStub(WireMock.post(getSubjectSchemaVersionPattern(subject)));
             return ids;
         } catch (final IOException | RestClientException e) {
             throw new IllegalStateException("Internal error in mock schema registry client", e);
@@ -249,6 +262,19 @@ public class SchemaRegistryMock {
         log.debug("Listing all versions for subject {}", subject);
         try {
             return this.client.getAllVersions(subject);
+        } catch (final IOException | RestClientException e) {
+            throw new IllegalStateException("Internal error in mock schema registry client", e);
+        }
+    }
+
+    io.confluent.kafka.schemaregistry.client.rest.entities.Schema getSchema(final String subject,
+            final ParsedSchema parsedSchema) {
+        log.debug("Getting schema version for subject {}", subject);
+        try {
+            final int version = this.client.getVersion(subject, parsedSchema);
+            final int id = this.client.getId(subject, parsedSchema);
+            return new io.confluent.kafka.schemaregistry.client.rest.entities.Schema(subject, version, id,
+                    parsedSchema.schemaType(), parsedSchema.references(), parsedSchema.canonicalString());
         } catch (final IOException | RestClientException e) {
             throw new IllegalStateException("Internal error in mock schema registry client", e);
         }
@@ -269,7 +295,7 @@ public class SchemaRegistryMock {
         }
     }
 
-   Collection<String> listAllSubjects() {
+    Collection<String> listAllSubjects() {
         try {
             return this.client.getAllSubjects();
         } catch (final IOException | RestClientException e) {
@@ -280,17 +306,18 @@ public class SchemaRegistryMock {
     ParsedSchema parseSchema(final RegisterSchemaRequest registerSchemaRequest) {
         final String schemaType = registerSchemaRequest.getSchemaType();
         final String schema = registerSchemaRequest.getSchema();
-        final List<SchemaReference> references =
-                Objects.requireNonNullElse(registerSchemaRequest.getReferences(), Collections.emptyList());
+        final List<SchemaReference> references = Optional.ofNullable(registerSchemaRequest.getReferences())
+                .orElse(Collections.emptyList());
         final Optional<ParsedSchema> schemaOptional = this.client.parseSchema(schemaType, schema, references);
         return schemaOptional.orElseThrow(() -> new RuntimeException("Could not parse schema"));
     }
 
     private ResponseDefinitionTransformer[] extensions() {
-        return new ResponseDefinitionTransformer[] {
+        return new ResponseDefinitionTransformer[]{
                 this.autoRegistrationHandler,
                 this.listVersionsHandler,
                 this.getVersionHandler,
+                this.getSubjectSchemaVersionHandler,
                 this.deleteSubjectHandler,
                 this.allSubjectsHandler
         };

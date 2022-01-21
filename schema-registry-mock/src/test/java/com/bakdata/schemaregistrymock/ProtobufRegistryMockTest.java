@@ -10,10 +10,14 @@ import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +27,11 @@ class ProtobufRegistryMockTest {
     private final ParsedSchema schema;
 
     ProtobufRegistryMockTest() throws IOException {
-        this.schemaRegistry = new SchemaRegistryMock(List.of(new ProtobufSchemaProvider()));
+        this.schemaRegistry = new SchemaRegistryMock(Collections.singletonList(new ProtobufSchemaProvider()));
 
-        try (final InputStream input = ProtobufRegistryMockTest.class.getResourceAsStream("/record.proto")) {
-            this.schema = new ProtobufSchema(new String(input.readAllBytes()));
+        try (final InputStream input = ProtobufRegistryMockTest.class.getResourceAsStream("/record.proto");
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+            this.schema = new ProtobufSchema(reader.lines().collect(Collectors.joining("\n")));
         }
     }
 
