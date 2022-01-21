@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.5.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.1) (2022-01-21)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.0...2.5.1)
+
+**Merged pull requests:**
+
+- Support get schema version endpoint [\#60](https://github.com/bakdata/fluent-kafka-streams-tests/pull/60) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.5.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.0) (2022-01-13)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.3...2.5.0)
 
