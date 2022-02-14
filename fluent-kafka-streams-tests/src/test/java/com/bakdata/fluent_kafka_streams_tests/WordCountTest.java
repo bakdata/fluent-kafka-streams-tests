@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.bakdata.fluent_kafka_streams_tests.test_applications.WordCount;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -138,7 +139,7 @@ class WordCountTest {
                 .add("blub")
                 .add("bla")
                 .add("foo");
-        final List<String> expected = List.of("bla", "blub", "bla", "foo");
+        final List<String> expected = Arrays.asList("bla", "blub", "bla", "foo");
 
         assertThat(this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long()))
                 .extracting(ProducerRecord::key)
@@ -151,7 +152,7 @@ class WordCountTest {
                 .add("blub")
                 .add("bla")
                 .add("foo");
-        final List<String> expected = List.of("bla", "blub", "bla", "foo");
+        final List<String> expected = Arrays.asList("bla", "blub", "bla", "foo");
 
         assertThat(this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
                 .toIterable()
@@ -165,7 +166,7 @@ class WordCountTest {
                 .add("blub")
                 .add("bla")
                 .add("foo");
-        final List<String> expected = List.of("bla", "blub", "foo");
+        final List<String> expected = Arrays.asList("bla", "blub", "foo");
 
         assertThat(this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()))
                 .extracting(ProducerRecord::key)
@@ -226,7 +227,7 @@ class WordCountTest {
                 .add("blub")
                 .add("bla")
                 .add("foo");
-        final List<String> expected = List.of("bla", "blub", "foo");
+        final List<String> expected = Arrays.asList("bla", "blub", "foo");
 
         assertThat(this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long()).iterator())
                 .toIterable()
@@ -263,7 +264,7 @@ class WordCountTest {
     }
 
     @Test
-    void shouldFailForUnmachtedValue() {
+    void shouldFailForUnmatchedValue() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla");

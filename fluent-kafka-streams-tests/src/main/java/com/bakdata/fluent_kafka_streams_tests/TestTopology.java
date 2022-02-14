@@ -40,8 +40,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.Getter;
 import org.apache.kafka.common.serialization.Serde;
@@ -102,6 +104,7 @@ public class TestTopology<DefaultK, DefaultV> {
     private final Function<? super Properties, ? extends Topology> topologyFactory;
     private final Properties properties = new Properties();
     private final Collection<String> inputTopics = new HashSet<>();
+    private final Collection<Pattern> inputPatterns = new HashSet<>();
     private final Collection<String> outputTopics = new HashSet<>();
 
     private final Serde<DefaultK> defaultKeySerde;
@@ -234,7 +237,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * @throws NoSuchElementException if there is no topic with that name.
      */
     public TestInput<DefaultK, DefaultV> input(final String topic) {
-        if (!this.inputTopics.contains(topic)) {
+        if (!this.inputTopics.contains(topic) && this.inputPatterns.stream().noneMatch(p -> p.matcher(topic).matches())) {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
         return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde());
@@ -336,13 +339,20 @@ public class TestTopology<DefaultK, DefaultV> {
         this.testDriver = new TopologyTestDriver(topology, this.properties);
 
         this.inputTopics.clear();
+        this.inputPatterns.clear();
         this.outputTopics.clear();
 
         for (final TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
             for (final TopologyDescription.Node node : subtopology.nodes()) {
                 if (node instanceof TopologyDescription.Source) {
-                    for (final String topic : ((Source) node).topicSet()) {
-                        addExternalTopics(this.inputTopics, topic);
+                    final Source source = (Source) node;
+                    final Set<String> topicSet = source.topicSet();
+                    if (topicSet != null) {
+                        for (final String topic : topicSet) {
+                            addExternalTopics(this.inputTopics, topic);
+                        }
+                    } else {
+                        this.inputPatterns.add(source.topicPattern());
                     }
                 } else if (node instanceof TopologyDescription.Sink) {
                     // might be null if a TopicNameExtractor is used
