@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.5.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.2) (2022-02-14)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.1...2.5.2)
+
+**Closed issues:**
+
+- Support topic pattern [\#31](https://github.com/bakdata/fluent-kafka-streams-tests/issues/31)
+
+**Merged pull requests:**
+
+- Add support for topic patterns [\#61](https://github.com/bakdata/fluent-kafka-streams-tests/pull/61) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.5.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.1) (2022-01-21)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.0...2.5.1)
 
