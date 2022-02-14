@@ -6,6 +6,7 @@ import static com.bakdata.fluent_kafka_streams_tests.test_types.proto.PersonOute
 import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitantsWithProto;
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
@@ -19,7 +20,7 @@ public class CountInhabitantsWithProtoTest {
 
     private final CountInhabitantsWithProto app = new CountInhabitantsWithProto();
 
-    private final SchemaRegistryMock mock = new SchemaRegistryMock(List.of(new ProtobufSchemaProvider()));
+    private final SchemaRegistryMock mock = new SchemaRegistryMock(Collections.singletonList(new ProtobufSchemaProvider()));
     private final TestTopology<Object, Object> testTopology =
             new TestTopology<>(this::topology, this.app.getKafkaProperties())
                     .withSchemaRegistryMock(this.mock);
