@@ -26,10 +26,12 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.test.TestRecord;
 
 /**
  * Represents the input topic for the tested app via {@link TestTopology}.
@@ -124,7 +126,7 @@ public class TestInput<K, V> {
      * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final V value) {
-        return this.addInternal(null, value, this.timestamp);
+        return this.addInternal(null, value, this.timestamp, null);
     }
 
     /**
@@ -136,7 +138,7 @@ public class TestInput<K, V> {
      * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final K key, final V value) {
-        return this.addInternal(key, value, this.timestamp);
+        return this.addInternal(key, value, this.timestamp, null);
     }
 
     /**
@@ -149,14 +151,41 @@ public class TestInput<K, V> {
      * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final K key, final V value, final long timestamp) {
-        return this.addInternal(key, value, timestamp);
+        return this.addInternal(key, value, timestamp, null);
+    }
+
+    /**
+     * Add a key and value to the input topic with given headers. If a timestamp was specified with {@link #at(long,
+     * TimeUnit)} or {@link #at(long)}, that timestamp will be used here. Otherwise, the timestamp will default to 0.
+     *
+     * @param key Key to be inserted into the topic.
+     * @param value Value to be inserted into topic.
+     * @param headers Record headers.
+     * @return This input, so it can be chained.
+     */
+    public TestInput<K, V> add(final K key, final V value, final Headers headers) {
+        return this.addInternal(key, value, this.timestamp, headers);
+    }
+
+    /**
+     * Add a key and value to the input topic with a given timestamp and headers. The recommended way is to use {@link
+     * #at(long, TimeUnit)} or {@link #at(long)}, as they are easier to read and more expressive.
+     *
+     * @param key Key to be inserted into the topic.
+     * @param value Value to be inserted into topic.
+     * @param timestamp Event time at which the event should be inserted.
+     * @param headers Record headers.
+     * @return This input, so it can be chained.
+     */
+    public TestInput<K, V> add(final K key, final V value, final long timestamp, final Headers headers) {
+        return this.addInternal(key, value, timestamp, headers);
     }
 
     // ==================
     // Non-public methods
     // ==================
-    private TestInput<K, V> addInternal(final K key, final V value, final Long timestamp) {
-        this.testInputTopic.pipeInput(key, value, timestamp == null ? 0 : timestamp);
+    private TestInput<K, V> addInternal(final K key, final V value, final Long timestamp, final Headers headers) {
+        this.testInputTopic.pipeInput(new TestRecord<>(key, value, headers, timestamp == null ? 0 : timestamp));
         return this;
     }
 
