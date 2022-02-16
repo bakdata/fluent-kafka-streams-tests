@@ -160,6 +160,7 @@ public class TestInput<K, V> {
      *
      * @param key Key to be inserted into the topic.
      * @param value Value to be inserted into topic.
+     * @param headers Record headers.
      * @return This input, so it can be chained.
      */
     public TestInput<K, V> add(final K key, final V value, final Headers headers) {
