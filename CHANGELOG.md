@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.5.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.3) (2022-02-17)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.2...2.5.3)
+
+**Merged pull requests:**
+
+- Add support for record headers [\#62](https://github.com/bakdata/fluent-kafka-streams-tests/pull/62) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.5.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.2) (2022-02-14)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.1...2.5.2)
 
