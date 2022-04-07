@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.5.5](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.5) (2022-04-07)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.4...2.5.5)
+
+**Merged pull requests:**
+
+- Fix visibility of type methods [\#65](https://github.com/bakdata/fluent-kafka-streams-tests/pull/65) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.5.4](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.4) (2022-04-07)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.3...2.5.4)
 
