@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 bakdata GmbH
+ * Copyright (c) 2022 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -102,7 +102,7 @@ public class TestInput<K, V> {
      * @param keyType the new key type.
      * @param valueType the new value type.
      */
-    <KR, VR> TestInput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
+    public <KR, VR> TestInput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
         return (TestInput<KR, VR>) this;
     }
 
@@ -114,7 +114,7 @@ public class TestInput<K, V> {
      *
      * @param keyType the new key type.
      */
-    <KR> TestInput<KR, V> withKeyType(final Class<KR> keyType) {
+    public <KR> TestInput<KR, V> withKeyType(final Class<KR> keyType) {
         return (TestInput<KR, V>) this;
     }
 
@@ -126,7 +126,7 @@ public class TestInput<K, V> {
      *
      * @param valueType the new value type.
      */
-    <VR> TestInput<K, VR> withValueType(final Class<VR> valueType) {
+    public <VR> TestInput<K, VR> withValueType(final Class<VR> valueType) {
         return (TestInput<K, VR>) this;
     }
 
