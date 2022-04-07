@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2022 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -91,6 +91,43 @@ public class TestInput<K, V> {
      */
     public <VR> TestInput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
         return this.withSerde(this.keySerde, valueSerde);
+    }
+
+    /**
+     * <p>Type-casts the key and value to the given types.</p>
+     *
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different types
+     * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the input.
+     *
+     * @param keyType the new key type.
+     * @param valueType the new value type.
+     */
+    <KR, VR> TestInput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
+        return (TestInput<KR, VR>) this;
+    }
+
+    /**
+     * <p>Type-casts the key to the given type.</p>
+     *
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different types
+     * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the input.
+     *
+     * @param keyType the new key type.
+     */
+    <KR> TestInput<KR, V> withKeyType(final Class<KR> keyType) {
+        return (TestInput<KR, V>) this;
+    }
+
+    /**
+     * <p>Type-casts the value to the given type.</p>
+     *
+     * A type-cast is useful if you have general-purpose serde, such as Json or Avro, which is used for different types
+     * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the input.
+     *
+     * @param valueType the new value type.
+     */
+    <VR> TestInput<K, VR> withValueType(final Class<VR> valueType) {
+        return (TestInput<K, VR>) this;
     }
 
     /**
