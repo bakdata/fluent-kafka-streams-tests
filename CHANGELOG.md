@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.5.4](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.4) (2022-04-07)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.3...2.5.4)
+
+**Closed issues:**
+
+- How to enable SchemaRegistryMock when using Spring Kafka \+ @Autowired \+ manual overriding of Avro Serdes? [\#63](https://github.com/bakdata/fluent-kafka-streams-tests/issues/63)
+
+**Merged pull requests:**
+
+- Allow change of input types for general purpose SerDes [\#64](https://github.com/bakdata/fluent-kafka-streams-tests/pull/64) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.5.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.3) (2022-02-17)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.2...2.5.3)
 
