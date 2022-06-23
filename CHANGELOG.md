@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.6.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.6.0) (2022-06-23)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.5...2.6.0)
+
+**Merged pull requests:**
+
+- Upgrade to Kafka 3.1 and Confluent 7.1 [\#66](https://github.com/bakdata/fluent-kafka-streams-tests/pull/66) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.5.5](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.5) (2022-04-07)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.4...2.5.5)
 
