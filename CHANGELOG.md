@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.7.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.7.0) (2022-07-12)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.6.0...2.7.0)
+
+**Closed issues:**
+
+- Upgrade Kafka, Confluent and Protobuf dependencies [\#67](https://github.com/bakdata/fluent-kafka-streams-tests/issues/67)
+
+**Merged pull requests:**
+
+- Upgrade Kafka to 3.2, proto to 3.21.2 [\#68](https://github.com/bakdata/fluent-kafka-streams-tests/pull/68) ([@milindmantri](https://github.com/milindmantri))
+
 ## [2.6.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.6.0) (2022-06-23)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.5...2.6.0)
 
