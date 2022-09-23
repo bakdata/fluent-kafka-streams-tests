@@ -251,10 +251,11 @@ class WordCountTest {
     void shouldFailKeyAssertion() {
         this.testTopology.input().add("bla");
 
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput()
-                        .withValueSerde(Serdes.Long())
-                        .expectNextRecord()
+                .isThrownBy(() -> expectation
                         .hasKeySatisfying(key -> assertThat(key).isEqualTo("blub")));
     }
 
@@ -262,10 +263,11 @@ class WordCountTest {
     void shouldNotMakeKeyAssertions() {
         this.testTopology.input();
 
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput()
-                        .withValueSerde(Serdes.Long())
-                        .expectNextRecord()
+                .isThrownBy(() -> expectation
                         .hasKeySatisfying(key -> {}))
                 .withMessage("No more records found");
     }
@@ -285,21 +287,22 @@ class WordCountTest {
     void shouldFailValueAssertion() {
         this.testTopology.input().add("bla");
 
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput()
-                        .withValueSerde(Serdes.Long())
-                        .expectNextRecord()
-                        .hasValueSatisfying(key -> assertThat(key).isEqualTo(2L)));
+                .isThrownBy(() -> expectation.hasValueSatisfying(key -> assertThat(key).isEqualTo(2L)));
     }
 
     @Test
     void shouldNotMakeValueAssertions() {
         this.testTopology.input();
 
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput()
-                        .withValueSerde(Serdes.Long())
-                        .expectNextRecord()
+                .isThrownBy(() -> expectation
                         .hasValueSatisfying(key -> {}))
                 .withMessage("No more records found");
     }
