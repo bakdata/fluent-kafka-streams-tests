@@ -65,7 +65,7 @@ public class Expectation<K, V> {
      * framework.
      *
      * @param requirements consumer that accepts the current record's key
-     * @return this for chaining
+     * @return the current Expectation chain
      */
     public Expectation<K, V> hasKeySatisfying(final Consumer<? super K> requirements) {
         this.isPresent();
@@ -87,8 +87,9 @@ public class Expectation<K, V> {
     /**
      * Forwards {@link ProducerRecord#value()} to the provided condition in order make assertions using another
      * framework.
+     *
      * @param requirements consumer that accepts the current record's value
-     * @return this for chaining
+     * @return the current Expectation chain
      */
     public Expectation<K, V> hasValueSatisfying(final Consumer<? super V> requirements) {
         this.isPresent();
