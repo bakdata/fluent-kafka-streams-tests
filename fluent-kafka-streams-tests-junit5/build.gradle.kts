@@ -2,7 +2,7 @@ description = "Provides the fluent Kafka Streams test framework."
 
 dependencies {
     api(project(":fluent-kafka-streams-tests"))
-    implementation(project(":schema-registry-mock"))
+    api(project(":schema-registry-mock"))
 
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
