@@ -255,8 +255,7 @@ class WordCountTest {
                 .withValueSerde(Serdes.Long())
                 .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> expectation
-                        .hasKeySatisfying(key -> assertThat(key).isEqualTo("blub")));
+                .isThrownBy(() -> expectation.hasKeySatisfying(key -> assertThat(key).isEqualTo("blub")));
     }
 
     @Test
@@ -267,8 +266,7 @@ class WordCountTest {
                 .withValueSerde(Serdes.Long())
                 .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> expectation
-                        .hasKeySatisfying(key -> {}))
+                .isThrownBy(() -> expectation.hasKeySatisfying(key -> {}))
                 .withMessage("No more records found");
     }
 
@@ -302,8 +300,7 @@ class WordCountTest {
                 .withValueSerde(Serdes.Long())
                 .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> expectation
-                        .hasValueSatisfying(key -> {}))
+                .isThrownBy(() -> expectation.hasValueSatisfying(key -> {}))
                 .withMessage("No more records found");
     }
 
