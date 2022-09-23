@@ -65,7 +65,7 @@ public class Expectation<K, V> {
      * framework.
      *
      * @param requirements consumer that accepts the current record's key
-     * @return the current Expectation chain
+     * @return the current {@code Expectation} chain
      */
     public Expectation<K, V> hasKeySatisfying(final Consumer<? super K> requirements) {
         this.isPresent();
@@ -89,7 +89,7 @@ public class Expectation<K, V> {
      * framework.
      *
      * @param requirements consumer that accepts the current record's value
-     * @return the current Expectation chain
+     * @return the current {@code Expectation} chain
      */
     public Expectation<K, V> hasValueSatisfying(final Consumer<? super V> requirements) {
         this.isPresent();
