@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.7.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.7.1) (2022-09-26)
+[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.7.0...2.7.1)
+
+**Merged pull requests:**
+
+- Add methods to make custom assertions against keys and values of output [\#69](https://github.com/bakdata/fluent-kafka-streams-tests/pull/69) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.7.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.7.0) (2022-07-12)
 [Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.6.0...2.7.0)
 
