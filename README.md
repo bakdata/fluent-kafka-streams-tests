@@ -127,7 +127,7 @@ void shouldReturnCorrectIteratorTable() {
 }
 ```
 
-There is also an API to consume a records key or value in order to embed another assertion framework into our API.
+There is also an API to consume a record's key or value in order to embed another assertion framework into our API.
 
 ```java
 @Test
