@@ -1,4 +1,5 @@
-import com.google.protobuf.gradle.*
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
 
 plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
@@ -15,7 +16,7 @@ dependencies {
     "api"(group = "org.apache.kafka", name = "kafka-clients", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
-    implementation(project(":schema-registry-mock"))
+    api(project(":schema-registry-mock"))
 
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)

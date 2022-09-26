@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2022 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -60,6 +61,19 @@ public class Expectation<K, V> {
     }
 
     /**
+     * Forwards {@link ProducerRecord#key()} to the provided condition in order make assertions using another
+     * framework.
+     *
+     * @param requirements consumer that accepts the current record's key
+     * @return the current {@code Expectation} chain
+     */
+    public Expectation<K, V> hasKeySatisfying(final Consumer<? super K> requirements) {
+        this.isPresent();
+        requirements.accept(this.record.key());
+        return this.and();
+    }
+
+    /**
      * Checks for the equality of the {@link ProducerRecord#value()} and {@code expectedValue}.
      */
     public Expectation<K, V> hasValue(final V expectedValue) {
@@ -67,6 +81,19 @@ public class Expectation<K, V> {
         if (!this.record.value().equals(expectedValue)) {
             throw new AssertionError("Record value does not match");
         }
+        return this.and();
+    }
+
+    /**
+     * Forwards {@link ProducerRecord#value()} to the provided condition in order make assertions using another
+     * framework.
+     *
+     * @param requirements consumer that accepts the current record's value
+     * @return the current {@code Expectation} chain
+     */
+    public Expectation<K, V> hasValueSatisfying(final Consumer<? super V> requirements) {
+        this.isPresent();
+        requirements.accept(this.record.value());
         return this.and();
     }
 
@@ -79,7 +106,7 @@ public class Expectation<K, V> {
     }
 
     /**
-     * <p>Reads the next record as creates an {@link Expectation} for it.</p>
+     * <p>Reads the next record as creates an {@code Expectation} for it.</p>
      * <p>This is logically equivalent to {@link TestOutput#expectNextRecord()}.</p>
      * <p>This methods main purpose is to allow chaining:</p>
      * <pre>{@code
@@ -88,7 +115,7 @@ public class Expectation<K, V> {
      *         .expectNoMoreRecord();
      * }</pre>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@code Expectation} containing the next record from the output.
      */
     public Expectation<K, V> expectNextRecord() {
         return this.output.expectNextRecord();
@@ -104,7 +131,7 @@ public class Expectation<K, V> {
      *         .expectNoMoreRecord();
      * }</pre>
      *
-     * @return An {@link Expectation} containing the next record from the output.
+     * @return An {@code Expectation} containing the next record from the output.
      */
     public Expectation<K, V> expectNoMoreRecord() {
         return this.output.expectNoMoreRecord();

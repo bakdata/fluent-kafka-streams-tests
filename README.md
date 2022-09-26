@@ -59,12 +59,13 @@ class WordCountTest {
 ```
 
 The `TestTopology` takes care of all the inputs, processing, and outputs of you application.
-For it to do that, you need to register it a an extension (JUnit5), so certain setup/teardown methods are called.
+For it to do that, you need to register it as an extension (JUnit5), so certain setup/teardown methods are called.
 The constructor expects a topology factory (for a fresh topology in each test) that creates the topology under test.
 
 Additionally, the properties of the `KafkaClient` need to be specified.
 Broker and application-id must be present (Kafka testutil limitation), but are ignored.
-Most importantly, if the application expects default serde for key and value, these must be present in the properties or explicitly specified with `withDefaultKeySerde(Serde serde)` and/or `withDefaultValueSerde(Serde serde)`.
+Most importantly, if the application expects default serde for key and value, these must be present in the properties or
+explicitly specified with `withDefaultKeySerde(Serde serde)` and/or `withDefaultValueSerde(Serde serde)`.
 
 To test your appliction, you can simply write a JUnit test.
 ```java
@@ -126,10 +127,27 @@ void shouldReturnCorrectIteratorTable() {
 }
 ```
 
+There is also an API to consume a record's key or value in order to embed another assertion framework into our API.
+
+```java
+@Test
+void shouldReturnCorrectIteratorTable() {
+    this.testTopology.input()
+        .add("cat");
+
+    this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
+            .expectNextRecord()
+            .hasKeySatisfying(key -> assertThat(key).isEqualTo("cat"))
+            .hasValueSatisfying(value -> assertThat(value).isEqualTo(1L))
+            .expectNoMoreRecord();
+}
+```
+
 #### More Examples
 
-You can find many more tests in [this repository's test code](https://github.com/bakdata/fluent-kafka-streams-tests/tree/master/fluent-kafka-streams-tests/src/test/java/com/bakdata/fluent_kafka_streams_tests).
-
+You can find many more tests
+in [this repository's test code](https://github.com/bakdata/fluent-kafka-streams-tests/tree/master/fluent-kafka-streams-tests/src/test/java/com/bakdata/fluent_kafka_streams_tests)
+.
 
 ## Development
 
