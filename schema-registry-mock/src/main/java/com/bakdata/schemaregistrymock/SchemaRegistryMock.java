@@ -141,9 +141,7 @@ public class SchemaRegistryMock {
     }
 
     private static UrlPattern getSubjectVersionsPattern(final String subject) {
-        return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject
-                + "/versions(?:\\?(?:deleted|deletedOnly)=(?:true|false)(?:&(?:deleted|deletedOnly)=(?:true|false))*)"
-                + "?");
+        return WireMock.urlPathEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "/versions");
     }
 
     private static UrlPathPattern getSubjectVersionPattern(final String subject) {
@@ -232,8 +230,8 @@ public class SchemaRegistryMock {
             this.mockSchemaRegistry.stubFor(WireMock.delete(getDeleteSubjectPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionsPattern(subject))
-//                            .withQueryParam("deletedOnly", WireMock.matching("false|true"))
-//                            .withQueryParam("deleted", WireMock.matching("false|true"))
+                    .withQueryParam("deletedOnly", WireMock.matching("false|true"))
+                    .withQueryParam("deleted", WireMock.matching("false|true"))
                     .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
