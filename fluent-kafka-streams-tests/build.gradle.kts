@@ -1,9 +1,6 @@
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
-
 plugins {
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
-    id("com.google.protobuf") version "0.8.17"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("com.google.protobuf") version "0.9.1"
     java
     idea // required for protobuf support in intellij
 }
@@ -21,11 +18,11 @@ dependencies {
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
-    testImplementation(group = "org.apache.avro", name = "avro", version = "1.9.2")
+    testImplementation(group = "org.apache.avro", name = "avro", version = "1.11.1")
     val confluentVersion: String by project
     testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
-    testImplementation(group= "io.confluent", name = "kafka-streams-protobuf-serde", version = confluentVersion)
-    testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = ":3.15.3")
+    testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde", version = confluentVersion)
+    testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = "3.21.12")
 }
 
 
@@ -33,6 +30,6 @@ dependencies {
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
-        artifact = "com.google.protobuf:protoc:3.21.2"
+        artifact = "com.google.protobuf:protoc:3.21.12"
     }
 }
