@@ -1,7 +1,7 @@
 /*
- * The MIT License
+ * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -141,7 +141,9 @@ public class SchemaRegistryMock {
     }
 
     private static UrlPattern getSubjectVersionsPattern(final String subject) {
-        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "/versions");
+        return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject
+                + "/versions(?:\\?(?:deleted|deletedOnly)=(?:true|false)(?:&(?:deleted|deletedOnly)=(?:true|false))*)"
+                + "?");
     }
 
     private static UrlPathPattern getSubjectVersionPattern(final String subject) {
@@ -230,6 +232,8 @@ public class SchemaRegistryMock {
             this.mockSchemaRegistry.stubFor(WireMock.delete(getDeleteSubjectPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionsPattern(subject))
+//                            .withQueryParam("deletedOnly", WireMock.matching("false|true"))
+//                            .withQueryParam("deleted", WireMock.matching("false|true"))
                     .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
             this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionPattern(subject))
                     .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
