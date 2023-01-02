@@ -14,7 +14,7 @@ dependencies {
     testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
 }
 
-configure<JavaPluginConvention> {
+configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
