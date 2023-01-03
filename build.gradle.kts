@@ -77,7 +77,6 @@ subprojects {
 
 release {
     git {
-        requireBranch.set("fix/release")
-        pushToRemote.set(false)
+        requireBranch.set("master")
     }
 }
