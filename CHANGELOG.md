@@ -1,21 +1,29 @@
 # Change Log
 
+## [2.8.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.8.1) (2023-01-03)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.8.0...2.8.1)
+
+**Merged pull requests:**
+
+- Fix changelog generation [\#73](https://github.com/bakdata/fluent-kafka-streams-tests/pull/73) ([@philipp94831](https://github.com/philipp94831))
+- Update dependencies [\#71](https://github.com/bakdata/fluent-kafka-streams-tests/pull/71) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.8.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.8.0) (2022-12-08)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.7.1...2.8.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.7.1...2.8.0)
 
 **Merged pull requests:**
 
 - Upgrade Kafka to 3.3 [\#70](https://github.com/bakdata/fluent-kafka-streams-tests/pull/70) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.7.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.7.1) (2022-09-26)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.7.0...2.7.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.7.0...2.7.1)
 
 **Merged pull requests:**
 
 - Add methods to make custom assertions against keys and values of output [\#69](https://github.com/bakdata/fluent-kafka-streams-tests/pull/69) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.7.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.7.0) (2022-07-12)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.6.0...2.7.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.6.0...2.7.0)
 
 **Closed issues:**
 
@@ -26,21 +34,21 @@
 - Upgrade Kafka to 3.2, proto to 3.21.2 [\#68](https://github.com/bakdata/fluent-kafka-streams-tests/pull/68) ([@milindmantri](https://github.com/milindmantri))
 
 ## [2.6.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.6.0) (2022-06-23)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.5...2.6.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.5...2.6.0)
 
 **Merged pull requests:**
 
 - Upgrade to Kafka 3.1 and Confluent 7.1 [\#66](https://github.com/bakdata/fluent-kafka-streams-tests/pull/66) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.5.5](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.5) (2022-04-07)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.4...2.5.5)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.4...2.5.5)
 
 **Merged pull requests:**
 
 - Fix visibility of type methods [\#65](https://github.com/bakdata/fluent-kafka-streams-tests/pull/65) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.5.4](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.4) (2022-04-07)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.3...2.5.4)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.3...2.5.4)
 
 **Closed issues:**
 
@@ -51,14 +59,14 @@
 - Allow change of input types for general purpose SerDes [\#64](https://github.com/bakdata/fluent-kafka-streams-tests/pull/64) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.5.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.3) (2022-02-17)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.2...2.5.3)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.2...2.5.3)
 
 **Merged pull requests:**
 
 - Add support for record headers [\#62](https://github.com/bakdata/fluent-kafka-streams-tests/pull/62) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.5.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.2) (2022-02-14)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.1...2.5.2)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.1...2.5.2)
 
 **Closed issues:**
 
@@ -69,42 +77,42 @@
 - Add support for topic patterns [\#61](https://github.com/bakdata/fluent-kafka-streams-tests/pull/61) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.5.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.1) (2022-01-21)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.0...2.5.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.5.0...2.5.1)
 
 **Merged pull requests:**
 
 - Support get schema version endpoint [\#60](https://github.com/bakdata/fluent-kafka-streams-tests/pull/60) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.5.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.5.0) (2022-01-13)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.3...2.5.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.3...2.5.0)
 
 **Merged pull requests:**
 
 - Update to Kafka 3.0.0 [\#59](https://github.com/bakdata/fluent-kafka-streams-tests/pull/59) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.4.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.3) (2021-12-10)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.2...2.4.3)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.2...2.4.3)
 
 **Merged pull requests:**
 
 - Update log4j to 2.15.0 [\#58](https://github.com/bakdata/fluent-kafka-streams-tests/pull/58) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.4.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.2) (2021-09-14)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.1...2.4.2)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.1...2.4.2)
 
 **Merged pull requests:**
 
 - Make Java 8 compatible [\#57](https://github.com/bakdata/fluent-kafka-streams-tests/pull/57) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.4.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.1) (2021-09-14)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.0...2.4.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.4.0...2.4.1)
 
 **Merged pull requests:**
 
 - Update wiremock to most recent version [\#56](https://github.com/bakdata/fluent-kafka-streams-tests/pull/56) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.4.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.4.0) (2021-09-13)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.1...2.4.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.1...2.4.0)
 
 **Merged pull requests:**
 
@@ -112,7 +120,7 @@
 - Update to Kafka 2.8 [\#54](https://github.com/bakdata/fluent-kafka-streams-tests/pull/54) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.3.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.3.1) (2021-04-14)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.0...2.3.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.3.0...2.3.1)
 
 **Closed issues:**
 
@@ -125,7 +133,7 @@
 - Extract wiremock handler [\#53](https://github.com/bakdata/fluent-kafka-streams-tests/pull/53) ([@torbsto](https://github.com/torbsto))
 
 ## [2.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.3.0) (2021-02-12)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.1...2.3.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.1...2.3.0)
 
 **Merged pull requests:**
 
@@ -133,7 +141,7 @@
 - Update Kafka to 2.7 [\#48](https://github.com/bakdata/fluent-kafka-streams-tests/pull/48) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.2.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.2.1) (2021-02-03)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.0...2.2.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.2.0...2.2.1)
 
 **Closed issues:**
 
@@ -148,7 +156,7 @@
 - Example with springboot and junit5  [\#44](https://github.com/bakdata/fluent-kafka-streams-tests/pull/44) ([@ghost](https://github.com/ghost))
 
 ## [2.2.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.2.0) (2020-08-07)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.1.0...2.2.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.1.0...2.2.0)
 
 **Merged pull requests:**
 
@@ -156,21 +164,21 @@
 - Fix maven dependency documentation [\#40](https://github.com/bakdata/fluent-kafka-streams-tests/pull/40) ([@linuxidefix](https://github.com/linuxidefix))
 
 ## [2.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.1.0) (2020-01-21)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.4...2.1.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.4...2.1.0)
 
 **Merged pull requests:**
 
 - Update Kafka to 2.4.0 [\#38](https://github.com/bakdata/fluent-kafka-streams-tests/pull/38) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.0.4](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.4) (2019-11-07)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.3...2.0.4)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.3...2.0.4)
 
 **Merged pull requests:**
 
 - Fix schema registry behavior if a subject does not exist or has been deleted [\#36](https://github.com/bakdata/fluent-kafka-streams-tests/pull/36) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.0.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.3) (2019-10-30)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.2...2.0.3)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.2...2.0.3)
 
 **Closed issues:**
 
@@ -181,7 +189,7 @@
 - Add support for deleteSubject and getAllSubjects [\#35](https://github.com/bakdata/fluent-kafka-streams-tests/pull/35) ([@torbsto](https://github.com/torbsto))
 
 ## [2.0.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.2) (2019-10-11)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.1...2.0.2)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.1...2.0.2)
 
 **Closed issues:**
 
@@ -193,7 +201,7 @@
 - Fix GlobalKTable Sources [\#32](https://github.com/bakdata/fluent-kafka-streams-tests/pull/32) ([@torbsto](https://github.com/torbsto))
 
 ## [2.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.1) (2019-06-09)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.0...2.0.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.0.0...2.0.1)
 
 **Closed issues:**
 
@@ -204,14 +212,14 @@
 - Downgraded confluent version to 5.1.3 to avoid schema registry bug as… [\#29](https://github.com/bakdata/fluent-kafka-streams-tests/pull/29) ([@AHeise](https://github.com/AHeise))
 
 ## [2.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.0.0) (2019-05-14)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.1.0...2.0.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.1.0...2.0.0)
 
 **Merged pull requests:**
 
 - Extract junit support [\#27](https://github.com/bakdata/fluent-kafka-streams-tests/pull/27) ([@AHeise](https://github.com/AHeise))
 
 ## [1.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.1.0) (2019-04-30)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.1...1.1.0)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.1...1.1.0)
 
 **Closed issues:**
 
@@ -231,7 +239,7 @@
 - \(\#19\) Mock subject version endpoints [\#20](https://github.com/bakdata/fluent-kafka-streams-tests/pull/20) ([@OneCricketeer](https://github.com/OneCricketeer))
 
 ## [1.0.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.0.1) (2019-02-22)
-[Full Changelog](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.0...1.0.1)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/1.0.0...1.0.1)
 
 **Merged pull requests:**
 
@@ -240,6 +248,7 @@
 - Improved deployment fault tolerance [\#15](https://github.com/bakdata/fluent-kafka-streams-tests/pull/15) ([@AHeise](https://github.com/AHeise))
 
 ## [1.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/1.0.0) (2019-02-21)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/931e1a84bc220c27a44875d3d303fdc02a0ddb52...1.0.0)
 
 **Fixed bugs:**
 
