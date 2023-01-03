@@ -1,7 +1,7 @@
 /*
- * The MIT License
+ * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,11 @@ package com.bakdata.schemaregistrymock;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
@@ -98,6 +97,7 @@ public class SchemaRegistryMock {
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
+    private static final String BOOLEAN_PATTERN = "false|true";
 
     private final List<SchemaProvider> schemaProviders;
     private final SchemaRegistryClient client;
@@ -127,25 +127,31 @@ public class SchemaRegistryMock {
         this(null);
     }
 
-    private static UrlPattern getSchemaPattern(final Integer id) {
-        return WireMock.urlPathEqualTo(SCHEMA_BY_ID_PATTERN + id);
+    private static MappingBuilder getSchema(final int id) {
+        return WireMock.get(WireMock.urlPathEqualTo(SCHEMA_BY_ID_PATTERN + (Integer) id))
+                .withQueryParam("fetchMaxId", WireMock.matching(BOOLEAN_PATTERN));
     }
 
-    private static UrlPattern getDeleteSubjectPattern(final String subject) {
-        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "?permanent=false");
+    private static MappingBuilder deleteSubject(final String subject) {
+        return WireMock.delete(WireMock.urlPathEqualTo(ALL_SUBJECT_PATTERN + "/" + subject))
+                .withQueryParam("permanent", WireMock.equalTo("false"));
     }
 
-    private static UrlPattern getSubjectSchemaVersionPattern(final String subject) {
-        return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject
-                + "(?:\\?(?:deleted|normalize)=(?:true|false)(?:&(?:deleted|normalize)=(?:true|false))*)?");
+    private static MappingBuilder postSubjectVersion(final String subject) {
+        return WireMock.post(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject))
+                .withQueryParam("deleted", WireMock.matching(BOOLEAN_PATTERN))
+                .withQueryParam("normalize", WireMock.matching(BOOLEAN_PATTERN));
     }
 
-    private static UrlPattern getSubjectVersionsPattern(final String subject) {
-        return WireMock.urlEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "/versions");
+    private static MappingBuilder getSubjectVersions(final String subject) {
+        return WireMock.get(WireMock.urlPathEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "/versions"))
+                .withQueryParam("deletedOnly", WireMock.matching(BOOLEAN_PATTERN))
+                .withQueryParam("deleted", WireMock.matching(BOOLEAN_PATTERN));
     }
 
-    private static UrlPathPattern getSubjectVersionPattern(final String subject) {
-        return WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject + "/versions/(?:latest|\\d+)");
+    private static MappingBuilder getSubject(final String subject) {
+        return WireMock.get(
+                WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject + "/versions/(?:latest|\\d+)"));
     }
 
     private static SchemaString parsedSchemaToSchemaString(final ParsedSchema parsedSchema) {
@@ -173,7 +179,7 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
         this.mockSchemaRegistry.stubFor(WireMock.get(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN))
                 .willReturn(WireMock.aResponse().withTransformers(this.allSubjectsHandler.getName())));
-        this.mockSchemaRegistry.stubFor(WireMock.post(getSubjectSchemaVersionPattern("[^/]+"))
+        this.mockSchemaRegistry.stubFor(postSubjectVersion("[^/]+")
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
     }
 
@@ -224,16 +230,15 @@ public class SchemaRegistryMock {
             final int id = this.client.register(subject, schema);
             log.debug("Registered schema {}", id);
             // add stubs for the new subject
-            this.mockSchemaRegistry.stubFor(WireMock.get(getSchemaPattern(id))
-                    .withQueryParam("fetchMaxId", WireMock.matching("false|true"))
+            this.mockSchemaRegistry.stubFor(getSchema(id)
                     .willReturn(ResponseDefinitionBuilder.okForJson(parsedSchemaToSchemaString(schema))));
-            this.mockSchemaRegistry.stubFor(WireMock.delete(getDeleteSubjectPattern(subject))
+            this.mockSchemaRegistry.stubFor(deleteSubject(subject)
                     .willReturn(WireMock.aResponse().withTransformers(this.deleteSubjectHandler.getName())));
-            this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionsPattern(subject))
+            this.mockSchemaRegistry.stubFor(getSubjectVersions(subject)
                     .willReturn(WireMock.aResponse().withTransformers(this.listVersionsHandler.getName())));
-            this.mockSchemaRegistry.stubFor(WireMock.get(getSubjectVersionPattern(subject))
+            this.mockSchemaRegistry.stubFor(getSubject(subject)
                     .willReturn(WireMock.aResponse().withTransformers(this.getVersionHandler.getName())));
-            this.mockSchemaRegistry.stubFor(WireMock.post(getSubjectSchemaVersionPattern(subject))
+            this.mockSchemaRegistry.stubFor(postSubjectVersion(subject)
                     .willReturn(WireMock.aResponse().withTransformers(this.getSubjectSchemaVersionHandler.getName())));
 
             return id;
@@ -247,11 +252,11 @@ public class SchemaRegistryMock {
             final List<Integer> ids = this.client.deleteSubject(subject);
 
             // remove stub for each version as well as stubs for subject
-            ids.forEach(id -> this.mockSchemaRegistry.removeStub(WireMock.get(getSchemaPattern(id))));
-            this.mockSchemaRegistry.removeStub(WireMock.delete(getDeleteSubjectPattern(subject)));
-            this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionsPattern(subject)));
-            this.mockSchemaRegistry.removeStub(WireMock.get(getSubjectVersionPattern(subject)));
-            this.mockSchemaRegistry.removeStub(WireMock.post(getSubjectSchemaVersionPattern(subject)));
+            ids.forEach(id -> this.mockSchemaRegistry.removeStub(getSchema(id)));
+            this.mockSchemaRegistry.removeStub(deleteSubject(subject));
+            this.mockSchemaRegistry.removeStub(getSubjectVersions(subject));
+            this.mockSchemaRegistry.removeStub(getSubject(subject));
+            this.mockSchemaRegistry.removeStub(postSubjectVersion(subject));
             return ids;
         } catch (final IOException | RestClientException e) {
             throw new IllegalStateException("Internal error in mock schema registry client", e);

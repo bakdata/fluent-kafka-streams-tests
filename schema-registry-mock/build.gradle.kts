@@ -6,7 +6,7 @@ dependencies {
     "api"(group = "io.confluent", name = "kafka-schema-registry-client", version = confluentVersion)
     "api"(group = "io.confluent", name = "kafka-streams-avro-serde", version = confluentVersion)
 
-    implementation(group = "com.github.tomakehurst", name = "wiremock-jre8", version = "2.31.0")
+    implementation(group = "com.github.tomakehurst", name = "wiremock-jre8", version = "2.35.0")
 
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
@@ -14,7 +14,7 @@ dependencies {
     testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
 }
 
-configure<JavaPluginConvention> {
+configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
