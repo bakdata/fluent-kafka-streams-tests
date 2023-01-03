@@ -176,6 +176,14 @@ public class SchemaRegistryMock {
         return new IllegalStateException("Internal error in mock schema registry client", e);
     }
 
+    private static String getKeySubject(final String topic) {
+        return topic + "-key";
+    }
+
+    private static String getValueSubject(final String topic) {
+        return topic + "-value";
+    }
+
     /**
      * Start the {@code SchemaRegistryMock}. Subsequent calls will have no effect.
      */
@@ -217,7 +225,7 @@ public class SchemaRegistryMock {
      * @see #registerKeySchema(String, ParsedSchema)
      */
     public int registerKeySchema(final String topic, final Schema schema) {
-        return this.register(topic + "-key", new AvroSchema(schema));
+        return this.register(getKeySubject(topic), new AvroSchema(schema));
     }
 
     /**
@@ -229,7 +237,7 @@ public class SchemaRegistryMock {
      * @see #registerValueSchema(String, ParsedSchema)
      */
     public int registerValueSchema(final String topic, final Schema schema) {
-        return this.register(topic + "-value", new AvroSchema(schema));
+        return this.register(getValueSubject(topic), new AvroSchema(schema));
     }
 
     /**
@@ -240,7 +248,7 @@ public class SchemaRegistryMock {
      * @return Schema id
      */
     public int registerKeySchema(final String topic, final ParsedSchema schema) {
-        return this.register(topic + "-key", schema);
+        return this.register(getKeySubject(topic), schema);
     }
 
     /**
@@ -251,7 +259,7 @@ public class SchemaRegistryMock {
      * @return Schema id
      */
     public int registerValueSchema(final String topic, final ParsedSchema schema) {
-        return this.register(topic + "-value", schema);
+        return this.register(getValueSubject(topic), schema);
     }
 
     /**
@@ -261,7 +269,7 @@ public class SchemaRegistryMock {
      * @return Ids of deleted schemas
      */
     public List<Integer> deleteKeySchema(final String subject) {
-        return this.delete(subject + "-key");
+        return this.delete(getKeySubject(subject));
     }
 
     /**
@@ -271,7 +279,7 @@ public class SchemaRegistryMock {
      * @return Ids of deleted schemas
      */
     public List<Integer> deleteValueSchema(final String subject) {
-        return this.delete(subject + "-value");
+        return this.delete(getValueSubject(subject));
     }
 
     /**

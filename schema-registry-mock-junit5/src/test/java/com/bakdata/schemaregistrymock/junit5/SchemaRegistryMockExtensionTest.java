@@ -106,7 +106,7 @@ class SchemaRegistryMockExtensionTest {
         final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
 
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
-        assertThat(versions.size()).isEqualTo(2);
+        assertThat(versions).hasSize(2);
 
         final SchemaMetadata metadata =
                 this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
