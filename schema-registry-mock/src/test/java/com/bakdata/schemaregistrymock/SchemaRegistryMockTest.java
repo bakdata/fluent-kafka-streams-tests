@@ -1,7 +1,7 @@
 /*
- * The MIT License
+ * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -130,7 +130,7 @@ class SchemaRegistryMockTest {
         final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
 
         final List<Schema.Field> fields = Collections.singletonList(
-                new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", (Object) null));
+                new Schema.Field("f1", Schema.create(Schema.Type.STRING), "", null));
         final Schema valueSchema2 = Schema.createRecord("value_schema", "no doc", "", false, fields);
         final int id2 = this.schemaRegistry.registerValueSchema(topic, valueSchema2);
 
@@ -249,6 +249,9 @@ class SchemaRegistryMockTest {
         assertThatExceptionOfType(RestClientException.class)
                 .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient()
                         .getVersion(topic + "-value", new AvroSchema(valueSchema)))
+                .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
+        assertThatExceptionOfType(RestClientException.class)
+                .isThrownBy(() -> this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id))
                 .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HTTP_NOT_FOUND));
     }
 

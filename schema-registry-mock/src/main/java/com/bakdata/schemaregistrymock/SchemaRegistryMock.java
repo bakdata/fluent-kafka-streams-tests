@@ -97,6 +97,7 @@ public class SchemaRegistryMock {
     private static final String SCHEMA_PATH_PATTERN = "/subjects/[^/]+/versions";
     private static final String SCHEMA_BY_ID_PATTERN = "/schemas/ids/";
     private static final int IDENTITY_MAP_CAPACITY = 1000;
+    private static final String BOOLEAN_PATTERN = "false|true";
 
     private final List<SchemaProvider> schemaProviders;
     private final SchemaRegistryClient client;
@@ -128,7 +129,7 @@ public class SchemaRegistryMock {
 
     private static MappingBuilder getSchema(final int id) {
         return WireMock.get(WireMock.urlPathEqualTo(SCHEMA_BY_ID_PATTERN + (Integer) id))
-                .withQueryParam("fetchMaxId", WireMock.matching("false|true"));
+                .withQueryParam("fetchMaxId", WireMock.matching(BOOLEAN_PATTERN));
     }
 
     private static MappingBuilder deleteSubject(final String subject) {
@@ -138,14 +139,14 @@ public class SchemaRegistryMock {
 
     private static MappingBuilder postSubjectVersion(final String subject) {
         return WireMock.post(WireMock.urlPathMatching(ALL_SUBJECT_PATTERN + "/" + subject))
-                .withQueryParam("deleted", WireMock.matching("true|false"))
-                .withQueryParam("normalize", WireMock.matching("true|false"));
+                .withQueryParam("deleted", WireMock.matching(BOOLEAN_PATTERN))
+                .withQueryParam("normalize", WireMock.matching(BOOLEAN_PATTERN));
     }
 
     private static MappingBuilder getSubjectVersions(final String subject) {
         return WireMock.get(WireMock.urlPathEqualTo(ALL_SUBJECT_PATTERN + "/" + subject + "/versions"))
-                .withQueryParam("deletedOnly", WireMock.matching("false|true"))
-                .withQueryParam("deleted", WireMock.matching("false|true"));
+                .withQueryParam("deletedOnly", WireMock.matching(BOOLEAN_PATTERN))
+                .withQueryParam("deleted", WireMock.matching(BOOLEAN_PATTERN));
     }
 
     private static MappingBuilder getSubject(final String subject) {
