@@ -5,6 +5,7 @@
 
 **Merged pull requests:**
 
+- Fix release branch [\#74](https://github.com/bakdata/fluent-kafka-streams-tests/pull/74) ([@philipp94831](https://github.com/philipp94831))
 - Fix changelog generation [\#73](https://github.com/bakdata/fluent-kafka-streams-tests/pull/73) ([@philipp94831](https://github.com/philipp94831))
 - Update dependencies [\#71](https://github.com/bakdata/fluent-kafka-streams-tests/pull/71) ([@philipp94831](https://github.com/philipp94831))
 
