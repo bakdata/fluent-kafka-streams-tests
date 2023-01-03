@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +30,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class WordCountWithDefaultSerdeTest {
+class WordCountWithDefaultSerdeTest {
     private final WordCount app = new WordCount();
 
     public final TestTopology<Object, String> testTopology =
             new TestTopology<>(this.app.getTopology(), this.app.getKafkaProperties())
-            .withDefaultValueSerde(Serdes.String());
+                    .withDefaultValueSerde(Serdes.String());
 
     @BeforeEach
     void start() {
@@ -48,7 +48,7 @@ public class WordCountWithDefaultSerdeTest {
     }
 
     @Test
-    public void shouldAggregateSameWordStream() {
+    void shouldAggregateSameWordStream() {
         this.testTopology.input().add("bla")
                 .add("blub")
                 .add("bla");

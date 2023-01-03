@@ -103,7 +103,7 @@ class SchemaRegistryMockTest {
         final int id = this.schemaRegistry.registerValueSchema(topic, valueSchema);
 
         final List<Integer> versions = this.schemaRegistry.getSchemaRegistryClient().getAllVersions(topic + "-value");
-        assertThat(versions.size()).isOne();
+        assertThat(versions).hasSize(1);
 
         final SchemaMetadata metadata =
                 this.schemaRegistry.getSchemaRegistryClient().getSchemaMetadata(topic + "-value", versions.get(0));
@@ -140,8 +140,9 @@ class SchemaRegistryMockTest {
         final SchemaMetadata metadata =
                 this.schemaRegistry.getSchemaRegistryClient().getLatestSchemaMetadata(topic + "-value");
         final int metadataId = metadata.getId();
-        assertThat(metadataId).isNotEqualTo(id1);
-        assertThat(metadataId).isEqualTo(id2);
+        assertThat(metadataId)
+                .isNotEqualTo(id1)
+                .isEqualTo(id2);
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
         assertThat(retrievedSchema).isEqualTo(valueSchema2);

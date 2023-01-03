@@ -43,6 +43,7 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaRequest;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
+import io.confluent.kafka.serializers.subject.TopicNameStrategy;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -109,6 +110,11 @@ public class SchemaRegistryMock {
     private final AllSubjectsHandler allSubjectsHandler;
     private final WireMockServer mockSchemaRegistry;
 
+    /**
+     * Create a new {@code SchemaRegistryMock} from {@link SchemaProvider SchemaProviders}.
+     *
+     * @param schemaProviders List of {@link SchemaProvider}. If null, {@link AvroSchemaProvider} will be used.
+     */
     public SchemaRegistryMock(final List<SchemaProvider> schemaProviders) {
         this.schemaProviders = Optional.ofNullable(schemaProviders)
                 .orElseGet(() -> Collections.singletonList(new AvroSchemaProvider()));
@@ -123,6 +129,11 @@ public class SchemaRegistryMock {
                 new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().extensions(this.extensions()));
     }
 
+    /**
+     * Create a new {@code SchemaRegistryMock} with default {@link SchemaProvider SchemaProviders}.
+     *
+     * @see #SchemaRegistryMock(List)
+     */
     public SchemaRegistryMock() {
         this(null);
     }
@@ -161,6 +172,13 @@ public class SchemaRegistryMock {
         return schemaString;
     }
 
+    private static IllegalStateException internalError(final Exception e) {
+        return new IllegalStateException("Internal error in mock schema registry client", e);
+    }
+
+    /**
+     * Start the {@code SchemaRegistryMock}. Subsequent calls will have no effect.
+     */
     public void start() {
         if (this.mockSchemaRegistry.isRunning()) {
             return;
@@ -183,46 +201,104 @@ public class SchemaRegistryMock {
                 .willReturn(WireMock.aResponse().withStatus(HTTP_NOT_FOUND)));
     }
 
+    /**
+     * Stop the {@code SchemaRegistryMock}.
+     */
     public void stop() {
         this.mockSchemaRegistry.stop();
     }
 
+    /**
+     * Register a key {@link Schema} for the topic
+     *
+     * @param topic topic to register key schema for
+     * @param schema schema to be registered
+     * @return Schema id
+     * @see #registerKeySchema(String, ParsedSchema)
+     */
     public int registerKeySchema(final String topic, final Schema schema) {
         return this.register(topic + "-key", new AvroSchema(schema));
     }
 
+    /**
+     * Register a value {@link Schema} for the topic
+     *
+     * @param topic topic to register value schema for
+     * @param schema schema to be registered
+     * @return Schema id
+     * @see #registerValueSchema(String, ParsedSchema)
+     */
     public int registerValueSchema(final String topic, final Schema schema) {
         return this.register(topic + "-value", new AvroSchema(schema));
     }
 
+    /**
+     * Register a key {@link ParsedSchema} for the topic using {@link TopicNameStrategy}
+     *
+     * @param topic topic to register key schema for
+     * @param schema schema to be registered
+     * @return Schema id
+     */
     public int registerKeySchema(final String topic, final ParsedSchema schema) {
         return this.register(topic + "-key", schema);
     }
 
+    /**
+     * Register a value {@link ParsedSchema} for the topic using {@link TopicNameStrategy}
+     *
+     * @param topic topic to register value schema for
+     * @param schema schema to be registered
+     * @return Schema id
+     */
     public int registerValueSchema(final String topic, final ParsedSchema schema) {
         return this.register(topic + "-value", schema);
     }
 
+    /**
+     * Delete all key schemas associated with the given subject. Uses {@link TopicNameStrategy}.
+     *
+     * @param subject subject to delete key schemas for
+     * @return Ids of deleted schemas
+     */
     public List<Integer> deleteKeySchema(final String subject) {
         return this.delete(subject + "-key");
     }
 
+    /**
+     * Delete all value schemas associated with the given subject. Uses {@link TopicNameStrategy}.
+     *
+     * @param subject subject to delete value schemas for
+     * @return Ids of deleted schemas
+     */
     public List<Integer> deleteValueSchema(final String subject) {
         return this.delete(subject + "-value");
     }
 
+    /**
+     * Create {@link CachedSchemaRegistryClient} for this mock using no additional config.
+     *
+     * @return {@code SchemaRegistryClient}
+     * @see #getSchemaRegistryClient(Map)
+     */
     public SchemaRegistryClient getSchemaRegistryClient() {
         return this.getSchemaRegistryClient(Collections.emptyMap());
     }
 
+    public String getUrl() {
+        return "http://localhost:" + this.mockSchemaRegistry.port();
+    }
+
+    /**
+     * Create {@link CachedSchemaRegistryClient} for this mock.
+     *
+     * @param config config passed to
+     * {@link CachedSchemaRegistryClient#CachedSchemaRegistryClient(List, int, List, Map)}
+     * @return {@code SchemaRegistryClient}
+     */
     public SchemaRegistryClient getSchemaRegistryClient(final Map<String, ?> config) {
         return new CachedSchemaRegistryClient(Collections.singletonList(this.getUrl()), IDENTITY_MAP_CAPACITY,
                 this.schemaProviders,
                 config);
-    }
-
-    public String getUrl() {
-        return "http://localhost:" + this.mockSchemaRegistry.port();
     }
 
     int register(final String subject, final ParsedSchema schema) {
@@ -243,7 +319,7 @@ public class SchemaRegistryMock {
 
             return id;
         } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
+            throw internalError(e);
         }
     }
 
@@ -259,7 +335,7 @@ public class SchemaRegistryMock {
             this.mockSchemaRegistry.removeStub(postSubjectVersion(subject));
             return ids;
         } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
+            throw internalError(e);
         }
     }
 
@@ -268,7 +344,7 @@ public class SchemaRegistryMock {
         try {
             return this.client.getAllVersions(subject);
         } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
+            throw internalError(e);
         }
     }
 
@@ -281,14 +357,14 @@ public class SchemaRegistryMock {
             return new io.confluent.kafka.schemaregistry.client.rest.entities.Schema(subject, version, id,
                     parsedSchema.schemaType(), parsedSchema.references(), parsedSchema.canonicalString());
         } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
+            throw internalError(e);
         }
     }
 
     SchemaMetadata getSubjectVersion(final String subject, final Object version) {
         log.debug("Requesting version {} for subject {}", version, subject);
         try {
-            if (version instanceof String && version.equals("latest")) {
+            if (version instanceof String && "latest".equals(version)) {
                 return this.client.getLatestSchemaMetadata(subject);
             } else if (version instanceof Number) {
                 return this.client.getSchemaMetadata(subject, ((Number) version).intValue());
@@ -296,7 +372,7 @@ public class SchemaRegistryMock {
                 throw new IllegalArgumentException("Only 'latest' or integer versions are allowed");
             }
         } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
+            throw internalError(e);
         }
     }
 
@@ -304,7 +380,7 @@ public class SchemaRegistryMock {
         try {
             return this.client.getAllSubjects();
         } catch (final IOException | RestClientException e) {
-            throw new IllegalStateException("Internal error in mock schema registry client", e);
+            throw internalError(e);
         }
     }
 

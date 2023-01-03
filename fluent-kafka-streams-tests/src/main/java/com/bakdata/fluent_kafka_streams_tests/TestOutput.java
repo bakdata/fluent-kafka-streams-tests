@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,16 +44,22 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      *
      * @param keySerde The serializer/deserializer to be used for the keys in the output
      * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @return Copy of current {@code TestOutput} with provided serdes
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
     /**
      * Set new key serde for this output.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the output
+     * @return Copy of current {@code TestOutput} with provided key serde
      */
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
 
     /**
      * Set new value serde for this output.
+     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @return Copy of current {@code TestOutput} with provided value serde
      */
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
 
@@ -65,6 +71,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      *
      * @param keyType the new key type.
      * @param valueType the new value type.
+     * @return Copy of current {@code TestOutput} with provided types
      */
     default <KR, VR> TestOutput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
         return (TestOutput<KR, VR>) this;
@@ -77,6 +84,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the output.
      *
      * @param keyType the new key type.
+     * @return Copy of current {@code TestOutput} with provided key type
      */
     default <KR> TestOutput<KR, V> withKeyType(final Class<KR> keyType) {
         return (TestOutput<KR, V>) this;
@@ -89,6 +97,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the output.
      *
      * @param valueType the new value type.
+     * @return Copy of current {@code TestOutput} with provided value type
      */
     default <VR> TestOutput<K, VR> withValueType(final Class<VR> valueType) {
         return (TestOutput<K, VR>) this;
@@ -125,6 +134,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * <p>Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).</p>
      * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
      * between the output types any more.</p>
+     * @return Current output with {@link org.apache.kafka.streams.kstream.KTable} semantics
      */
     TestOutput<K, V> asTable();
 
@@ -134,6 +144,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * <p>This is the default, there should usually be no need to call this method.</p>
      * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
      * between the output types any more.</p>
+     * @return Current output with {@link org.apache.kafka.streams.kstream.KStream} semantics
      */
     TestOutput<K, V> asStream();
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,14 +36,14 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 @RequiredArgsConstructor
 public class Expectation<K, V> {
-    private final ProducerRecord<K, V> record;
+    private final ProducerRecord<K, V> lastRecord;
     private final TestOutput<K, V> output;
 
     /**
      * Asserts whether a record exists.
      */
     public Expectation<K, V> isPresent() {
-        if (this.record == null) {
+        if (this.lastRecord == null) {
             throw new AssertionError("No more records found");
         }
         return this.and();
@@ -51,10 +51,13 @@ public class Expectation<K, V> {
 
     /**
      * Checks for the equality of the {@link ProducerRecord#key()} and {@code expectedKey}.
+     *
+     * @param expectedKey key to expect
+     * @return the current {@code Expectation} chain
      */
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
-        if (!this.record.key().equals(expectedKey)) {
+        if (!this.lastRecord.key().equals(expectedKey)) {
             throw new AssertionError("Record key does not match");
         }
         return this.and();
@@ -69,16 +72,18 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> hasKeySatisfying(final Consumer<? super K> requirements) {
         this.isPresent();
-        requirements.accept(this.record.key());
+        requirements.accept(this.lastRecord.key());
         return this.and();
     }
 
     /**
      * Checks for the equality of the {@link ProducerRecord#value()} and {@code expectedValue}.
+     * @param expectedValue value to expect
+     * @return the current {@code Expectation} chain
      */
     public Expectation<K, V> hasValue(final V expectedValue) {
         this.isPresent();
-        if (!this.record.value().equals(expectedValue)) {
+        if (!this.lastRecord.value().equals(expectedValue)) {
             throw new AssertionError("Record value does not match");
         }
         return this.and();
@@ -93,13 +98,14 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> hasValueSatisfying(final Consumer<? super V> requirements) {
         this.isPresent();
-        requirements.accept(this.record.value());
+        requirements.accept(this.lastRecord.value());
         return this.and();
     }
 
     /**
      * Concatenates calls to this Expectation. It is not necessary to call this method, but it can be seen as a more
      * readable alternative to simple chaining.
+     * @return this
      */
     public Expectation<K, V> and() {
         return this;
@@ -140,9 +146,10 @@ public class Expectation<K, V> {
     /**
      * <p>Asserts that there is no records present, i.e., the end of the output has been reached.</p>
      * <p>This method should be used when there are no records at all expected.</p>
+     * @return the current {@code Expectation} chain
      */
     public Expectation<K, V> toBeEmpty() {
-        if (this.record != null) {
+        if (this.lastRecord != null) {
             throw new AssertionError("More records found");
         }
         return this.and();

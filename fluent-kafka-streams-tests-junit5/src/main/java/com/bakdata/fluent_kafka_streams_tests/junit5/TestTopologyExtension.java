@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -65,6 +65,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * }
  * </code></pre>
  * <p>With {@code app} being any Kafka Streams application that you want to test.</p>
+ * @param <DefaultK> Default type of keys
+ * @param <DefaultV> Default type of values
  */
 @Getter
 public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<DefaultK, DefaultV>

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -66,10 +66,10 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
      */
     @Override
     public @NonNull Iterator<ProducerRecord<K, V>> iterator() {
-        ProducerRecord<K, V> record = this.readFromTestDriver();
-        while (record != null) {
-            this.table.put(record.key(), record);
-            record = this.readFromTestDriver();
+        ProducerRecord<K, V> producerRecord = this.readFromTestDriver();
+        while (producerRecord != null) {
+            this.table.put(producerRecord.key(), producerRecord);
+            producerRecord = this.readFromTestDriver();
         }
         return this.table.values().stream().iterator();
     }
