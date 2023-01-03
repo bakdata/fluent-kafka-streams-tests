@@ -12,6 +12,7 @@ variables:
 - group: sonarqube
 - group: sign
 - group: ossrh
+- group: changelog
 
 resources:
   repositories:
