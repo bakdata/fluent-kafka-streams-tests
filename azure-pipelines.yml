@@ -12,13 +12,13 @@ variables:
 - group: sonarqube
 - group: sign
 - group: ossrh
+- group: changelog
 
 resources:
   repositories:
     - repository: templates
       type: github
       name: bakdata/bakdata-project-templates
-      ref: debug/changelog
       endpoint: bot
 
 jobs:
