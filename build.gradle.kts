@@ -74,3 +74,10 @@ subprojects {
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.23.1")
     }
 }
+
+release {
+    git {
+        requireBranch.set("fix/release")
+        pushToRemote.set(false)
+    }
+}
