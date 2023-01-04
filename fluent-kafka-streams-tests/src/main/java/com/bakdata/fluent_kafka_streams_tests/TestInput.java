@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ public class TestInput<K, V> {
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
 
-    private Long timestamp = null;
+    private Long timestamp;
 
     /**
      * <p>Constructor for the test input topic.</p>
@@ -74,6 +74,7 @@ public class TestInput<K, V> {
      *
      * @param keySerde The serializer/deserializer to be used for the keys in the input.
      * @param valueSerde The serializer/deserializer to be used for the values in the input.
+     * @return Copy of current {@code TestInput} with provided serdes
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
         return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde);
@@ -81,6 +82,9 @@ public class TestInput<K, V> {
 
     /**
      * Set new key serde for this input.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the input.
+     * @return Copy of current {@code TestInput} with provided key serde
      */
     public <KR> TestInput<KR, V> withKeySerde(final Serde<KR> keySerde) {
         return this.withSerde(keySerde, this.valueSerde);
@@ -88,6 +92,8 @@ public class TestInput<K, V> {
 
     /**
      * Set new value serde for this input.
+     * @param valueSerde The serializer/deserializer to be used for the values in the input.
+     * @return Copy of current {@code TestInput} with provided value serde
      */
     public <VR> TestInput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
         return this.withSerde(this.keySerde, valueSerde);
@@ -101,6 +107,7 @@ public class TestInput<K, V> {
      *
      * @param keyType the new key type.
      * @param valueType the new value type.
+     * @return Copy of current {@code TestInput} with provided types
      */
     public <KR, VR> TestInput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
         return (TestInput<KR, VR>) this;
@@ -113,6 +120,7 @@ public class TestInput<K, V> {
      * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the input.
      *
      * @param keyType the new key type.
+     * @return Copy of current {@code TestInput} with provided key type
      */
     public <KR> TestInput<KR, V> withKeyType(final Class<KR> keyType) {
         return (TestInput<KR, V>) this;
@@ -125,6 +133,7 @@ public class TestInput<K, V> {
      * in input and output. Thus, instead of unnecessarily overriding the serde, this method just casts the input.
      *
      * @param valueType the new value type.
+     * @return Copy of current {@code TestInput} with provided value type
      */
     public <VR> TestInput<K, VR> withValueType(final Class<VR> valueType) {
         return (TestInput<K, VR>) this;

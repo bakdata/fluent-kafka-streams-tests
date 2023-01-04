@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
@@ -36,7 +35,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -51,6 +49,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
 import org.apache.kafka.streams.TopologyDescription.GlobalStore;
+import org.apache.kafka.streams.TopologyDescription.Node;
 import org.apache.kafka.streams.TopologyDescription.Sink;
 import org.apache.kafka.streams.TopologyDescription.Source;
 import org.apache.kafka.streams.TopologyTestDriver;
@@ -97,6 +96,8 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * <p>In case the topology uses a {@link org.apache.kafka.streams.processor.TopicNameExtractor} to select output topics
  * dynamically, you must manually register these topics. You can add them to the set of output topics returned by
  * #getOutputTopics().</p>
+ * @param <DefaultK> Default type of keys
+ * @param <DefaultV> Default type of values
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
@@ -126,7 +127,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     * <p>Create a new  for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
@@ -139,7 +140,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     * <p>Create a new  for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
@@ -151,7 +152,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new {@link TestTopology} for your topology under test.</p>
+     * <p>Create a new  for your topology under test.</p>
      *
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
      * affected by other test runs. Otherwise, side-effects could impact your tests.
@@ -178,19 +179,49 @@ public class TestTopology<DefaultK, DefaultV> {
         return new StreamsConfig(this.properties);
     }
 
+    /**
+     * Overrides the default value serde
+     *
+     * @param defaultValueSerde Default value serde to use
+     * @param <V> Default type of values
+     * @return Copy of current {@code TestTopology} with provided value serde
+     */
     public <V> TestTopology<DefaultK, V> withDefaultValueSerde(final Serde<V> defaultValueSerde) {
         return this.withDefaultSerde(this.defaultKeySerde, defaultValueSerde);
     }
 
+    /**
+     * Overrides the default key serde
+     *
+     * @param defaultKeySerde Default key serde to use
+     * @param <K> Default type of key
+     * @return Copy of current {@code TestTopology} with provided key serde
+     */
     public <K> TestTopology<K, DefaultV> withDefaultKeySerde(final Serde<K> defaultKeySerde) {
         return this.withDefaultSerde(defaultKeySerde, this.defaultValueSerde);
     }
 
+    /**
+     * Overrides the default value serde
+     *
+     * @param defaultKeySerde Default key serde to use
+     * @param defaultValueSerde Default value serde to use
+     * @param <K> Default type of key
+     * @param <V> Default type of values
+     * @return Copy of current {@code TestTopology} with provided serdes
+     */
     public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
             final Serde<V> defaultValueSerde) {
-        return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde, this.schemaRegistry);
+        return this.with(this.topologyFactory, this.properties, defaultKeySerde, defaultValueSerde,
+                this.schemaRegistry);
     }
 
+    /**
+     * Overrides the {@link SchemaRegistryMock}
+     *
+     * @param schemaRegistryMock {@code SchemaRegistryMock} to use
+     * @return Copy of current {@code TestTopology} with provided {@code SchemaRegistryMock}
+     */
     public TestTopology<DefaultK, DefaultV> withSchemaRegistryMock(final SchemaRegistryMock schemaRegistryMock) {
         return this.with(this.topologyFactory, this.properties, this.defaultKeySerde, this.defaultValueSerde,
                 schemaRegistryMock);
@@ -233,11 +264,13 @@ public class TestTopology<DefaultK, DefaultV> {
     /**
      * Get the input topic with the name `topic` used by the topology under test.
      *
+     * @param topic name of topic to write to
      * @return {@link TestInput} of the input topic that you want to write to.
      * @throws NoSuchElementException if there is no topic with that name.
      */
     public TestInput<DefaultK, DefaultV> input(final String topic) {
-        if (!this.inputTopics.contains(topic) && this.inputPatterns.stream().noneMatch(p -> p.matcher(topic).matches())) {
+        if (!this.inputTopics.contains(topic) && this.inputPatterns.stream()
+                .noneMatch(p -> p.matcher(topic).matches())) {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
         return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde());
@@ -265,6 +298,7 @@ public class TestTopology<DefaultK, DefaultV> {
      *
      * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
      *
+     * @param topic name of topic to read from
      * @return {@link StreamOutput} of the output topic that you want to read from.
      * @throws NoSuchElementException if there is no topic with that name.
      */
@@ -290,6 +324,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * <p>Get the output topic with the name `topic` used by the topology under test with
      * {@link org.apache.kafka.streams.kstream.KTable}-semantics.</p>
      *
+     * @param topic name of topic to read from
      * @return {@link TableOutput} of the output topic that you want to read from.
      * @throws NoSuchElementException if there is no topic with that name.
      */
@@ -311,6 +346,12 @@ public class TestTopology<DefaultK, DefaultV> {
         return this.schemaRegistry.getUrl();
     }
 
+    /**
+     * Stop the {@code TestTopology} and cleaning up all resources.
+     * <p>
+     * This method closes the {@link TopologyTestDriver}, stops the {@link SchemaRegistryMock} and removes the state
+     * directory.
+     */
     public void stop() {
         if (this.testDriver != null) {
             this.testDriver.close();
@@ -325,6 +366,12 @@ public class TestTopology<DefaultK, DefaultV> {
         }
     }
 
+    /**
+     * Start the {@code TestTopology} and create all required resources.
+     * <p>
+     * This method starts the {@link SchemaRegistryMock}, creates the state directory and creates a
+     * {@link TopologyTestDriver}.
+     */
     public void start() {
         this.schemaRegistry.start();
         this.properties
@@ -344,28 +391,32 @@ public class TestTopology<DefaultK, DefaultV> {
 
         for (final TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
             for (final TopologyDescription.Node node : subtopology.nodes()) {
-                if (node instanceof TopologyDescription.Source) {
-                    final Source source = (Source) node;
-                    final Set<String> topicSet = source.topicSet();
-                    if (topicSet != null) {
-                        for (final String topic : topicSet) {
-                            addExternalTopics(this.inputTopics, topic);
-                        }
-                    } else {
-                        this.inputPatterns.add(source.topicPattern());
-                    }
-                } else if (node instanceof TopologyDescription.Sink) {
-                    // might be null if a TopicNameExtractor is used
-                    final String topic = ((Sink) node).topic();
-                    if (topic != null) {
-                        addExternalTopics(this.outputTopics, topic);
-                    }
-                }
+                this.processNode(node);
             }
         }
 
         for (final GlobalStore store : topology.describe().globalStores()) {
             store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
+        }
+    }
+
+    private void processNode(final Node node) {
+        if (node instanceof Source) {
+            final Source source = (Source) node;
+            final Set<String> topicSet = source.topicSet();
+            if (topicSet != null) {
+                for (final String topic : topicSet) {
+                    addExternalTopics(this.inputTopics, topic);
+                }
+            } else {
+                this.inputPatterns.add(source.topicPattern());
+            }
+        } else if (node instanceof Sink) {
+            // might be null if a TopicNameExtractor is used
+            final String topic = ((Sink) node).topic();
+            if (topic != null) {
+                addExternalTopics(this.outputTopics, topic);
+            }
         }
     }
 }

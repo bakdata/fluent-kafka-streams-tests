@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 bakdata GmbH
+ * Copyright (c) 2023 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -213,8 +213,9 @@ class WordCountTest {
 
     @Test
     void shouldThrowAssertionErrorIfNotPresent() {
+        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().isPresent())
+                .isThrownBy(expectation::isPresent)
                 .withMessage("No more records found");
     }
 
@@ -222,8 +223,9 @@ class WordCountTest {
     void shouldThrowAssertionErrorIfKeyNotMatching() {
         this.testTopology.input().add("bla", "blub");
 
+        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().hasKey("nope"))
+                .isThrownBy(() -> expectation.hasKey("nope"))
                 .withMessage("Record key does not match");
     }
 
@@ -231,8 +233,9 @@ class WordCountTest {
     void shouldThrowAssertionErrorIfValueNotMatching() {
         this.testTopology.input().add("bla", "blub");
 
+        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().hasValue("nope"))
+                .isThrownBy(() -> expectation.hasValue("nope"))
                 .withMessage("Record value does not match");
     }
 
@@ -308,8 +311,9 @@ class WordCountTest {
     void shouldThrowAssertionErrorIfNotEmpty() {
         this.testTopology.input().add("bla").add("blub");
 
+        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> this.testTopology.streamOutput().expectNextRecord().toBeEmpty())
+                .isThrownBy(expectation::toBeEmpty)
                 .withMessage("More records found");
     }
 
