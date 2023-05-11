@@ -30,7 +30,7 @@ import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 
@@ -401,14 +402,15 @@ public class SchemaRegistryMock {
         return schemaOptional.orElseThrow(() -> new RuntimeException("Could not parse schema"));
     }
 
-    private ResponseDefinitionTransformer[] extensions() {
-        return new ResponseDefinitionTransformer[]{
+    private Extension[] extensions() {
+        return Stream.of(
                 this.autoRegistrationHandler,
                 this.listVersionsHandler,
                 this.getVersionHandler,
                 this.getSubjectSchemaVersionHandler,
                 this.deleteSubjectHandler,
                 this.allSubjectsHandler
-        };
+        ).map(ErrorResponseTransformer::new).toArray(Extension[]::new);
     }
+
 }
