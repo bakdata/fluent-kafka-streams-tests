@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import io.confluent.kafka.schemaregistry.client.rest.entities.ErrorMessage;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,15 +19,12 @@ import lombok.extern.slf4j.Slf4j;
  * {@link ErrorMessage}, so this class transforms any exception into this format.
  */
 @Slf4j
+@AllArgsConstructor
 class ErrorResponseTransformer extends ResponseDefinitionTransformer {
     // Confluent's error codes are a superset of HTTP error codes.
     // see https://docs.confluent.io/platform/current/kafka-rest/api.html#errors
     public static final int INTERNAL_SERVER_ERROR_CODE = 500;
     private final ResponseDefinitionTransformer transformer;
-
-    ErrorResponseTransformer(final ResponseDefinitionTransformer transformer) {
-        this.transformer = transformer;
-    }
 
     public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
             final FileSource files, final Parameters parameters) {

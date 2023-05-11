@@ -1,8 +1,5 @@
 package com.bakdata.schemaregistrymock;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -13,10 +10,17 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+@ExtendWith(SoftAssertionsExtension.class)
 class ErrorResponseTransformerTest {
+    @InjectSoftAssertions
+    private SoftAssertions softly;
 
     static final ErrorResponseTransformer TRANSFORMER =
             new ErrorResponseTransformer(new FailingResponseTransformer());
@@ -36,11 +40,12 @@ class ErrorResponseTransformerTest {
         final CachedSchemaRegistryClient cachedSchemaRegistryClient =
                 new CachedSchemaRegistryClient(wireMock.baseUrl(), 10);
 
-        assertThatExceptionOfType(RestClientException.class).isThrownBy(cachedSchemaRegistryClient::getAllSubjects)
+        this.softly.assertThatExceptionOfType(RestClientException.class)
+                .isThrownBy(cachedSchemaRegistryClient::getAllSubjects)
                 .satisfies(e -> {
-                    assertThat(e.getErrorCode()).isEqualTo(500);
-                    assertThat(e.getStatus()).isEqualTo(500);
-                    assertThat(e.getMessage()).contains("Test error");
+                    this.softly.assertThat(e.getErrorCode()).isEqualTo(500);
+                    this.softly.assertThat(e.getStatus()).isEqualTo(500);
+                    this.softly.assertThat(e).hasMessageContaining("Test error");
                 });
     }
 
