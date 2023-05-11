@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.8.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.8.2) (2023-05-11)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.8.1...2.8.2)
+
+**Merged pull requests:**
+
+- Transform exceptions into SchemaRegistry's error format [\#77](https://github.com/bakdata/fluent-kafka-streams-tests/pull/77) ([@torbsto](https://github.com/torbsto))
+- Fix Sonarqube issues [\#75](https://github.com/bakdata/fluent-kafka-streams-tests/pull/75) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.8.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.8.1) (2023-01-03)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.8.0...2.8.1)
 
