@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.9.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.9.0) (2023-06-05)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.8.2...2.9.0)
+
+**Closed issues:**
+
+- 500 errors on server result in JSON serialiser exceptions rather than the expected error as the return is in HTML [\#76](https://github.com/bakdata/fluent-kafka-streams-tests/issues/76)
+
+**Merged pull requests:**
+
+- Upgrade to Kafka 3.4 [\#78](https://github.com/bakdata/fluent-kafka-streams-tests/pull/78) ([@torbsto](https://github.com/torbsto))
+
 ## [2.8.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.8.2) (2023-05-11)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.8.1...2.8.2)
 
