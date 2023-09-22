@@ -134,7 +134,8 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
      * @param propertiesFactory Provides the properties of the Kafka Streams application under test. Schema Registry URL
-     * is passed as a parameter. Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
+     * BOOTSTRAP_SERVERS_CONFIG.
      */
     public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
             final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
@@ -163,7 +164,8 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
      * @param propertiesFactory Provides the properties of the Kafka Streams application under test. Schema Registry URL
-     * is passed as a parameter. Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
+     * BOOTSTRAP_SERVERS_CONFIG.
      */
     public TestTopology(final Supplier<? extends Topology> topologyFactory,
             final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
@@ -188,7 +190,8 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
      * affected by other test runs. Otherwise, side effects could impact your tests.
      * @param propertiesFactory Provides the properties of the Kafka Streams application under test. Schema Registry URL
-     * is passed as a parameter. Required entries: APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
+     * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
+     * BOOTSTRAP_SERVERS_CONFIG.
      */
     public TestTopology(final Topology topology,
             final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {

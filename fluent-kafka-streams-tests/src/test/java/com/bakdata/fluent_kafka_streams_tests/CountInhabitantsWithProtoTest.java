@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2023 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,6 @@ import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.util.Collections;
 import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.Topology;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +45,7 @@ class CountInhabitantsWithProtoTest {
     private final SchemaRegistryMock mock =
             new SchemaRegistryMock(Collections.singletonList(new ProtobufSchemaProvider()));
     private final TestTopology<Object, Object> testTopology =
-            new TestTopology<>(this::topology, this.app.getKafkaProperties())
+            new TestTopology<>(this.app::getTopology, this::properties)
                     .withSchemaRegistryMock(this.mock);
 
     static Person newPerson(final String name, final String city) {
@@ -92,8 +91,8 @@ class CountInhabitantsWithProtoTest {
         Assertions.assertNotNull(this.testTopology.getSchemaRegistry());
     }
 
-    private Topology topology(final Properties props) {
-        this.app.setSchemaRegistryUrl(props.getProperty("schema.registry.url"));
-        return this.app.getTopology();
+    private Properties properties(final String schemaRegistryUrl) {
+        this.app.setSchemaRegistryUrl(schemaRegistryUrl);
+        return this.app.getKafkaProperties();
     }
 }
