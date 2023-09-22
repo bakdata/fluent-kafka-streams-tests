@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2023 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -72,24 +72,43 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<DefaultK, DefaultV>
         implements BeforeEachCallback, AfterEachCallback {
     public TestTopologyExtension(
-            final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties) {
+            final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+        super(topologyFactory, propertiesFactory);
+    }
+
+    public TestTopologyExtension(
+            final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Map<Object, Object> properties) {
         super(topologyFactory, properties);
     }
 
     public TestTopologyExtension(
-            final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
+            final Supplier<? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+        super(topologyFactory, propertiesFactory);
+    }
+
+    public TestTopologyExtension(
+            final Supplier<? extends Topology> topologyFactory, final Map<Object, Object> properties) {
         super(topologyFactory, properties);
     }
 
-    public TestTopologyExtension(final Topology topology, final Map<?, ?> properties) {
+    public TestTopologyExtension(final Topology topology,
+            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+        super(topology, propertiesFactory);
+    }
+
+    public TestTopologyExtension(final Topology topology, final Map<Object, Object> properties) {
         super(topology, properties);
     }
 
     protected TestTopologyExtension(
-            final Function<? super Properties, ? extends Topology> topologyFactory, final Map<?, ?> properties,
+            final Function<? super Properties, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<?, ?>> propertiesFactory,
             final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
             final SchemaRegistryMock schemaRegistryMock) {
-        super(topologyFactory, properties, defaultKeySerde, defaultValueSerde, schemaRegistryMock);
+        super(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde, schemaRegistryMock);
     }
 
     @Override
@@ -104,9 +123,10 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
 
     @Override
     protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<?, ?> properties, final Serde<K> defaultKeySerde, final Serde<V> defaultValueSerde,
+            final Function<? super String, ? extends Map<?, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde,
             final SchemaRegistryMock schemaRegistry) {
-        return new TestTopologyExtension<>(topologyFactory, properties, defaultKeySerde, defaultValueSerde,
+        return new TestTopologyExtension<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
                 schemaRegistry);
     }
 
