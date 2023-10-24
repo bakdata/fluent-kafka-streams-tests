@@ -129,7 +129,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new  for your topology under test.</p>
+     * <p>Create a new {@code TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
@@ -143,7 +143,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new  for your topology under test.</p>
+     * <p>Create a new {@code TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
@@ -159,7 +159,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new  for your topology under test.</p>
+     * <p>Create a new {@code TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
@@ -173,7 +173,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new  for your topology under test.</p>
+     * <p>Create a new {@code TestTopology} for your topology under test.</p>
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
@@ -185,7 +185,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new  for your topology under test.</p>
+     * <p>Create a new {@code TestTopology} for your topology under test.</p>
      *
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
      * affected by other test runs. Otherwise, side effects could impact your tests.
@@ -199,7 +199,7 @@ public class TestTopology<DefaultK, DefaultV> {
     }
 
     /**
-     * <p>Create a new  for your topology under test.</p>
+     * <p>Create a new {@code TestTopology} for your topology under test.</p>
      *
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
      * affected by other test runs. Otherwise, side effects could impact your tests.
