@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.10.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.10.0) (2023-10-27)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.9.0...2.10.0)
+
+**Merged pull requests:**
+
+- Initialize properties with Schema Registry URL [\#79](https://github.com/bakdata/fluent-kafka-streams-tests/pull/79) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.9.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.9.0) (2023-06-05)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.8.2...2.9.0)
 
