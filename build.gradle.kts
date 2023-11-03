@@ -78,11 +78,6 @@ subprojects {
         "testImplementation"(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.23.1")
     }
-
-    configurations.all {
-        exclude("org.slf4j:slf4j-api")
-    }
-
 }
 
 release {
