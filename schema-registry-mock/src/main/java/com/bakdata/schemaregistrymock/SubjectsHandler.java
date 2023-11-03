@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2023 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,12 @@
 
 package com.bakdata.schemaregistrymock;
 
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
-abstract class SubjectsHandler extends ResponseDefinitionTransformer {
+abstract class SubjectsHandler implements ResponseDefinitionTransformerV2 {
     // Expected url pattern /subjects(/.*-value/versions)
     protected final Splitter urlSplitter = Splitter.on('/').omitEmptyStrings();
 

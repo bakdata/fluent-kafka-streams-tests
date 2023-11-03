@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2023 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,8 @@
 package com.bakdata.schemaregistrymock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collection;
 
 class AllSubjectsHandler extends SubjectsHandler {
@@ -39,8 +37,7 @@ class AllSubjectsHandler extends SubjectsHandler {
     }
 
     @Override
-    public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-            final FileSource files, final Parameters parameters) {
+    public ResponseDefinition transform(final ServeEvent serveEvent) {
         final Collection<String> body = this.schemaRegistryMock.listAllSubjects();
         return ResponseDefinitionBuilder.jsonResponse(body);
     }

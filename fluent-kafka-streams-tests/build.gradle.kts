@@ -25,8 +25,6 @@ dependencies {
     testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = "3.21.12")
 }
 
-
-
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
