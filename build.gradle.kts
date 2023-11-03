@@ -52,8 +52,8 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "io.freefair.lombok")
     configure<JavaPluginExtension> {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     tasks.withType<Javadoc> {
@@ -69,10 +69,20 @@ subprojects {
     }
 
     dependencies {
+        "implementation"("org.slf4j:slf4j-api") {
+            version {
+                strictly("1.7.36")
+            }
+        }
         val log4jVersion: String by project
         "testImplementation"(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.23.1")
     }
+
+    configurations.all {
+        exclude("org.slf4j:slf4j-api")
+    }
+
 }
 
 release {
