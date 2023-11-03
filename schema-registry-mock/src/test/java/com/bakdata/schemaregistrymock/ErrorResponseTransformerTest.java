@@ -1,13 +1,11 @@
 package com.bakdata.schemaregistrymock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import org.assertj.core.api.SoftAssertions;
@@ -49,11 +47,10 @@ class ErrorResponseTransformerTest {
                 });
     }
 
-    static class FailingResponseTransformer extends ResponseDefinitionTransformer {
+    static class FailingResponseTransformer implements ResponseDefinitionTransformerV2 {
+
         @Override
-        public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-                final FileSource files,
-                final Parameters parameters) {
+        public ResponseDefinition transform(final ServeEvent serveEvent) {
             throw new RuntimeException("Test error");
         }
 

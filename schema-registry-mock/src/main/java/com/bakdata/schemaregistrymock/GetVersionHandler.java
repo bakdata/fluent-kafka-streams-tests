@@ -25,10 +25,9 @@
 package com.bakdata.schemaregistrymock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.Iterables;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 
@@ -41,8 +40,8 @@ class GetVersionHandler extends SubjectsHandler {
     }
 
     @Override
-    public ResponseDefinition transform(final Request request, final ResponseDefinition responseDefinition,
-            final FileSource files, final Parameters parameters) {
+    public ResponseDefinition transform(final ServeEvent serveEvent) {
+        final LoggedRequest request = serveEvent.getRequest();
         final String versionStr = Iterables
                 .get(this.urlSplitter.split(removeQueryParameters(request.getUrl())), 3);
         final SchemaMetadata metadata;
