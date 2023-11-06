@@ -19,6 +19,7 @@ resources:
     - repository: templates
       type: github
       name: bakdata/bakdata-project-templates
+      ref: tmp/upload-snapshot
       endpoint: bot
 
 jobs:
