@@ -69,13 +69,8 @@ subprojects {
     }
 
     dependencies {
-        "implementation"("org.slf4j:slf4j-api") {
-            version {
-                strictly("1.7.36")
-            }
-        }
         val log4jVersion: String by project
-        "testImplementation"(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
+        "testImplementation"(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = log4jVersion)
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.23.1")
     }
 }
