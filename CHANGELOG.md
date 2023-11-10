@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.10.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.10.1) (2023-11-10)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.10.0...2.10.1)
+
+**Merged pull requests:**
+
+- Upgrade to Slf4j 2 [\#82](https://github.com/bakdata/fluent-kafka-streams-tests/pull/82) ([@philipp94831](https://github.com/philipp94831))
+- Upgrade to Java 11 [\#80](https://github.com/bakdata/fluent-kafka-streams-tests/pull/80) ([@torbsto](https://github.com/torbsto))
+
 ## [2.10.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.10.0) (2023-10-27)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.9.0...2.10.0)
 
