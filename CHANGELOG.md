@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.11.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.0) (2023-11-10)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.10.1...2.11.0)
+
+**Merged pull requests:**
+
+- Upgrade to Kafka 3.5 [\#81](https://github.com/bakdata/fluent-kafka-streams-tests/pull/81) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.10.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.10.1) (2023-11-10)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.10.0...2.10.1)
 
