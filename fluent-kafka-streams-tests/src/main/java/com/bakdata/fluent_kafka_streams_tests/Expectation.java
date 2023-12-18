@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2023 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -57,7 +58,7 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
-        if (!this.lastRecord.key().equals(expectedKey)) {
+        if (!Objects.equals(this.lastRecord.key(), expectedKey)) {
             throw new AssertionError("Record key does not match");
         }
         return this.and();
@@ -83,7 +84,7 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> hasValue(final V expectedValue) {
         this.isPresent();
-        if (!this.lastRecord.value().equals(expectedValue)) {
+        if (!Objects.equals(this.lastRecord.value(), expectedValue)) {
             throw new AssertionError("Record value does not match");
         }
         return this.and();
