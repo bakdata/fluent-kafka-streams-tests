@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.11.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.1) (2023-12-18)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.11.0...2.11.1)
+
+**Closed issues:**
+
+- Version 2.8.0 no longer works with Spring Boot 3x due to the dependency of wiremock still using javax instead of jakarta [\#72](https://github.com/bakdata/fluent-kafka-streams-tests/issues/72)
+
+**Merged pull requests:**
+
+- Fix null key/value assertions [\#83](https://github.com/bakdata/fluent-kafka-streams-tests/pull/83) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.11.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.0) (2023-11-10)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.10.1...2.11.0)
 
