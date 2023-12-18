@@ -1,7 +1,7 @@
 /*
- * The MIT License
+ * MIT License
  *
- * Copyright (c) 2022 bakdata GmbH
+ * Copyright (c) 2023 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -80,6 +80,26 @@ class TestInputAndOutputTest {
         this.testTopology.streamOutput()
                 .withKeyType(City.class)
                 .expectNextRecord().hasKey(new City("City1", 2)).hasValue(new City("City1", 2))
+                .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldVerifyNullKeys() {
+        this.testTopology.input()
+                .add(null, new City("City1", 2));
+
+        this.testTopology.streamOutput()
+                .expectNextRecord().hasKey(null).hasValue(new City("City1", 2))
+                .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldVerifyNullValues() {
+        this.testTopology.input()
+                .add(new Person("Huey", "City1"), null);
+
+        this.testTopology.streamOutput()
+                .expectNextRecord().hasKey(new Person("Huey", "City1")).hasValue(null)
                 .expectNoMoreRecord();
     }
 }
