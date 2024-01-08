@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.11.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.2) (2024-01-08)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.11.1...2.11.2)
+
+**Merged pull requests:**
+
+- Use copy of test topology properties [\#84](https://github.com/bakdata/fluent-kafka-streams-tests/pull/84) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.11.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.1) (2023-12-18)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.11.0...2.11.1)
 
