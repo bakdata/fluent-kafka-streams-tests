@@ -40,6 +40,6 @@ class TestTopologyTest {
         final TestTopology<Person, City> testTopology =
                 new TestTopology<>(MirrorAvro::getTopology, Map.copyOf(MirrorAvro.getKafkaProperties()));
         assertThatCode(testTopology::start).doesNotThrowAnyException();
-        this.testTopology.stop();
+        testTopology.stop();
     }
 }
