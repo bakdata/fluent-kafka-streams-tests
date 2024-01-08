@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -151,10 +152,11 @@ public class TestTopology<DefaultK, DefaultV> {
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<Object, Object> properties) {
+            final Map<?, ?> properties) {
         this(topologyFactory, schemaRegistryUrl -> {
-            properties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-            return properties;
+            final Map<Object, Object> newProperties = new HashMap<>(properties);
+            newProperties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+            return Map.copyOf(newProperties);
         });
     }
 
@@ -180,7 +182,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<Object, Object> properties) {
+    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
         this(props -> topologyFactory.get(), properties);
     }
 
@@ -206,7 +208,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Topology topology, final Map<Object, Object> properties) {
+    public TestTopology(final Topology topology, final Map<?, ?> properties) {
         this(props -> topology, properties);
     }
 
