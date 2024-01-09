@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.11.3](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.3) (2024-01-09)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.11.2...2.11.3)
+
+**Merged pull requests:**
+
+- Update dependencies [\#85](https://github.com/bakdata/fluent-kafka-streams-tests/pull/85) ([@philipp94831](https://github.com/philipp94831))
+
 ## [2.11.2](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.11.2) (2024-01-08)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.11.1...2.11.2)
 
