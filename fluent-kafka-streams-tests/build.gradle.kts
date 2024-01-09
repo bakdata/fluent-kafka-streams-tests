@@ -18,7 +18,7 @@ dependencies {
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
-    testImplementation(group = "org.apache.avro", name = "avro", version = "1.11.1")
+    testImplementation(group = "org.apache.avro", name = "avro", version = "1.11.3")
     val confluentVersion: String by project
     testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
     testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde", version = confluentVersion)
