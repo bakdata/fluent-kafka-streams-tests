@@ -6,7 +6,7 @@ dependencies {
     "api"(group = "io.confluent", name = "kafka-schema-registry-client", version = confluentVersion)
     "api"(group = "io.confluent", name = "kafka-streams-avro-serde", version = confluentVersion)
 
-    implementation(group = "org.wiremock", name = "wiremock", version = "3.2.0")
+    implementation(group = "org.wiremock", name = "wiremock", version = "3.3.1")
 
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
