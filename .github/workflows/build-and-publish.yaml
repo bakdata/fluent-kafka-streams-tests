@@ -1,0 +1,23 @@
+name: Build and Publish
+
+on:
+  push:
+    tags: ["**"]
+    branches: ["**"]
+
+jobs:
+  build-and-publish:
+    name: Java Gradle
+    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.40.5
+    with:
+      java-version: 17
+    secrets:
+      sonar-token: ${{ secrets.SONARCLOUD_TOKEN }}
+      sonar-organization: ${{ secrets.SONARCLOUD_ORGANIZATION }}
+      signing-secret-key-ring: ${{ secrets.SONATYPE_SIGNING_SECRET_KEY_RING }}
+      signing-key-id: ${{ secrets.SONATYPE_SIGNING_KEY_ID }}
+      signing-password: ${{ secrets.SONATYPE_SIGNING_PASSWORD }}
+      ossrh-username: ${{ secrets.SONATYPE_OSSRH_USERNAME }}
+      ossrh-password: ${{ secrets.SONATYPE_OSSRH_PASSWORD }}
+      github-username: ${{ secrets.GH_USERNAME }}
+      github-token: ${{ secrets.GH_TOKEN }}
