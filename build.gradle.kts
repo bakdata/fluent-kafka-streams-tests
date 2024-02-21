@@ -1,11 +1,23 @@
+buildscript {
+    repositories {
+        maven {
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+        }
+    }
+    dependencies {
+        classpath("com.bakdata.gradle:sonar:1.1.17-SNAPSHOT")
+    }
+}
+
 plugins {
     // release
     id("net.researchgate.release") version "3.0.2"
-    id("com.bakdata.sonar") version "1.1.16"
     id("com.bakdata.sonatype") version "1.1.14"
     id("org.hildan.github.changelog") version "2.2.0"
     id("io.freefair.lombok") version "8.4" apply false
 }
+
+apply(plugin = "com.bakdata.sonar")
 
 allprojects {
     group = "com.bakdata.${rootProject.name}"
@@ -51,7 +63,7 @@ configure<org.hildan.github.changelog.plugin.GitHubChangelogExtension> {
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "io.freefair.lombok")
-    java {
+    configure<JavaPluginExtension> {
         toolchain {
             languageVersion = JavaLanguageVersion.of(11)
         }
