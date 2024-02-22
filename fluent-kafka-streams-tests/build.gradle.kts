@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
     id("com.google.protobuf") version "0.9.1"
     java
     idea // required for protobuf support in intellij
