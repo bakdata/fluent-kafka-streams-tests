@@ -72,7 +72,7 @@ public class SchemaRegistryMockExtension extends SchemaRegistryMock implements B
     }
 
     /**
-     * Create a new {@code SchemaRegistryMock} from {@link SchemaProvider SchemaProviders}.
+     * Create a new {@code SchemaRegistryMockExtension} from {@link SchemaProvider SchemaProviders}.
      *
      * @param schemaProviders List of {@link SchemaProvider}. If null, {@link AvroSchemaProvider} will be used.
      */
