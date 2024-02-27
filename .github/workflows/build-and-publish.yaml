@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-publish:
     name: Java Gradle
-    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.40.6
+    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.41.0
     with:
       java-version: 17
     secrets:

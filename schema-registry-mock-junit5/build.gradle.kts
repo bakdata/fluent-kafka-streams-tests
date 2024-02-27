@@ -7,4 +7,6 @@ dependencies {
 
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
+    val confluentVersion: String by project
+    testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
 }
