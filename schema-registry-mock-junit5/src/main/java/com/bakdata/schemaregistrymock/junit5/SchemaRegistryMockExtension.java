@@ -24,6 +24,9 @@
 package com.bakdata.schemaregistrymock.junit5;
 
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import io.confluent.kafka.schemaregistry.SchemaProvider;
+import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
+import java.util.List;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -59,6 +62,24 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * To retrieve the url of the schema registry for a Kafka Streams config, please use {@link #getUrl()}
  */
 public class SchemaRegistryMockExtension extends SchemaRegistryMock implements BeforeEachCallback, AfterEachCallback {
+    /**
+     * Create a new {@code SchemaRegistryMockExtension} with default {@link SchemaProvider SchemaProviders}.
+     *
+     * @see #SchemaRegistryMockExtension(List)
+     */
+    public SchemaRegistryMockExtension() {
+        this(null);
+    }
+
+    /**
+     * Create a new {@code SchemaRegistryMock} from {@link SchemaProvider SchemaProviders}.
+     *
+     * @param schemaProviders List of {@link SchemaProvider}. If null, {@link AvroSchemaProvider} will be used.
+     */
+    public SchemaRegistryMockExtension(final List<SchemaProvider> schemaProviders) {
+        super(schemaProviders);
+    }
+
     @Override
     public void afterEach(final ExtensionContext context) {
         this.stop();
