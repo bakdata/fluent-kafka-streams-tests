@@ -1,21 +1,11 @@
-buildscript {
-    repositories {
-        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
-    }
-    dependencies {
-        classpath("com.bakdata.gradle:sonatype:1.2.2-SNAPSHOT")
-    }
-}
-
 plugins {
     // release
     id("net.researchgate.release") version "3.0.2"
     id("com.bakdata.sonar") version "1.1.17"
+    id("com.bakdata.sonar") version "1.2.2"
     id("org.hildan.github.changelog") version "2.2.0"
     id("io.freefair.lombok") version "8.4" apply false
 }
-
-apply(plugin = "com.bakdata.sonatype")
 
 allprojects {
     group = "com.bakdata.${rootProject.name}"
