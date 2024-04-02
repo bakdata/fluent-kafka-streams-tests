@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,11 @@
 
 package com.bakdata.fluent_kafka_streams_tests.test_applications;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.experimental.UtilityClass;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.Serdes.StringSerde;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
@@ -45,12 +47,12 @@ public class TopicExtractorApplication {
         return builder.build();
     }
 
-    public static Properties getProperties() {
-        final Properties properties = new Properties();
-        properties.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "dynamic-test-stream");
-        properties.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:123");
-        properties.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+    public static Map<String, Object> getProperties() {
+        final Map<String, Object> properties = new HashMap<>();
+        properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "dynamic-test-stream");
+        properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:123");
+        properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, StringSerde.class);
+        properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, StringSerde.class);
         return properties;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     private final TestTopology<Object, String> testTopology = new TestTopology<>(this.app::getTopology,
-            this.app.getKafkaProperties());
+            WordCount.getKafkaProperties());
 
     @BeforeEach
     void start() {

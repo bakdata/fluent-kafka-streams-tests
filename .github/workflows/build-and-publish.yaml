@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-publish:
     name: Java Gradle
-    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.42.0
+    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.43.0
     with:
       java-version: 17
     secrets:
@@ -19,5 +19,4 @@ jobs:
       signing-password: ${{ secrets.SONATYPE_SIGNING_PASSWORD }}
       ossrh-username: ${{ secrets.SONATYPE_OSSRH_USERNAME }}
       ossrh-password: ${{ secrets.SONATYPE_OSSRH_PASSWORD }}
-      github-username: ${{ secrets.GH_USERNAME }}
       github-token: ${{ secrets.GH_TOKEN }}
