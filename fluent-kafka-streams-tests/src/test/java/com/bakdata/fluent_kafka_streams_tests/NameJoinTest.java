@@ -32,7 +32,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class NameJoinTest {
-    private final NameJoinGlobalKTable app = new NameJoinGlobalKTable();
 
     private final TestTopology<String, Person> testTopology =
             new TestTopology<>(NameJoinGlobalKTable::getTopology, NameJoinGlobalKTable.getKafkaProperties());
