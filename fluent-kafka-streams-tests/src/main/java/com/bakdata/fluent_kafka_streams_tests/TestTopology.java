@@ -451,6 +451,28 @@ public class TestTopology<DefaultK, DefaultV> {
         }
     }
 
+    /**
+     * Configure a {@code Serde} for values using {@link #properties}
+     * @param serde serde to configure
+     * @return configured {@code Serde}
+     * @param <T> type to be (de-)serialized
+     */
+    public <T> Serde<T> configureValueSerde(final Serde<T> serde) {
+        serde.configure(this.properties, false);
+        return serde;
+    }
+
+    /**
+     * Configure a {@code Serde} for keys using {@link #properties}
+     * @param serde serde to configure
+     * @return configured {@code Serde}
+     * @param <T> type to be (de-)serialized
+     */
+    public <T> Serde<T> configureKeySerde(final Serde<T> serde) {
+        serde.configure(this.properties, true);
+        return serde;
+    }
+
     private Properties getProperties() {
         final Properties props = new Properties();
         props.putAll(this.properties);
