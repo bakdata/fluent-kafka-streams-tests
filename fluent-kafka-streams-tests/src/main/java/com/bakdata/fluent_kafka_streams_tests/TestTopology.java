@@ -24,7 +24,10 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import static java.util.Collections.emptyMap;
+
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import com.google.common.collect.ImmutableMap;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
@@ -458,7 +461,19 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param <T> type to be (de-)serialized
      */
     public <T> Serde<T> configureValueSerde(final Serde<T> serde) {
-        serde.configure(this.properties, false);
+        return this.configureValueSerde(serde, emptyMap());
+    }
+
+    /**
+     * Configure a {@code Serde} for values using {@link #properties} and config overrides
+     * @param serde serde to configure
+     * @param config configuration overrides
+     * @return configured {@code Serde}
+     * @param <T> type to be (de-)serialized
+     */
+    public <T> Serde<T> configureValueSerde(final Serde<T> serde, final Map<String, Object> config) {
+        final Map<String, Object> serdeConfig = this.mergeConfig(config);
+        serde.configure(serdeConfig, false);
         return serde;
     }
 
@@ -469,8 +484,27 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param <T> type to be (de-)serialized
      */
     public <T> Serde<T> configureKeySerde(final Serde<T> serde) {
-        serde.configure(this.properties, true);
+        return this.configureKeySerde(serde, emptyMap());
+    }
+
+    /**
+     * Configure a {@code Serde} for keys using {@link #properties} and config overrides
+     * @param serde serde to configure
+     * @param config configuration overrides
+     * @return configured {@code Serde}
+     * @param <T> type to be (de-)serialized
+     */
+    public <T> Serde<T> configureKeySerde(final Serde<T> serde, final Map<String, Object> config) {
+        final Map<String, Object> serdeConfig = this.mergeConfig(config);
+        serde.configure(serdeConfig, true);
         return serde;
+    }
+
+    private Map<String, Object> mergeConfig(final Map<String, Object> config) {
+        return ImmutableMap.<String, Object>builder()
+                .putAll(this.properties)
+                .putAll(config)
+                .build();
     }
 
     private Properties getProperties() {
