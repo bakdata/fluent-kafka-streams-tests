@@ -24,8 +24,8 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TestOutputTopic;
@@ -118,12 +118,9 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
 
     @Override
     public List<ProducerRecord<K, V>> toList() {
-        return this.testOutputTopic
-                .readRecordsToList()
-                .stream()
-                .map(testRecord -> new ProducerRecord<>(this.topic, 0, testRecord.timestamp(), testRecord.key(),
-                        testRecord.value(), testRecord.getHeaders()))
-                .collect(Collectors.toList());
+        final List<ProducerRecord<K, V>> list = new ArrayList<>();
+        this.iterator().forEachRemaining(list::add);
+        return list;
     }
 
     // ==================
