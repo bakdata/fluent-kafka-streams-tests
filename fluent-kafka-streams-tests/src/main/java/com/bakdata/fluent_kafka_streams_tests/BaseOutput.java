@@ -116,6 +116,15 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
         return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde);
     }
 
+    /**
+     * Convert the output to a {@link java.util.List}. In case the current instance of this class is a
+     * {@link StreamOutput}, the output will be converted to List with {@link org.apache.kafka.streams.kstream.KStream}
+     * semantics (each key multiple times). In case the current instance of this class is a {@link TableOutput}, the
+     * output will be converted to List with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only
+     * once).
+     *
+     * @return A {@link java.util.List} representing the output
+     */
     @Override
     public List<ProducerRecord<K, V>> toList() {
         final List<ProducerRecord<K, V>> list = new ArrayList<>();

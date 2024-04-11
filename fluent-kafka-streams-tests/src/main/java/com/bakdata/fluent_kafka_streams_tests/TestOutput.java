@@ -145,10 +145,16 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * <p>This is the default, there should usually be no need to call this method.</p>
      * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
      * between the output types any more.</p>
+     *
      * @return Current output with {@link org.apache.kafka.streams.kstream.KStream} semantics
      */
     TestOutput<K, V> asStream();
 
+    /**
+     * Convert the output to a {@link java.util.List}.
+     *
+     * @return A {@link java.util.List} representing the output
+     */
     List<ProducerRecord<K, V>> toList();
 }
 
