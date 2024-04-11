@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2024 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -244,7 +244,7 @@ class WordCountTest {
     void shouldDoNothingOnEmptyInput() {
         this.testTopology.streamOutput().expectNoMoreRecord().and().expectNoMoreRecord().toBeEmpty();
     }
-    
+
     @Test
     void shouldConvertStreamOutputToList() {
         this.testTopology.input()
