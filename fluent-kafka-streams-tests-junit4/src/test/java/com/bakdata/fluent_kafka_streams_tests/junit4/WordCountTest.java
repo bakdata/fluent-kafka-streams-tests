@@ -244,4 +244,64 @@ public class WordCountTest {
     public void shouldDoNothingOnEmptyInput() {
         this.testTopology.streamOutput().expectNoMoreRecord().and().expectNoMoreRecord().toBeEmpty();
     }
+
+    @Test
+    public void shouldConvertStreamOutputToList() {
+        this.testTopology.input()
+                .add("bla")
+                .add("blub")
+                .add("bla");
+
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.streamOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .extracting(ProducerRecord::key)
+                .containsExactly("bla", "blub", "bla");
+        assertThat(outputs)
+                .extracting(ProducerRecord::value)
+                .containsExactly(1L, 1L, 2L);
+    }
+
+    @Test
+    public void shouldConvertTableOutputToList() {
+        this.testTopology.input()
+                .add("bla")
+                .add("blub")
+                .add("bla");
+
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.tableOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .extracting(ProducerRecord::key)
+                .containsExactly("bla", "blub");
+        assertThat(outputs)
+                .extracting(ProducerRecord::value)
+                .containsExactly(2L, 1L);
+    }
+
+    @Test
+    public void shouldConvertEmptyStreamOutputToEmptyList() {
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.streamOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .isInstanceOf(List.class)
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldConvertEmptyTableOutputToEmptyList() {
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.tableOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .isInstanceOf(List.class)
+                .isEmpty();
+    }
 }

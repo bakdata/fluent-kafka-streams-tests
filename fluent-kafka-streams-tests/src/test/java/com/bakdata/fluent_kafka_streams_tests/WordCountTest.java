@@ -387,4 +387,64 @@ class WordCountTest {
     void shouldDoNothingOnEmptyInput() {
         this.testTopology.streamOutput().expectNoMoreRecord().and().expectNoMoreRecord().toBeEmpty();
     }
+
+    @Test
+    void shouldConvertStreamOutputToList() {
+        this.testTopology.input()
+                .add("bla")
+                .add("blub")
+                .add("bla");
+
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.streamOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .extracting(ProducerRecord::key)
+                .containsExactly("bla", "blub", "bla");
+        assertThat(outputs)
+                .extracting(ProducerRecord::value)
+                .containsExactly(1L, 1L, 2L);
+    }
+
+    @Test
+    void shouldConvertTableOutputToList() {
+        this.testTopology.input()
+                .add("bla")
+                .add("blub")
+                .add("bla");
+
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.tableOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .extracting(ProducerRecord::key)
+                .containsExactly("bla", "blub");
+        assertThat(outputs)
+                .extracting(ProducerRecord::value)
+                .containsExactly(2L, 1L);
+    }
+
+    @Test
+    void shouldConvertEmptyStreamOutputToEmptyList() {
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.streamOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .isInstanceOf(List.class)
+                .isEmpty();
+    }
+
+    @Test
+    void shouldConvertEmptyTableOutputToEmptyList() {
+        final List<ProducerRecord<String, Long>> outputs = this.testTopology.tableOutput()
+                .withSerde(Serdes.String(), Serdes.Long())
+                .toList();
+
+        assertThat(outputs)
+                .isInstanceOf(List.class)
+                .isEmpty();
+    }
 }
