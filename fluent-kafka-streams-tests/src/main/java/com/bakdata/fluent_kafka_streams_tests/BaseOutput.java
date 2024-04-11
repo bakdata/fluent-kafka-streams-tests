@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2024 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TestOutputTopic;
@@ -112,6 +114,16 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     @Override
     public TestOutput<K, V> asStream() {
         return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde);
+    }
+
+    @Override
+    public List<ProducerRecord<K, V>> toList() {
+        return this.testOutputTopic
+                .readRecordsToList()
+                .stream()
+                .map(testRecord -> new ProducerRecord<>(this.topic, 0, testRecord.timestamp(), testRecord.key(),
+                        testRecord.value(), testRecord.getHeaders()))
+                .collect(Collectors.toList());
     }
 
     // ==================

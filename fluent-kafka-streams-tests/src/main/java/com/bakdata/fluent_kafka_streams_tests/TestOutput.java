@@ -24,6 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 
@@ -147,5 +148,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * @return Current output with {@link org.apache.kafka.streams.kstream.KStream} semantics
      */
     TestOutput<K, V> asStream();
+
+    List<ProducerRecord<K, V>> toList();
 }
 
