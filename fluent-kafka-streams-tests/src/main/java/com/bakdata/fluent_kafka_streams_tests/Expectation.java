@@ -113,7 +113,7 @@ public class Expectation<K, V> {
     }
 
     /**
-     * <p>Reads the next record as creates an {@code Expectation} for it.</p>
+     * <p>Reads the next record and creates an {@code Expectation} for it.</p>
      * <p>This is logically equivalent to {@link TestOutput#expectNextRecord()}.</p>
      * <p>This methods main purpose is to allow chaining:</p>
      * <pre>{@code

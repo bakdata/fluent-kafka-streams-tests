@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2024 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TestOutputTopic;
@@ -74,7 +76,10 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.<br/>
+     * Reads the next record and creates an {@link Expectation} for it.<br/>
+     *
+     * Note that calling this method by itself without chaining at least one of the {@code has*()} methods will not
+     * check for the existence of a next record!<br/>
      *
      * @return An {@link Expectation} containing the next record from the output.<br/>
      */
@@ -112,6 +117,22 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     @Override
     public TestOutput<K, V> asStream() {
         return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde);
+    }
+
+    /**
+     * Convert the output to a {@link java.util.List}. In case the current instance of this class is a
+     * {@link StreamOutput}, the output will be converted to List with {@link org.apache.kafka.streams.kstream.KStream}
+     * semantics (each key multiple times). In case the current instance of this class is a {@link TableOutput}, the
+     * output will be converted to List with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only
+     * once).
+     *
+     * @return A {@link java.util.List} representing the output
+     */
+    @Override
+    public List<ProducerRecord<K, V>> toList() {
+        final List<ProducerRecord<K, V>> list = new ArrayList<>();
+        this.iterator().forEachRemaining(list::add);
+        return list;
     }
 
     // ==================
