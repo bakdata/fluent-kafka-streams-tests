@@ -118,7 +118,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     ProducerRecord<K, V> readOneRecord();
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.
+     * Reads the next record and creates an {@link Expectation} for it.
      *
      * @return An {@link Expectation} containing the next record from the output.
      */

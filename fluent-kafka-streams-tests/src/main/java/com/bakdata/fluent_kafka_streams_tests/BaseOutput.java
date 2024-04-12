@@ -76,7 +76,10 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.<br/>
+     * Reads the next record and creates an {@link Expectation} for it.<br/>
+     *
+     * Note that calling `.expectNextRecord()` by itself without chaining at least one of the `.has*` methods will not
+     * check for the existence of a next record!<br/>
      *
      * @return An {@link Expectation} containing the next record from the output.<br/>
      */
