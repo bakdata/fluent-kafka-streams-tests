@@ -292,7 +292,7 @@ public class TestTopology<DefaultK, DefaultV> {
         }
         this.properties.put(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
         final Topology topology = this.topologyFactory.apply(this.properties);
-        this.testDriver = new TopologyTestDriver(topology, this.getProperties());
+        this.testDriver = new TopologyTestDriver(topology, this.createProperties());
 
         this.inputTopics.clear();
         this.inputPatterns.clear();
@@ -451,7 +451,7 @@ public class TestTopology<DefaultK, DefaultV> {
         }
     }
 
-    private Properties getProperties() {
+    private Properties createProperties() {
         final Properties props = new Properties();
         props.putAll(this.properties);
         return props;
