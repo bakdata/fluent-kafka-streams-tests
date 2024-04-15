@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2024 bakdata GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 
@@ -117,7 +118,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
     ProducerRecord<K, V> readOneRecord();
 
     /**
-     * Reads the next record as creates an {@link Expectation} for it.
+     * Reads the next record and creates an {@link Expectation} for it.
      *
      * @return An {@link Expectation} containing the next record from the output.
      */
@@ -144,8 +145,16 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * <p>This is the default, there should usually be no need to call this method.</p>
      * <p>Note: once the first value of the stream has been read or the iterator has be called, you cannot switch
      * between the output types any more.</p>
+     *
      * @return Current output with {@link org.apache.kafka.streams.kstream.KStream} semantics
      */
     TestOutput<K, V> asStream();
+
+    /**
+     * Convert the output to a {@link java.util.List}.
+     *
+     * @return A {@link java.util.List} representing the output
+     */
+    List<ProducerRecord<K, V>> toList();
 }
 

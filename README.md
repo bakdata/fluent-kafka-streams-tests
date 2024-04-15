@@ -101,9 +101,8 @@ To get the output, `TestTopology` provides two methods: `.streamOutput()` and `.
 They behave just like the input with regard to the number of output topics.
 Using the stream version simulates Kafka's stream-semantics, meaning that a key can be present many times in an output stream, whereas the table-semantics only output the newest value of each key.
 
-To check the output records, you can call `.expectNextRecord()` to indicate that the output should not be empty.
-You can then inspect the record with `.hasKey(K key)` and `.hasValue(V value)`.
-Both are optional, but highly recommended so that your output is always valid.
+To check the output records, you can call `.expectNextRecord()` and then chain `.hasKey(K key)`, `.hasKeySatisfying(Consumer<K> requirements)`, `.hasValue(V value)` or `.hasValueSatisfying(Consumer<V> requirements)` to this call.
+Note that calling `.expectNextRecord()` by itself without chaining at least one of the `.has*` methods will not check for the existence of a next record!
 
 Once you expect no further records, call `.expectNoMoreRecord()` to indicate the end of the output stream.
 
@@ -140,6 +139,29 @@ void shouldReturnCorrectIteratorTable() {
             .hasKeySatisfying(key -> assertThat(key).isEqualTo("cat"))
             .hasValueSatisfying(value -> assertThat(value).isEqualTo(1L))
             .expectNoMoreRecord();
+}
+```
+
+Alternatively, you can convert the output to `List` for use with your assertion framework. Here is an example of this with [AssertJ](http://joel-costigliola.github.io/assertj/).
+
+```java
+@Test
+void shouldConvertStreamOutputToList(){
+    this.testTopology.input()
+        .add("cat")
+        .add("dog")
+        .add("bird");
+
+    final List<ProducerRecord<String, Long>>outputs = this.testTopology.streamOutput()
+        .withSerde(Serdes.String(), Serdes.Long())
+        .toList();
+
+    assertThat(outputs)
+        .extracting(ProducerRecord::key)
+        .containsExactly("cat", "dog", "bird");
+    assertThat(outputs)
+        .extracting(ProducerRecord::value)
+        .containsExactly(1L, 1L, 1L);
 }
 ```
 
