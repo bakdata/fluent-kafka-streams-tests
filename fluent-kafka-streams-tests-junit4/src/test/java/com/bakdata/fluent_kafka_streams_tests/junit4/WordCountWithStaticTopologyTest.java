@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ public class WordCountWithStaticTopologyTest {
 
     @Rule
     public final TestTopologyRule<Object, String> testTopology = new TestTopologyRule<>(this.app.getTopology(),
-            this.app.getKafkaProperties());
+            WordCount.getKafkaProperties());
 
     @Test
     public void shouldAggregateSameWordStream() {

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitants
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 import java.util.Collections;
-import java.util.Properties;
+import java.util.Map;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -91,7 +91,7 @@ class CountInhabitantsWithProtoTest {
         Assertions.assertNotNull(this.testTopology.getSchemaRegistry());
     }
 
-    private Properties properties(final String schemaRegistryUrl) {
+    private Map<String, Object> properties(final String schemaRegistryUrl) {
         this.app.setSchemaRegistryUrl(schemaRegistryUrl);
         return this.app.getKafkaProperties();
     }

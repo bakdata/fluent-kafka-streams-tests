@@ -103,12 +103,12 @@ import org.apache.kafka.streams.TopologyTestDriver;
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
     private final SchemaRegistryMock schemaRegistry;
-    private final Function<? super Properties, ? extends Topology> topologyFactory;
-    private final Properties properties = new Properties();
+    private final Function<? super Map<String, Object>, ? extends Topology> topologyFactory;
+    private final Map<String, Object> properties = new HashMap<>();
     private final Collection<String> inputTopics = new HashSet<>();
     private final Collection<Pattern> inputPatterns = new HashSet<>();
     private final Collection<String> outputTopics = new HashSet<>();
-    private final Function<? super String, ? extends Map<?, ?>> propertiesFactory;
+    private final Function<? super String, ? extends Map<String, ?>> propertiesFactory;
 
     private final Serde<DefaultK> defaultKeySerde;
     private final Serde<DefaultV> defaultValueSerde;
@@ -118,8 +118,8 @@ public class TestTopology<DefaultK, DefaultV> {
     /**
      * Used by wither methods.
      */
-    protected TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory,
+    protected TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
             final Serde<DefaultK> defaultKeySerde,
             final Serde<DefaultV> defaultValueSerde, final SchemaRegistryMock schemaRegistry) {
         this.schemaRegistry = schemaRegistry;
@@ -138,8 +138,8 @@ public class TestTopology<DefaultK, DefaultV> {
      * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
      * BOOTSTRAP_SERVERS_CONFIG.
      */
-    public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+    public TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
         this(topologyFactory, propertiesFactory, null, null, new SchemaRegistryMock());
     }
 
@@ -151,10 +151,10 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<?, ?> properties) {
+    public TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Map<String, ?> properties) {
         this(topologyFactory, schemaRegistryUrl -> {
-            final Map<Object, Object> newProperties = new HashMap<>(properties);
+            final Map<String, Object> newProperties = new HashMap<>(properties);
             newProperties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
             return Map.copyOf(newProperties);
         });
@@ -170,7 +170,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * BOOTSTRAP_SERVERS_CONFIG.
      */
     public TestTopology(final Supplier<? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
         this(props -> topologyFactory.get(), propertiesFactory);
     }
 
@@ -182,7 +182,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<?, ?> properties) {
+    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<String, ?> properties) {
         this(props -> topologyFactory.get(), properties);
     }
 
@@ -196,7 +196,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * BOOTSTRAP_SERVERS_CONFIG.
      */
     public TestTopology(final Topology topology,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
         this(props -> topology, propertiesFactory);
     }
 
@@ -208,7 +208,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Topology topology, final Map<?, ?> properties) {
+    public TestTopology(final Topology topology, final Map<String, ?> properties) {
         this(props -> topology, properties);
     }
 
@@ -290,9 +290,9 @@ public class TestTopology<DefaultK, DefaultV> {
         } catch (final IOException e) {
             throw new UncheckedIOException("Cannot create temporary state directory", e);
         }
-        this.properties.setProperty(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
+        this.properties.put(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
         final Topology topology = this.topologyFactory.apply(this.properties);
-        this.testDriver = new TopologyTestDriver(topology, this.properties);
+        this.testDriver = new TopologyTestDriver(topology, this.createProperties());
 
         this.inputTopics.clear();
         this.inputPatterns.clear();
@@ -307,6 +307,15 @@ public class TestTopology<DefaultK, DefaultV> {
         for (final GlobalStore store : topology.describe().globalStores()) {
             store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
         }
+    }
+
+    protected <K, V> TestTopology<K, V> with(
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde,
+            final SchemaRegistryMock schemaRegistry) {
+        return new TestTopology<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
+                schemaRegistry);
     }
 
     /**
@@ -442,12 +451,10 @@ public class TestTopology<DefaultK, DefaultV> {
         }
     }
 
-    protected <K, V> TestTopology<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
-            final Serde<V> defaultValueSerde,
-            final SchemaRegistryMock schemaRegistry) {
-        return new TestTopology<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
-                schemaRegistry);
+    private Properties createProperties() {
+        final Properties props = new Properties();
+        props.putAll(this.properties);
+        return props;
     }
 
     private void processNode(final Node node) {

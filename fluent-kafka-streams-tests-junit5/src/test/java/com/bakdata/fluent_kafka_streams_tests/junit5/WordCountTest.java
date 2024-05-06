@@ -41,7 +41,7 @@ class WordCountTest {
 
     @RegisterExtension
     final TestTopologyExtension<Object, String> testTopology = new TestTopologyExtension<>(this.app::getTopology,
-            this.app.getKafkaProperties());
+            WordCount.getKafkaProperties());
 
     @Test
     void shouldAggregateSameWordStream() {

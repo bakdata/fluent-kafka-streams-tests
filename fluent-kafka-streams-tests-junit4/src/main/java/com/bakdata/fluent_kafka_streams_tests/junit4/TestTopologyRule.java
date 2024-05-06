@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,6 @@ package com.bakdata.fluent_kafka_streams_tests.junit4;
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
 import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -72,39 +71,39 @@ import org.junit.runners.model.Statement;
 public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK, DefaultV>
         implements TestRule {
     public TestTopologyRule(
-            final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
         super(topologyFactory, propertiesFactory);
     }
     public TestTopologyRule(
-            final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Map<Object, Object> properties) {
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Map<String, Object> properties) {
         super(topologyFactory, properties);
     }
 
     public TestTopologyRule(
             final Supplier<? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
         super(topologyFactory, propertiesFactory);
     }
 
     public TestTopologyRule(
-            final Supplier<? extends Topology> topologyFactory, final Map<Object, Object> properties) {
+            final Supplier<? extends Topology> topologyFactory, final Map<String, Object> properties) {
         super(topologyFactory, properties);
     }
 
     public TestTopologyRule(final Topology topology,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory) {
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
         super(topology, propertiesFactory);
     }
 
-    public TestTopologyRule(final Topology topology, final Map<Object, Object> properties) {
+    public TestTopologyRule(final Topology topology, final Map<String, Object> properties) {
         super(topology, properties);
     }
 
     protected TestTopologyRule(
-            final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory,
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
             final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
             final SchemaRegistryMock schemaRegistryMock) {
         super(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde, schemaRegistryMock);
@@ -126,8 +125,9 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
     }
 
     @Override
-    protected <K, V> TestTopologyRule<K, V> with(final Function<? super Properties, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<?, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
+    protected <K, V> TestTopologyRule<K, V> with(
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
             final Serde<V> defaultValueSerde,
             final SchemaRegistryMock schemaRegistryMock) {
         return new TestTopologyRule<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,

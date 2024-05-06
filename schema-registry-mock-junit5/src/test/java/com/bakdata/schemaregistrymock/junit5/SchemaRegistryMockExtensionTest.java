@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,9 +39,13 @@ class SchemaRegistryMockExtensionTest {
     @RegisterExtension
     final SchemaRegistryMockExtension schemaRegistry = new SchemaRegistryMockExtension();
 
+    private static Schema createSchema(final String name) {
+        return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
+    }
+
     @Test
     void shouldRegisterKeySchema() throws IOException, RestClientException {
-        final Schema keySchema = this.createSchema("key_schema");
+        final Schema keySchema = createSchema("key_schema");
         final int id = this.schemaRegistry.registerKeySchema("test-topic", keySchema);
 
         final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
@@ -50,7 +54,7 @@ class SchemaRegistryMockExtensionTest {
 
     @Test
     void shouldRegisterValueSchema() throws IOException, RestClientException {
-        final Schema valueSchema = this.createSchema("value_schema");
+        final Schema valueSchema = createSchema("value_schema");
         final int id = this.schemaRegistry.registerValueSchema("test-topic", valueSchema);
 
         final AvroSchema retrievedSchema = (AvroSchema) this.schemaRegistry.getSchemaRegistryClient().getSchemaById(id);
@@ -59,7 +63,7 @@ class SchemaRegistryMockExtensionTest {
 
     @Test
     void shouldRegisterKeySchemaWithClient() throws IOException, RestClientException {
-        final Schema keySchema = this.createSchema("key_schema");
+        final Schema keySchema = createSchema("key_schema");
         final int id =
                 this.schemaRegistry.getSchemaRegistryClient().register("test-topic-key", new AvroSchema(keySchema));
 
@@ -69,7 +73,7 @@ class SchemaRegistryMockExtensionTest {
 
     @Test
     void shouldRegisterValueSchemaWithClient() throws IOException, RestClientException {
-        final Schema valueSchema = this.createSchema("value_schema");
+        final Schema valueSchema = createSchema("value_schema");
         final int id =
                 this.schemaRegistry.getSchemaRegistryClient().register("test-topic-value", new AvroSchema(valueSchema));
 
@@ -79,7 +83,7 @@ class SchemaRegistryMockExtensionTest {
 
     @Test
     void shouldHaveSchemaVersions() throws IOException, RestClientException {
-        final Schema valueSchema = this.createSchema("value_schema");
+        final Schema valueSchema = createSchema("value_schema");
         final String topic = "test-topic";
         final int id = this.schemaRegistry.registerValueSchema(topic, valueSchema);
 
@@ -96,7 +100,7 @@ class SchemaRegistryMockExtensionTest {
 
     @Test
     void shouldHaveLatestSchemaVersion() throws IOException, RestClientException {
-        final Schema valueSchema1 = this.createSchema("value_schema");
+        final Schema valueSchema1 = createSchema("value_schema");
         final String topic = "test-topic";
         final int id1 = this.schemaRegistry.registerValueSchema(topic, valueSchema1);
 
@@ -117,9 +121,5 @@ class SchemaRegistryMockExtensionTest {
         final String schemaString = metadata.getSchema();
         final Schema retrievedSchema = new Schema.Parser().parse(schemaString);
         assertThat(retrievedSchema).isEqualTo(valueSchema2);
-    }
-
-    private Schema createSchema(final String name) {
-        return Schema.createRecord(name, "no doc", "", false, Collections.emptyList());
     }
 }

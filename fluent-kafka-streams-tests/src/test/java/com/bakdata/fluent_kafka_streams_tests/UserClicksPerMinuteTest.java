@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,6 @@ class UserClicksPerMinuteTest {
     private static final int USER = 1;
     private static final int USER1 = 1;
     private static final int USER2 = 2;
-    private final UserClicksPerMinute app = new UserClicksPerMinute();
 
     private final TestTopology<Integer, ClickEvent> testTopology =
             new TestTopology<>(UserClicksPerMinute::getTopology, UserClicksPerMinute.getKafkaProperties());
