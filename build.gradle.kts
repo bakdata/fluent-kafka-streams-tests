@@ -2,9 +2,21 @@ plugins {
     // release
     id("com.bakdata.release") version "1.4.0"
     id("com.bakdata.sonar") version "1.4.0"
-    id("com.bakdata.sonatype") version "1.4.0"
     id("io.freefair.lombok") version "8.4" apply false
 }
+
+buildscript {
+    repositories {
+        maven {
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
+        }
+    }
+    dependencies {
+        classpath("com.bakdata.gradle:sonatype:1.4.1-SNAPSHOT")
+    }
+}
+
+apply(plugin = "com.bakdata.sonatype")
 
 allprojects {
     group = "com.bakdata.${rootProject.name}"
