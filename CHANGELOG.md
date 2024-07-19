@@ -1,8 +1,16 @@
 # Change Log
 
-## [2.13.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.13.1) (2024-05-03)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.13.1...2.13.1)
+## [2.14.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.14.0) (2024-07-19)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.14.0...2.14.0)
 
+
+## [2.14.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.14.0) (2024-07-19)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.13.1...2.14.0)
+
+**Merged pull requests:**
+
+- Fix missing kassava dependency in plugins [\#95](https://github.com/bakdata/fluent-kafka-streams-tests/pull/95) ([@philipp94831](https://github.com/philipp94831))
+- Use Map instead of Properties [\#91](https://github.com/bakdata/fluent-kafka-streams-tests/pull/91) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.13.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.13.1) (2024-05-03)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.13.0...2.13.1)
