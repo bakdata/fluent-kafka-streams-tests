@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata
+ * Copyright (c) 2024 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,13 +31,11 @@ import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.protobuf.KafkaProtobufSerde;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serdes.StringSerde;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
@@ -58,14 +56,6 @@ public class CountInhabitantsWithProto {
     @Setter
     private String schemaRegistryUrl;
 
-
-    public static void main(final String[] args) {
-        final CountInhabitantsWithAvro app = new CountInhabitantsWithAvro();
-        final KafkaStreams streams = new KafkaStreams(app.getTopology(), app.getKafkaProperties());
-        streams.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-    }
-
     public KafkaProtobufSerde<Person> newPersonSerde() {
         final KafkaProtobufSerde<Person> serde = new KafkaProtobufSerde<>(Person.class);
         final Map<String, String> config = new HashMap<>();
@@ -82,14 +72,14 @@ public class CountInhabitantsWithProto {
         return serde;
     }
 
-    public Properties getKafkaProperties() {
+    public Map<String, Object> getKafkaProperties() {
         final String brokers = "localhost:9092";
-        final Properties kafkaConfig = new Properties();
-        kafkaConfig.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
-        kafkaConfig.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        final Map<String, Object> kafkaConfig = new HashMap<>();
+        kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
+        kafkaConfig.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
         kafkaConfig.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, StringSerde.class);
         kafkaConfig.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, KafkaProtobufSerde.class);
-        kafkaConfig.setProperty(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl);
+        kafkaConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl);
         return kafkaConfig;
     }
 

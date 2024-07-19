@@ -44,7 +44,7 @@ class WordCountTest {
     private final WordCount app = new WordCount();
 
     private final TestTopology<Object, String> testTopology = new TestTopology<>(this.app::getTopology,
-            this.app.getKafkaProperties());
+            WordCount.getKafkaProperties());
 
     @BeforeEach
     void start() {
