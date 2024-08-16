@@ -322,14 +322,16 @@ public class TestTopology<DefaultK, DefaultV> {
      * Get the default serde of the key type in your application.
      */
     private Serde<DefaultK> getDefaultKeySerde() {
-        return this.defaultKeySerde != null ? this.defaultKeySerde : this.getStreamsConfig().defaultKeySerde();
+        return this.defaultKeySerde != null ? this.defaultKeySerde
+                : (Serde<DefaultK>) this.getStreamsConfig().defaultKeySerde();
     }
 
     /**
      * Get the default serde of the value type in your application.
      */
     private Serde<DefaultV> getDefaultValueSerde() {
-        return this.defaultValueSerde != null ? this.defaultValueSerde : this.getStreamsConfig().defaultValueSerde();
+        return this.defaultValueSerde != null ? this.defaultValueSerde
+                : (Serde<DefaultV>) this.getStreamsConfig().defaultValueSerde();
     }
 
     /**
