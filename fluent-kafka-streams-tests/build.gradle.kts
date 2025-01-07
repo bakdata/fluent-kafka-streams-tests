@@ -16,8 +16,8 @@ dependencies {
     api(project(":schema-registry-mock"))
 
     val junit5Version: String by project
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testImplementation(group = "org.apache.avro", name = "avro", version = "1.12.0")
     val confluentVersion: String by project
     testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
