@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,22 +63,22 @@ class HeaderTest {
         final List<ProducerRecord<String, String>> records = Lists.newArrayList(this.testTopology.streamOutput());
         assertThat(records)
                 .hasSize(2)
-                .anySatisfy(record -> {
-                    assertThat(record.key()).isEqualTo("key1");
-                    assertThat(record.value()).isEqualTo("value1");
-                    assertThat(record.timestamp()).isZero();
-                    assertThat(record.headers().toArray())
+                .anySatisfy(producerRecord -> {
+                    assertThat(producerRecord.key()).isEqualTo("key1");
+                    assertThat(producerRecord.value()).isEqualTo("value1");
+                    assertThat(producerRecord.timestamp()).isZero();
+                    assertThat(producerRecord.headers().toArray())
                             .hasSize(1)
                             .anySatisfy(header -> {
                                 assertThat(header.key()).isEqualTo("header1");
                                 assertThat(header.value()).isEqualTo(new byte[]{0});
                             });
                 })
-                .anySatisfy(record -> {
-                    assertThat(record.key()).isEqualTo("key2");
-                    assertThat(record.value()).isEqualTo("value2");
-                    assertThat(record.timestamp()).isEqualTo(1L);
-                    assertThat(record.headers().toArray())
+                .anySatisfy(producerRecord -> {
+                    assertThat(producerRecord.key()).isEqualTo("key2");
+                    assertThat(producerRecord.value()).isEqualTo("value2");
+                    assertThat(producerRecord.timestamp()).isEqualTo(1L);
+                    assertThat(producerRecord.headers().toArray())
                             .hasSize(2)
                             .anySatisfy(header -> {
                                 assertThat(header.key()).isEqualTo("header1");
