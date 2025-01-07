@@ -1,8 +1,15 @@
 # Change Log
 
-## [2.15.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.15.0) (2024-08-19)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.15.0...2.15.0)
+## [2.16.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.16.0) (2025-01-07)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.16.0...2.16.0)
 
+
+## [2.16.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.16.0) (2025-01-07)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.15.0...2.16.0)
+
+**Merged pull requests:**
+
+- Upgrade to Kafka 3.8 [\#97](https://github.com/bakdata/fluent-kafka-streams-tests/pull/97) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.15.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.15.0) (2024-08-19)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.14.0...2.15.0)
