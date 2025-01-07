@@ -6,9 +6,7 @@ dependencies {
     "api"(group = "io.confluent", name = "kafka-schema-registry-client", version = confluentVersion)
     "api"(group = "io.confluent", name = "kafka-streams-avro-serde", version = confluentVersion)
 
-    implementation(group = "org.wiremock", name = "wiremock", version = "3.4.2")
-    // required because other dependencies use different Jackson versions if this library is used in test scope
-    api(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.15.3")
+    implementation(group = "org.wiremock", name = "wiremock", version = "3.10.0")
 
     val junit5Version: String by project
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
