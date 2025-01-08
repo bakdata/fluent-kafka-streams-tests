@@ -1,9 +1,0 @@
-syntax = "proto3";
-package com.bakdata.proto;
-
-import "nested.proto";
-
-message Record {
-  string f1 = 1;
-  Nested f2 = 2;
-}

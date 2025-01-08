@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -151,8 +151,8 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
     }
 
     @Override
-    public TestTopologyRule<DefaultK, DefaultV> withSchemaRegistryMock(final SchemaRegistryMock schemaRegistryMock) {
-        return (TestTopologyRule<DefaultK, DefaultV>) super.withSchemaRegistryMock(schemaRegistryMock);
+    public TestTopologyRule<DefaultK, DefaultV> withSchemaRegistryUrl(final SchemaRegistryMock schemaRegistryMock) {
+        return (TestTopologyRule<DefaultK, DefaultV>) super.withSchemaRegistryUrl(schemaRegistryMock);
     }
 
 }

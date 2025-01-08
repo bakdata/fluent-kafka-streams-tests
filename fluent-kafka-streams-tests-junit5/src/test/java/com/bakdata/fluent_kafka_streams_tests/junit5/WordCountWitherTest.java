@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ class WordCountWitherTest {
     final TestTopologyExtension<Object, String> testTopology =
             new TestTopologyExtension<>(this.app::getTopology, WordCount.getKafkaProperties())
                     .withDefaultValueSerde(Serdes.String())
-                    .withSchemaRegistryMock(new SchemaRegistryMock(List.of(new AvroSchemaProvider())));
+                    .withSchemaRegistryUrl(new SchemaRegistryMock(List.of(new AvroSchemaProvider())));
 
     @Test
     void shouldAggregateSameWordStream() {

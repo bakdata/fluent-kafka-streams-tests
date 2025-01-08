@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,12 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.schemaregistrymock.SchemaRegistryMock;
+import static java.util.Collections.emptyMap;
+
+import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientFactory;
+import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +40,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -102,7 +107,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
-    private final SchemaRegistryMock schemaRegistry;
+    private final String schemaRegistryUrl;
     private final Function<? super Map<String, Object>, ? extends Topology> topologyFactory;
     private final Map<String, Object> properties = new HashMap<>();
     private final Collection<String> inputTopics = new HashSet<>();
@@ -121,8 +126,9 @@ public class TestTopology<DefaultK, DefaultV> {
     protected TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
             final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
             final Serde<DefaultK> defaultKeySerde,
-            final Serde<DefaultV> defaultValueSerde, final SchemaRegistryMock schemaRegistry) {
-        this.schemaRegistry = schemaRegistry;
+            final Serde<DefaultV> defaultValueSerde, final String schemaRegistryUrl) {
+        MockSchemaRegistry.validateAndMaybeGetMockScope(List.of(schemaRegistryUrl));
+        this.schemaRegistryUrl = schemaRegistryUrl;
         this.topologyFactory = topologyFactory;
         this.propertiesFactory = propertiesFactory;
         this.defaultKeySerde = defaultKeySerde;
@@ -140,7 +146,7 @@ public class TestTopology<DefaultK, DefaultV> {
      */
     public TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
             final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        this(topologyFactory, propertiesFactory, null, null, new SchemaRegistryMock());
+        this(topologyFactory, propertiesFactory, null, null, "mock://");
     }
 
     /**
@@ -262,29 +268,27 @@ public class TestTopology<DefaultK, DefaultV> {
     public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
             final Serde<V> defaultValueSerde) {
         return this.with(this.topologyFactory, this.propertiesFactory, defaultKeySerde, defaultValueSerde,
-                this.schemaRegistry);
+                this.schemaRegistryUrl);
     }
 
     /**
-     * Overrides the {@link SchemaRegistryMock}
+     * Overrides the schema registry url
      *
-     * @param schemaRegistryMock {@code SchemaRegistryMock} to use
-     * @return Copy of current {@code TestTopology} with provided {@code SchemaRegistryMock}
+     * @param schemaRegistryUrl schema registry url to use
+     * @return Copy of current {@code TestTopology} with provided schema registry url
      */
-    public TestTopology<DefaultK, DefaultV> withSchemaRegistryMock(final SchemaRegistryMock schemaRegistryMock) {
+    public TestTopology<DefaultK, DefaultV> withSchemaRegistryUrl(final String schemaRegistryUrl) {
         return this.with(this.topologyFactory, this.propertiesFactory, this.defaultKeySerde, this.defaultValueSerde,
-                schemaRegistryMock);
+                schemaRegistryUrl);
     }
 
     /**
      * Start the {@code TestTopology} and create all required resources.
      * <p>
-     * This method starts the {@link SchemaRegistryMock}, creates the state directory and creates a
-     * {@link TopologyTestDriver}.
+     * This method creates the state directory and creates a {@link TopologyTestDriver}.
      */
     public void start() {
-        this.schemaRegistry.start();
-        this.properties.putAll(this.propertiesFactory.apply(this.getSchemaRegistryUrl()));
+        this.properties.putAll(this.propertiesFactory.apply(this.schemaRegistryUrl));
         try {
             this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
         } catch (final IOException e) {
@@ -309,13 +313,11 @@ public class TestTopology<DefaultK, DefaultV> {
         }
     }
 
-    protected <K, V> TestTopology<K, V> with(
-            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
-            final Serde<V> defaultValueSerde,
-            final SchemaRegistryMock schemaRegistry) {
-        return new TestTopology<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
-                schemaRegistry);
+    /**
+     * Get the client to the schema registry for setup or verifications.
+     */
+    public SchemaRegistryClient getSchemaRegistry() {
+        return this.getSchemaRegistry(null);
     }
 
     /**
@@ -419,31 +421,19 @@ public class TestTopology<DefaultK, DefaultV> {
         return this.streamOutput(topic).asTable();
     }
 
-    /**
-     * Get the client to the schema registry for setup or verifications.
-     */
-    public SchemaRegistryClient getSchemaRegistry() {
-        return this.schemaRegistry.getSchemaRegistryClient();
-    }
-
-    /**
-     * Get the URL of the schema registry in the format that is expected in Kafka Streams configurations.
-     */
-    public String getSchemaRegistryUrl() {
-        return this.schemaRegistry.getUrl();
+    public SchemaRegistryClient getSchemaRegistry(final List<SchemaProvider> providers) {
+        return SchemaRegistryClientFactory.newClient(List.of(this.schemaRegistryUrl), 0, providers, emptyMap(), null);
     }
 
     /**
      * Stop the {@code TestTopology} and cleaning up all resources.
      * <p>
-     * This method closes the {@link TopologyTestDriver}, stops the {@link SchemaRegistryMock} and removes the state
-     * directory.
+     * This method closes the {@link TopologyTestDriver} and removes the state directory.
      */
     public void stop() {
         if (this.testDriver != null) {
             this.testDriver.close();
         }
-        this.schemaRegistry.stop();
         try (final Stream<Path> stateFiles = Files.walk(this.stateDirectory)) {
             stateFiles.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
@@ -451,6 +441,15 @@ public class TestTopology<DefaultK, DefaultV> {
         } catch (final IOException e) {
             throw new UncheckedIOException("Cannot delete state directory", e);
         }
+    }
+
+    protected <K, V> TestTopology<K, V> with(
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde,
+            final String schemaRegistryUrl) {
+        return new TestTopology<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
+                schemaRegistryUrl);
     }
 
     private Properties createProperties() {

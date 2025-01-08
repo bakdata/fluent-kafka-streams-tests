@@ -1,6 +1,0 @@
-syntax = "proto3";
-package com.bakdata.proto;
-
-message Nested {
-  int32 other_id = 1;
-}

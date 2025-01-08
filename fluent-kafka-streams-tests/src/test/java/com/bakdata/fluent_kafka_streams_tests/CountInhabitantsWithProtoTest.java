@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,6 @@ import static com.bakdata.fluent_kafka_streams_tests.test_types.proto.CityOuterC
 import static com.bakdata.fluent_kafka_streams_tests.test_types.proto.PersonOuterClass.Person;
 
 import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitantsWithProto;
-import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
-import java.util.Collections;
 import java.util.Map;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.AfterEach;
@@ -42,11 +39,8 @@ class CountInhabitantsWithProtoTest {
 
     private final CountInhabitantsWithProto app = new CountInhabitantsWithProto();
 
-    private final SchemaRegistryMock mock =
-            new SchemaRegistryMock(Collections.singletonList(new ProtobufSchemaProvider()));
     private final TestTopology<Object, Object> testTopology =
-            new TestTopology<>(this.app::getTopology, this::properties)
-                    .withSchemaRegistryMock(this.mock);
+            new TestTopology<>(this.app::getTopology, this::properties);
 
     static Person newPerson(final String name, final String city) {
         return Person.newBuilder().setName(name).setCity(city).build();
