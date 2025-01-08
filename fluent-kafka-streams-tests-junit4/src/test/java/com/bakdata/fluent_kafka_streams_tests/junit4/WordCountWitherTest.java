@@ -25,9 +25,6 @@
 package com.bakdata.fluent_kafka_streams_tests.junit4;
 
 import com.bakdata.fluent_kafka_streams_tests.junit4.test_applications.WordCount;
-import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
-import java.util.List;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +36,7 @@ public class WordCountWitherTest {
     public final TestTopologyRule<Object, String> testTopology =
             new TestTopologyRule<>(this.app.getTopology(), WordCount.getKafkaProperties())
                     .withDefaultValueSerde(Serdes.String())
-                    .withSchemaRegistryUrl(new SchemaRegistryMock(List.of(new AvroSchemaProvider())));
+                    .withSchemaRegistryUrl("mock://my-scope");
 
     @Test
     public void shouldAggregateSameWordStream() {

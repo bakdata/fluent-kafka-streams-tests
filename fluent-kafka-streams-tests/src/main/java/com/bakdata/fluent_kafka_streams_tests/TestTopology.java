@@ -107,6 +107,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
+    private static final String DEFAULT_SCHEMA_REGISTRY_URL = "mock://";
     private final String schemaRegistryUrl;
     private final Function<? super Map<String, Object>, ? extends Topology> topologyFactory;
     private final Map<String, Object> properties = new HashMap<>();
@@ -146,7 +147,7 @@ public class TestTopology<DefaultK, DefaultV> {
      */
     public TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
             final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        this(topologyFactory, propertiesFactory, null, null, "mock://");
+        this(topologyFactory, propertiesFactory, null, null, DEFAULT_SCHEMA_REGISTRY_URL);
     }
 
     /**

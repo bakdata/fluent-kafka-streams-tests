@@ -25,7 +25,6 @@
 package com.bakdata.fluent_kafka_streams_tests.junit5;
 
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
-import com.bakdata.schemaregistrymock.SchemaRegistryMock;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -106,8 +105,8 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
             final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
             final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
-            final SchemaRegistryMock schemaRegistryMock) {
-        super(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde, schemaRegistryMock);
+            final String schemaRegistryUrl) {
+        super(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde, schemaRegistryUrl);
     }
 
     @Override
@@ -121,13 +120,9 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     }
 
     @Override
-    protected <K, V> TestTopology<K, V> with(
-            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
-            final Serde<V> defaultValueSerde,
-            final SchemaRegistryMock schemaRegistry) {
-        return new TestTopologyExtension<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
-                schemaRegistry);
+    public TestTopologyExtension<DefaultK, DefaultV> withSchemaRegistryUrl(
+            final String schemaRegistryUrl) {
+        return (TestTopologyExtension<DefaultK, DefaultV>) super.withSchemaRegistryUrl(schemaRegistryUrl);
     }
 
     @Override
@@ -147,8 +142,12 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     }
 
     @Override
-    public TestTopologyExtension<DefaultK, DefaultV> withSchemaRegistryUrl(
-            final SchemaRegistryMock schemaRegistryMock) {
-        return (TestTopologyExtension<DefaultK, DefaultV>) super.withSchemaRegistryUrl(schemaRegistryMock);
+    protected <K, V> TestTopology<K, V> with(
+            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
+            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde,
+            final String schemaRegistryUrl) {
+        return new TestTopologyExtension<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
+                schemaRegistryUrl);
     }
 }
