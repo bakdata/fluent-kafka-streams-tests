@@ -1,8 +1,15 @@
 # Change Log
 
-## [2.16.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.16.0) (2025-01-07)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.16.0...2.16.0)
+## [3.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.0.0) (2025-01-09)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.0.0...3.0.0)
 
+
+## [3.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.0.0) (2025-01-09)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.16.0...3.0.0)
+
+**Merged pull requests:**
+
+- Remove schema registry [\#98](https://github.com/bakdata/fluent-kafka-streams-tests/pull/98) ([@philipp94831](https://github.com/philipp94831))
 
 ## [2.16.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.16.0) (2025-01-07)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.15.0...2.16.0)
