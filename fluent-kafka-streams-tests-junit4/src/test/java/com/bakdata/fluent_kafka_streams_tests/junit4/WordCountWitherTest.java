@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,6 @@
 package com.bakdata.fluent_kafka_streams_tests.junit4;
 
 import com.bakdata.fluent_kafka_streams_tests.junit4.test_applications.WordCount;
-import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider;
-import java.util.List;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,8 +35,7 @@ public class WordCountWitherTest {
     @Rule
     public final TestTopologyRule<Object, String> testTopology =
             new TestTopologyRule<>(this.app.getTopology(), WordCount.getKafkaProperties())
-                    .withDefaultValueSerde(Serdes.String())
-                    .withSchemaRegistryMock(new SchemaRegistryMock(List.of(new AvroSchemaProvider())));
+                    .withDefaultValueSerde(Serdes.String());
 
     @Test
     public void shouldAggregateSameWordStream() {

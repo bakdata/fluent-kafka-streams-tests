@@ -13,13 +13,13 @@ dependencies {
     "api"(group = "org.apache.kafka", name = "kafka-clients", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams", version = kafkaVersion)
     "api"(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
-    api(project(":schema-registry-mock"))
 
     val junit5Version: String by project
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testImplementation(group = "org.apache.avro", name = "avro", version = "1.12.0")
     val confluentVersion: String by project
+    testImplementation(group = "io.confluent", name = "kafka-streams-avro-serde", version = confluentVersion)
     testImplementation(group = "io.confluent", name = "kafka-protobuf-provider", version = confluentVersion)
     testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde", version = confluentVersion)
     testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = "3.25.5")

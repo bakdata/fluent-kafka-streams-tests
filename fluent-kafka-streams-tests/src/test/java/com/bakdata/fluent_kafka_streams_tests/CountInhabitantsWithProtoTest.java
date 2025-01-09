@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,25 +28,15 @@ import static com.bakdata.fluent_kafka_streams_tests.test_types.proto.CityOuterC
 import static com.bakdata.fluent_kafka_streams_tests.test_types.proto.PersonOuterClass.Person;
 
 import com.bakdata.fluent_kafka_streams_tests.test_applications.CountInhabitantsWithProto;
-import com.bakdata.schemaregistrymock.SchemaRegistryMock;
-import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
-import java.util.Collections;
-import java.util.Map;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CountInhabitantsWithProtoTest {
 
-    private final CountInhabitantsWithProto app = new CountInhabitantsWithProto();
-
-    private final SchemaRegistryMock mock =
-            new SchemaRegistryMock(Collections.singletonList(new ProtobufSchemaProvider()));
     private final TestTopology<Object, Object> testTopology =
-            new TestTopology<>(this.app::getTopology, this::properties)
-                    .withSchemaRegistryMock(this.mock);
+            new TestTopology<>(CountInhabitantsWithProto::getTopology, CountInhabitantsWithProto.getKafkaProperties());
 
     static Person newPerson(final String name, final String city) {
         return Person.newBuilder().setName(name).setCity(city).build();
@@ -69,12 +59,12 @@ class CountInhabitantsWithProtoTest {
     @Test
     void shouldAggregateInhabitants() {
         this.testTopology.input()
-                .withValueSerde(this.app.newPersonSerde())
+                .withValueSerde(CountInhabitantsWithProto.newPersonSerde())
                 .add("test", newPerson("Huey", "City1"))
                 .add("test", newPerson("Dewey", "City2"))
                 .add("test", newPerson("Louie", "City1"));
 
-        this.testTopology.tableOutput().withValueSerde(this.app.newCitySerde())
+        this.testTopology.tableOutput().withValueSerde(CountInhabitantsWithProto.newCitySerde())
                 .expectNextRecord().hasKey("City1").hasValue(newCity("City1", 2))
                 .expectNextRecord().hasKey("City2").hasValue(newCity("City2", 1))
                 .expectNoMoreRecord();
@@ -86,13 +76,4 @@ class CountInhabitantsWithProtoTest {
                 .expectNoMoreRecord();
     }
 
-    @Test
-    void shouldGetSchemaRegistryClient() {
-        Assertions.assertNotNull(this.testTopology.getSchemaRegistry());
-    }
-
-    private Map<String, Object> properties(final String schemaRegistryUrl) {
-        this.app.setSchemaRegistryUrl(schemaRegistryUrl);
-        return this.app.getKafkaProperties();
-    }
 }

@@ -1,7 +1,7 @@
 /*
- * The MIT License
+ * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,16 +29,14 @@ import com.bakdata.fluent_kafka_streams_tests.test_types.City;
 import com.bakdata.fluent_kafka_streams_tests.test_types.Person;
 import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
 class CountInhabitantsWithAvroTest {
 
-    private final CountInhabitantsWithAvro app = new CountInhabitantsWithAvro();
-
-    private final TestTopology<String, Person> testTopology = new TestTopology<>(this.app::getTopology, this.app.getKafkaProperties());
+    private final TestTopology<String, Person> testTopology =
+            new TestTopology<>(CountInhabitantsWithAvro::getTopology, CountInhabitantsWithAvro.getKafkaProperties());
 
     @BeforeEach
     void start() {
@@ -67,10 +65,5 @@ class CountInhabitantsWithAvroTest {
     void shouldWorkForEmptyInput() {
         this.testTopology.tableOutput().withSerde(Serdes.String(), Serdes.Long())
                 .expectNoMoreRecord();
-    }
-
-    @Test
-    void shouldGetSchemaRegistryClient() {
-        Assertions.assertNotNull(this.testTopology.getSchemaRegistry());
     }
 }
