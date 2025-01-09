@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,7 @@ import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.protobuf.KafkaProtobufSerde;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.experimental.UtilityClass;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serdes.StringSerde;
@@ -47,51 +46,48 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
+@UtilityClass
 public class CountInhabitantsWithProto {
-    @Getter
-    private final String inputTopic = "person-input";
+    private static final String INPUT_TOPIC = "person-input";
+    private static final String OUTPUT_TOPIC = "city-output";
+    private static final String SCHEMA_REGISTRY_URL = "mock://";
 
-    @Getter
-    private final String outputTopic = "city-output";
-    @Setter
-    private String schemaRegistryUrl;
-
-    public KafkaProtobufSerde<Person> newPersonSerde() {
+    public static KafkaProtobufSerde<Person> newPersonSerde() {
         final KafkaProtobufSerde<Person> serde = new KafkaProtobufSerde<>(Person.class);
         final Map<String, String> config = new HashMap<>();
-        config.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl);
+        config.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
         serde.configure(config, false);
         return serde;
     }
 
-    public KafkaProtobufSerde<City> newCitySerde() {
+    public static KafkaProtobufSerde<City> newCitySerde() {
         final KafkaProtobufSerde<City> serde = new KafkaProtobufSerde<>(City.class);
         final Map<String, String> config = new HashMap<>();
-        config.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl);
+        config.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
         serde.configure(config, false);
         return serde;
     }
 
-    public Map<String, Object> getKafkaProperties() {
+    public static Map<String, Object> getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Map<String, Object> kafkaConfig = new HashMap<>();
         kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
         kafkaConfig.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
         kafkaConfig.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, StringSerde.class);
         kafkaConfig.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, KafkaProtobufSerde.class);
-        kafkaConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl);
+        kafkaConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
         return kafkaConfig;
     }
 
-    public Topology getTopology() {
-        final KafkaProtobufSerde<Person> personSerde = this.newPersonSerde();
-        final KafkaProtobufSerde<City> citySerde = this.newCitySerde();
+    public static Topology getTopology() {
+        final KafkaProtobufSerde<Person> personSerde = newPersonSerde();
+        final KafkaProtobufSerde<City> citySerde = newCitySerde();
         final Serde<String> stringSerde = Serdes.String();
         final Serde<Long> longSerde = Serdes.Long();
 
         final StreamsBuilder builder = new StreamsBuilder();
         final KStream<String, Person> persons =
-                builder.stream(this.inputTopic, Consumed.with(stringSerde, personSerde));
+                builder.stream(INPUT_TOPIC, Consumed.with(stringSerde, personSerde));
 
         final KTable<String, Long> counts = persons
                 .groupBy((name, person) -> person.getCity(), Grouped.with(stringSerde, personSerde))
@@ -102,7 +98,7 @@ public class CountInhabitantsWithProto {
                         cityName,
                         City.newBuilder().setName(cityName).setInhabitants(Math.toIntExact(count)).build()
                 ))
-                .to(this.outputTopic, Produced.with(stringSerde, citySerde));
+                .to(OUTPUT_TOPIC, Produced.with(stringSerde, citySerde));
 
         return builder.build();
     }

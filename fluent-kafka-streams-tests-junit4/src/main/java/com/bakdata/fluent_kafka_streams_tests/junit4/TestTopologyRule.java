@@ -71,29 +71,13 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
         implements TestRule {
     public TestTopologyRule(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        super(topologyFactory, propertiesFactory);
-    }
-    public TestTopologyRule(
-            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
             final Map<String, Object> properties) {
         super(topologyFactory, properties);
     }
 
     public TestTopologyRule(
-            final Supplier<? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        super(topologyFactory, propertiesFactory);
-    }
-
-    public TestTopologyRule(
             final Supplier<? extends Topology> topologyFactory, final Map<String, Object> properties) {
         super(topologyFactory, properties);
-    }
-
-    public TestTopologyRule(final Topology topology,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        super(topology, propertiesFactory);
     }
 
     public TestTopologyRule(final Topology topology, final Map<String, Object> properties) {
@@ -102,10 +86,9 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
 
     protected TestTopologyRule(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
-            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
-            final String schemaRegistryUrl) {
-        super(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde, schemaRegistryUrl);
+            final Map<String, Object> userProperties,
+            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde) {
+        super(topologyFactory, userProperties, defaultKeySerde, defaultValueSerde);
     }
 
     @Override
@@ -121,11 +104,6 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
                 }
             }
         };
-    }
-
-    @Override
-    public TestTopologyRule<DefaultK, DefaultV> withSchemaRegistryUrl(final String schemaRegistryUrl) {
-        return (TestTopologyRule<DefaultK, DefaultV>) super.withSchemaRegistryUrl(schemaRegistryUrl);
     }
 
     @Override
@@ -147,11 +125,9 @@ public class TestTopologyRule<DefaultK, DefaultV> extends TestTopology<DefaultK,
     @Override
     protected <K, V> TestTopologyRule<K, V> with(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
-            final Serde<V> defaultValueSerde,
-            final String schemaRegistryUrl) {
-        return new TestTopologyRule<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
-                schemaRegistryUrl);
+            final Map<String, Object> userProperties, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
+        return new TestTopologyRule<>(topologyFactory, userProperties, defaultKeySerde, defaultValueSerde);
     }
 
 }

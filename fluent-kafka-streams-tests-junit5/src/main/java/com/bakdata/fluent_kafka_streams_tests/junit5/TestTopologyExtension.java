@@ -69,11 +69,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 @Getter
 public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<DefaultK, DefaultV>
         implements BeforeEachCallback, AfterEachCallback {
-    public TestTopologyExtension(
-            final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        super(topologyFactory, propertiesFactory);
-    }
 
     public TestTopologyExtension(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
@@ -82,19 +77,8 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     }
 
     public TestTopologyExtension(
-            final Supplier<? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        super(topologyFactory, propertiesFactory);
-    }
-
-    public TestTopologyExtension(
             final Supplier<? extends Topology> topologyFactory, final Map<String, Object> properties) {
         super(topologyFactory, properties);
-    }
-
-    public TestTopologyExtension(final Topology topology,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        super(topology, propertiesFactory);
     }
 
     public TestTopologyExtension(final Topology topology, final Map<String, Object> properties) {
@@ -103,10 +87,9 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
 
     protected TestTopologyExtension(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
-            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde,
-            final String schemaRegistryUrl) {
-        super(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde, schemaRegistryUrl);
+            final Map<String, Object> userProperties,
+            final Serde<DefaultK> defaultKeySerde, final Serde<DefaultV> defaultValueSerde) {
+        super(topologyFactory, userProperties, defaultKeySerde, defaultValueSerde);
     }
 
     @Override
@@ -117,12 +100,6 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     @Override
     public void beforeEach(final ExtensionContext context) {
         this.start();
-    }
-
-    @Override
-    public TestTopologyExtension<DefaultK, DefaultV> withSchemaRegistryUrl(
-            final String schemaRegistryUrl) {
-        return (TestTopologyExtension<DefaultK, DefaultV>) super.withSchemaRegistryUrl(schemaRegistryUrl);
     }
 
     @Override
@@ -144,10 +121,8 @@ public class TestTopologyExtension<DefaultK, DefaultV> extends TestTopology<Defa
     @Override
     protected <K, V> TestTopology<K, V> with(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
-            final Serde<V> defaultValueSerde,
-            final String schemaRegistryUrl) {
-        return new TestTopologyExtension<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
-                schemaRegistryUrl);
+            final Map<String, Object> userProperties, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
+        return new TestTopologyExtension<>(topologyFactory, userProperties, defaultKeySerde, defaultValueSerde);
     }
 }

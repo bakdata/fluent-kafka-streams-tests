@@ -35,8 +35,7 @@ class WordCountWitherTest {
     @RegisterExtension
     final TestTopologyExtension<Object, String> testTopology =
             new TestTopologyExtension<>(this.app::getTopology, WordCount.getKafkaProperties())
-                    .withDefaultValueSerde(Serdes.String())
-                    .withSchemaRegistryUrl("mock://my-scope");
+                    .withDefaultValueSerde(Serdes.String());
 
     @Test
     void shouldAggregateSameWordStream() {

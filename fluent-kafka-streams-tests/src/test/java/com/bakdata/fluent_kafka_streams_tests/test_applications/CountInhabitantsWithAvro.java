@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import org.apache.kafka.common.serialization.Serdes.StringSerde;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -39,29 +39,27 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 
-@Getter
+@UtilityClass
 public class CountInhabitantsWithAvro {
 
-    private final String inputTopic = "person-input";
+    private static final String INPUT_TOPIC = "person-input";
+    private static final String OUTPUT_TOPIC = "city-output";
+    private static final String SCHEMA_REGISTRY_URL = "mock://";
 
-    private final String outputTopic = "city-output";
-
-    private final String schemaRegistryUrl = "http://dummy";
-
-    public Map<String, Object> getKafkaProperties() {
+    public static Map<String, Object> getKafkaProperties() {
         final String brokers = "localhost:9092";
         final Map<String, Object> kafkaConfig = new HashMap<>();
         kafkaConfig.put(StreamsConfig.APPLICATION_ID_CONFIG, "inhabitants-per-city");
         kafkaConfig.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
         kafkaConfig.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, StringSerde.class);
         kafkaConfig.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class);
-        kafkaConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl);
+        kafkaConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
         return kafkaConfig;
     }
 
-    public Topology getTopology() {
+    public static Topology getTopology() {
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, Person> persons = builder.stream(this.inputTopic);
+        final KStream<String, Person> persons = builder.stream(INPUT_TOPIC);
 
         final KTable<String, Long> counts = persons
                 .groupBy((name, person) -> person.getCity())
@@ -69,7 +67,7 @@ public class CountInhabitantsWithAvro {
 
         counts.toStream()
                 .map((cityName, count) -> KeyValue.pair(cityName, new City(cityName, Math.toIntExact(count))))
-                .to(this.outputTopic);
+                .to(OUTPUT_TOPIC);
 
         return builder.build();
     }

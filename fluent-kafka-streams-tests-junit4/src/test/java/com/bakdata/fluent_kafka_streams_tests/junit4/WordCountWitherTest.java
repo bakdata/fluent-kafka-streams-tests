@@ -35,8 +35,7 @@ public class WordCountWitherTest {
     @Rule
     public final TestTopologyRule<Object, String> testTopology =
             new TestTopologyRule<>(this.app.getTopology(), WordCount.getKafkaProperties())
-                    .withDefaultValueSerde(Serdes.String())
-                    .withSchemaRegistryUrl("mock://my-scope");
+                    .withDefaultValueSerde(Serdes.String());
 
     @Test
     public void shouldAggregateSameWordStream() {

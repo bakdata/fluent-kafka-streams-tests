@@ -24,13 +24,6 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import static java.util.Collections.emptyMap;
-
-import io.confluent.kafka.schemaregistry.SchemaProvider;
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientFactory;
-import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry;
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -40,7 +33,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -107,14 +99,12 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 @Getter
 public class TestTopology<DefaultK, DefaultV> {
-    private static final String DEFAULT_SCHEMA_REGISTRY_URL = "mock://";
-    private final String schemaRegistryUrl;
     private final Function<? super Map<String, Object>, ? extends Topology> topologyFactory;
     private final Map<String, Object> properties = new HashMap<>();
     private final Collection<String> inputTopics = new HashSet<>();
     private final Collection<Pattern> inputPatterns = new HashSet<>();
     private final Collection<String> outputTopics = new HashSet<>();
-    private final Function<? super String, ? extends Map<String, ?>> propertiesFactory;
+    private final Map<String, Object> userProperties;
 
     private final Serde<DefaultK> defaultKeySerde;
     private final Serde<DefaultV> defaultValueSerde;
@@ -125,13 +115,11 @@ public class TestTopology<DefaultK, DefaultV> {
      * Used by wither methods.
      */
     protected TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory,
+            final Map<String, Object> properties,
             final Serde<DefaultK> defaultKeySerde,
-            final Serde<DefaultV> defaultValueSerde, final String schemaRegistryUrl) {
-        MockSchemaRegistry.validateAndMaybeGetMockScope(List.of(schemaRegistryUrl));
-        this.schemaRegistryUrl = schemaRegistryUrl;
+            final Serde<DefaultV> defaultValueSerde) {
         this.topologyFactory = topologyFactory;
-        this.propertiesFactory = propertiesFactory;
+        this.userProperties = properties;
         this.defaultKeySerde = defaultKeySerde;
         this.defaultValueSerde = defaultValueSerde;
     }
@@ -141,13 +129,12 @@ public class TestTopology<DefaultK, DefaultV> {
      *
      * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
      * ensure strict separation of each test run.
-     * @param propertiesFactory Provides the properties of the Kafka Streams application under test. Schema Registry URL
-     * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
-     * BOOTSTRAP_SERVERS_CONFIG.
+     * @param properties The properties of the Kafka Streams application under test. Required entries:
+     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
     public TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        this(topologyFactory, propertiesFactory, null, null, DEFAULT_SCHEMA_REGISTRY_URL);
+            final Map<String, Object> properties) {
+        this(topologyFactory, properties, null, null);
     }
 
     /**
@@ -158,38 +145,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Map<String, ?> properties) {
-        this(topologyFactory, schemaRegistryUrl -> {
-            final Map<String, Object> newProperties = new HashMap<>(properties);
-            newProperties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-            return Map.copyOf(newProperties);
-        });
-    }
-
-    /**
-     * <p>Create a new {@code TestTopology} for your topology under test.</p>
-     *
-     * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
-     * ensure strict separation of each test run.
-     * @param propertiesFactory Provides the properties of the Kafka Streams application under test. Schema Registry URL
-     * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
-     * BOOTSTRAP_SERVERS_CONFIG.
-     */
-    public TestTopology(final Supplier<? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        this(props -> topologyFactory.get(), propertiesFactory);
-    }
-
-    /**
-     * <p>Create a new {@code TestTopology} for your topology under test.</p>
-     *
-     * @param topologyFactory Provides the topology under test. Ideally, this should always create a fresh topology to
-     * ensure strict separation of each test run.
-     * @param properties The properties of the Kafka Streams application under test. Required entries:
-     * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
-     */
-    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<String, ?> properties) {
+    public TestTopology(final Supplier<? extends Topology> topologyFactory, final Map<String, Object> properties) {
         this(props -> topologyFactory.get(), properties);
     }
 
@@ -198,24 +154,10 @@ public class TestTopology<DefaultK, DefaultV> {
      *
      * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
      * affected by other test runs. Otherwise, side effects could impact your tests.
-     * @param propertiesFactory Provides the properties of the Kafka Streams application under test. Schema Registry URL
-     * is passed as a parameter and needs to be configured if needed. Required entries: APPLICATION_ID_CONFIG,
-     * BOOTSTRAP_SERVERS_CONFIG.
-     */
-    public TestTopology(final Topology topology,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory) {
-        this(props -> topology, propertiesFactory);
-    }
-
-    /**
-     * <p>Create a new {@code TestTopology} for your topology under test.</p>
-     *
-     * @param topology A fixed topology to be tested. This should only be used, if you are sure that the topology is not
-     * affected by other test runs. Otherwise, side effects could impact your tests.
      * @param properties The properties of the Kafka Streams application under test. Required entries:
      * APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG
      */
-    public TestTopology(final Topology topology, final Map<String, ?> properties) {
+    public TestTopology(final Topology topology, final Map<String, Object> properties) {
         this(props -> topology, properties);
     }
 
@@ -268,19 +210,7 @@ public class TestTopology<DefaultK, DefaultV> {
      */
     public <K, V> TestTopology<K, V> withDefaultSerde(final Serde<K> defaultKeySerde,
             final Serde<V> defaultValueSerde) {
-        return this.with(this.topologyFactory, this.propertiesFactory, defaultKeySerde, defaultValueSerde,
-                this.schemaRegistryUrl);
-    }
-
-    /**
-     * Overrides the schema registry url
-     *
-     * @param schemaRegistryUrl schema registry url to use
-     * @return Copy of current {@code TestTopology} with provided schema registry url
-     */
-    public TestTopology<DefaultK, DefaultV> withSchemaRegistryUrl(final String schemaRegistryUrl) {
-        return this.with(this.topologyFactory, this.propertiesFactory, this.defaultKeySerde, this.defaultValueSerde,
-                schemaRegistryUrl);
+        return this.with(this.topologyFactory, this.userProperties, defaultKeySerde, defaultValueSerde);
     }
 
     /**
@@ -289,7 +219,7 @@ public class TestTopology<DefaultK, DefaultV> {
      * This method creates the state directory and creates a {@link TopologyTestDriver}.
      */
     public void start() {
-        this.properties.putAll(this.propertiesFactory.apply(this.schemaRegistryUrl));
+        this.properties.putAll(this.userProperties);
         try {
             this.stateDirectory = Files.createTempDirectory("fluent-kafka-streams");
         } catch (final IOException e) {
@@ -312,13 +242,6 @@ public class TestTopology<DefaultK, DefaultV> {
         for (final GlobalStore store : topology.describe().globalStores()) {
             store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
         }
-    }
-
-    /**
-     * Get the client to the schema registry for setup or verifications.
-     */
-    public SchemaRegistryClient getSchemaRegistry() {
-        return this.getSchemaRegistry(null);
     }
 
     /**
@@ -422,10 +345,6 @@ public class TestTopology<DefaultK, DefaultV> {
         return this.streamOutput(topic).asTable();
     }
 
-    public SchemaRegistryClient getSchemaRegistry(final List<SchemaProvider> providers) {
-        return SchemaRegistryClientFactory.newClient(List.of(this.schemaRegistryUrl), 0, providers, emptyMap(), null);
-    }
-
     /**
      * Stop the {@code TestTopology} and cleaning up all resources.
      * <p>
@@ -446,11 +365,9 @@ public class TestTopology<DefaultK, DefaultV> {
 
     protected <K, V> TestTopology<K, V> with(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
-            final Function<? super String, ? extends Map<String, ?>> propertiesFactory, final Serde<K> defaultKeySerde,
-            final Serde<V> defaultValueSerde,
-            final String schemaRegistryUrl) {
-        return new TestTopology<>(topologyFactory, propertiesFactory, defaultKeySerde, defaultValueSerde,
-                schemaRegistryUrl);
+            final Map<String, Object> userProperties, final Serde<K> defaultKeySerde,
+            final Serde<V> defaultValueSerde) {
+        return new TestTopology<>(topologyFactory, userProperties, defaultKeySerde, defaultValueSerde);
     }
 
     private Properties createProperties() {
