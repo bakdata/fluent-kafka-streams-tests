@@ -4,11 +4,12 @@ on:
   push:
     tags: ["**"]
     branches: ["**"]
+  pull_request:
 
 jobs:
   build-and-publish:
     name: Java Gradle
-    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.43.0
+    uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.62.0
     with:
       java-version: 17
     secrets:
