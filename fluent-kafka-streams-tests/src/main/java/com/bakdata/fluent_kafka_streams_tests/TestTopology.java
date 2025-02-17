@@ -98,7 +98,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * @param <DefaultV> Default type of values
  */
 @Getter
-public class TestTopology<DefaultK, DefaultV> {
+public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     private final Function<? super Map<String, Object>, ? extends Topology> topologyFactory;
     private final Map<String, Object> properties = new HashMap<>();
     private final Collection<String> inputTopics = new HashSet<>();
@@ -242,6 +242,11 @@ public class TestTopology<DefaultK, DefaultV> {
         for (final GlobalStore store : topology.describe().globalStores()) {
             store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
         }
+    }
+
+    @Override
+    public void close() {
+        this.stop();
     }
 
     /**
