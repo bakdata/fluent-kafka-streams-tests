@@ -162,7 +162,8 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     }
 
     private static void addExternalTopics(final Collection<? super String> allTopics, final String topic) {
-        if (topic.contains("KSTREAM-") || topic.contains("KTABLE-") || topic.contains("-repartition")) {
+        if (topic.contains("KSTREAM-") || topic.contains("KTABLE-") || topic.contains("-repartition") || topic.contains(
+                "-subscription-response-topic") || topic.contains("-subscription-registration-topic")) {
             // Internal node created by Kafka. Not relevant for testing.
             return;
         }
