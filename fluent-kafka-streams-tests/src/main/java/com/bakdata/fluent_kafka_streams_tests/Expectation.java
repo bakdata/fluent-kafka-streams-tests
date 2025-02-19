@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,9 @@ public class Expectation<K, V> {
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
         if (!Objects.equals(this.lastRecord.key(), expectedKey)) {
-            throw new AssertionError("Record key does not match");
+            throw new AssertionError(
+                    "Record key does not match. Expected '" + expectedKey + "' but got '" + this.lastRecord.key()
+                    + "'");
         }
         return this.and();
     }
@@ -85,7 +87,9 @@ public class Expectation<K, V> {
     public Expectation<K, V> hasValue(final V expectedValue) {
         this.isPresent();
         if (!Objects.equals(this.lastRecord.value(), expectedValue)) {
-            throw new AssertionError("Record value does not match");
+            throw new AssertionError(
+                    "Record value does not match. Expected '" + expectedValue + "' but got '" + this.lastRecord.value()
+                    + "'");
         }
         return this.and();
     }
