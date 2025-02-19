@@ -110,6 +110,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     private final Serde<DefaultV> defaultValueSerde;
     private TopologyTestDriver testDriver;
     private Path stateDirectory;
+    private TopologyDescription topologyDescription;
 
     /**
      * Used by wither methods.
@@ -228,19 +229,20 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         }
         this.properties.put(StreamsConfig.STATE_DIR_CONFIG, this.stateDirectory.toAbsolutePath().toString());
         final Topology topology = this.topologyFactory.apply(this.properties);
+        this.topologyDescription = topology.describe();
         this.testDriver = new TopologyTestDriver(topology, this.createProperties());
 
         this.inputTopics.clear();
         this.inputPatterns.clear();
         this.outputTopics.clear();
 
-        for (final TopologyDescription.Subtopology subtopology : topology.describe().subtopologies()) {
+        for (final TopologyDescription.Subtopology subtopology : this.topologyDescription.subtopologies()) {
             for (final TopologyDescription.Node node : subtopology.nodes()) {
                 this.processNode(node);
             }
         }
 
-        for (final GlobalStore store : topology.describe().globalStores()) {
+        for (final GlobalStore store : this.topologyDescription.globalStores()) {
             store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
         }
     }
