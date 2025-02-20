@@ -1,8 +1,18 @@
 # Change Log
 
-## [3.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.0.0) (2025-01-09)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.0.0...3.0.0)
+## [3.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.1.0) (2025-02-20)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.1.0...3.1.0)
 
+
+## [3.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.1.0) (2025-02-20)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.0.0...3.1.0)
+
+**Merged pull requests:**
+
+- Make assertion errors more helpful [\#102](https://github.com/bakdata/fluent-kafka-streams-tests/pull/102) ([@philipp94831](https://github.com/philipp94831))
+- Add topology description field [\#101](https://github.com/bakdata/fluent-kafka-streams-tests/pull/101) ([@philipp94831](https://github.com/philipp94831))
+- Fix output topics for foreign key join [\#100](https://github.com/bakdata/fluent-kafka-streams-tests/pull/100) ([@philipp94831](https://github.com/philipp94831))
+- Make TestTopology closeable [\#99](https://github.com/bakdata/fluent-kafka-streams-tests/pull/99) ([@philipp94831](https://github.com/philipp94831))
 
 ## [3.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.0.0) (2025-01-09)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.16.0...3.0.0)

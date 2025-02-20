@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -226,17 +226,19 @@ class WordCountTest {
         final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> expectation.hasKey("nope"))
-                .withMessage("Record key does not match");
+                .withMessage("Record key does not match. Expected 'nope' but got 'blub'");
     }
 
     @Test
     void shouldThrowAssertionErrorIfValueNotMatching() {
         this.testTopology.input().add("bla", "blub");
 
-        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> expectation.hasValue("nope"))
-                .withMessage("Record value does not match");
+                .isThrownBy(() -> expectation.hasValue(2L))
+                .withMessage("Record value does not match. Expected '2' but got '1'");
     }
 
     @Test
@@ -311,10 +313,12 @@ class WordCountTest {
     void shouldThrowAssertionErrorIfNotEmpty() {
         this.testTopology.input().add("bla").add("blub");
 
-        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(expectation::toBeEmpty)
-                .withMessage("More records found");
+                .withMessage("More records found. {key='bla', value='1'}");
     }
 
     @Test
@@ -356,7 +360,7 @@ class WordCountTest {
         assertThatThrownBy(() ->
                 this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                         .expectNextRecord().hasKey("blub"))
-                .hasMessage("Record key does not match");
+                .hasMessage("Record key does not match. Expected 'blub' but got 'bla'");
     }
 
     @Test
@@ -368,7 +372,7 @@ class WordCountTest {
         assertThatThrownBy(() ->
                 this.testTopology.streamOutput().withSerde(Serdes.String(), Serdes.Long())
                         .expectNextRecord().hasKey("bla").hasValue(2L))
-                .hasMessage("Record value does not match");
+                .hasMessage("Record value does not match. Expected '2' but got '1'");
     }
 
     @Test
