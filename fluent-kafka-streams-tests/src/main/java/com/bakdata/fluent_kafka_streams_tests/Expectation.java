@@ -154,7 +154,8 @@ public class Expectation<K, V> {
      */
     public Expectation<K, V> toBeEmpty() {
         if (this.lastRecord != null) {
-            throw new AssertionError("More records found");
+            throw new AssertionError(
+                    String.format("More records found. {key='%s', value='%s'}", this.lastRecord.key(), this.lastRecord.value()));
         }
         return this.and();
     }

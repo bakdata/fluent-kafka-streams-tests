@@ -313,10 +313,12 @@ class WordCountTest {
     void shouldThrowAssertionErrorIfNotEmpty() {
         this.testTopology.input().add("bla").add("blub");
 
-        final Expectation<Object, String> expectation = this.testTopology.streamOutput().expectNextRecord();
+        final Expectation<Object, Long> expectation = this.testTopology.streamOutput()
+                .withValueSerde(Serdes.Long())
+                .expectNextRecord();
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(expectation::toBeEmpty)
-                .withMessage("More records found");
+                .withMessage("More records found. {key='bla', value='1'}");
     }
 
     @Test
