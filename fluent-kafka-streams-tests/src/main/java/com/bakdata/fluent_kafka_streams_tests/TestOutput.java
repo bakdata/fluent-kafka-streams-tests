@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import com.bakdata.kafka.Preconfigured;
 import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
@@ -49,6 +50,9 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
+    <KR, VR> TestOutput<KR, VR> withSerde(Preconfigured<? extends Serde<KR>> keySerde,
+            Preconfigured<? extends Serde<VR>> valueSerde);
+
     /**
      * Set new key serde for this output.
      *
@@ -57,12 +61,16 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
 
+    <KR> TestOutput<KR, V> withKeySerde(Preconfigured<? extends Serde<KR>> keySerde);
+
     /**
      * Set new value serde for this output.
      * @param valueSerde The serializer/deserializer to be used for the values in the output
      * @return Copy of current {@code TestOutput} with provided value serde
      */
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
+
+    <VR> TestOutput<K, VR> withValueSerde(Preconfigured<? extends Serde<VR>> valueSerde);
 
     /**
      * <p>Type-casts the key and value to the given types.</p>

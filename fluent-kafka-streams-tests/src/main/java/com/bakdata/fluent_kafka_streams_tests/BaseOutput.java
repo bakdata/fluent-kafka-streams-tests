@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import com.bakdata.kafka.Configurator;
+import com.bakdata.kafka.Preconfigured;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -33,18 +35,20 @@ import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.test.TestRecord;
 
 abstract class BaseOutput<K, V> implements TestOutput<K, V> {
-    protected final TopologyTestDriver testDriver;
-    protected final TestOutputTopic<K, V> testOutputTopic;
-    protected final String topic;
-    protected final Serde<K> keySerde;
-    protected final Serde<V> valueSerde;
+    private final TopologyTestDriver testDriver;
+    private final TestOutputTopic<K, V> testOutputTopic;
+    private final String topic;
+    private final Serde<K> keySerde;
+    private final Serde<V> valueSerde;
+    private final Configurator configurator;
 
     protected BaseOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde) {
+            final Serde<V> valueSerde, final Configurator configurator) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
         this.valueSerde = valueSerde;
+        this.configurator = configurator;
 
         this.testOutputTopic = this.testDriver
                 .createOutputTopic(this.topic, this.keySerde.deserializer(), this.valueSerde.deserializer());
@@ -58,21 +62,39 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        return this.create(this.testDriver, this.topic, keySerde, valueSerde);
+        return this.create(this.testDriver, this.topic, keySerde, valueSerde, this.configurator);
+    }
+
+    @Override
+    public <KR, VR> TestOutput<KR, VR> withSerde(final Preconfigured<? extends Serde<KR>> keySerde,
+            final Preconfigured<? extends Serde<VR>> valueSerde) {
+        return this.withSerde(this.configurator.configureForKeys(keySerde), this.configurator.configureForValues(valueSerde));
     }
 
     /**
      * Set new key serde for this output.<br/>
      */
+    @Override
     public <KR> TestOutput<KR, V> withKeySerde(final Serde<KR> keySerde) {
         return this.withSerde(keySerde, this.valueSerde);
+    }
+
+    @Override
+    public <KR> TestOutput<KR, V> withKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
+        return this.withSerde(this.configurator.configureForKeys(keySerde), this.valueSerde);
     }
 
     /**
      * Set new value serde for this output.<br/>
      */
+    @Override
     public <VR> TestOutput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
         return this.withSerde(this.keySerde, valueSerde);
+    }
+
+    @Override
+    public <VR> TestOutput<K, VR> withValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
+        return this.withSerde(this.keySerde, this.configurator.configureForValues(valueSerde));
     }
 
     /**
@@ -101,22 +123,22 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     /**
      * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).<br/>
      * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types any more.<br/>
+     * the output types anymore.<br/>
      */
     @Override
     public TestOutput<K, V> asTable() {
-        return new TableOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde);
+        return new TableOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.configurator);
     }
 
     /**
      * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times)
      * .<br/> This is the default, there should usually be no need to call this method.<br/> Note: once the first value
-     * of the stream has been read or the iterator has be called, you cannot switch between the output types any
-     * more.<br/>
+     * of the stream has been read or the iterator has be called, you cannot switch between the output types anymore
+     * .<br/>
      */
     @Override
     public TestOutput<K, V> asStream() {
-        return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde);
+        return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.configurator);
     }
 
     /**
@@ -152,5 +174,5 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
 
 
     protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
-            Serde<KR> keySerde, Serde<VR> valueSerde);
+            Serde<KR> keySerde, Serde<VR> valueSerde, Configurator configurator);
 }
