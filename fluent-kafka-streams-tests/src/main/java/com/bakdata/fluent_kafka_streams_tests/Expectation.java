@@ -59,9 +59,8 @@ public class Expectation<K, V> {
     public Expectation<K, V> hasKey(final K expectedKey) {
         this.isPresent();
         if (!Objects.equals(this.lastRecord.key(), expectedKey)) {
-            throw new AssertionError(
-                    "Record key does not match. Expected '" + expectedKey + "' but got '" + this.lastRecord.key()
-                    + "'");
+            throw new AssertionError(String.format("Record key does not match. Expected '%s' but got '%s'", expectedKey,
+                    this.lastRecord.key()));
         }
         return this.and();
     }
@@ -88,8 +87,8 @@ public class Expectation<K, V> {
         this.isPresent();
         if (!Objects.equals(this.lastRecord.value(), expectedValue)) {
             throw new AssertionError(
-                    "Record value does not match. Expected '" + expectedValue + "' but got '" + this.lastRecord.value()
-                    + "'");
+                    String.format("Record value does not match. Expected '%s' but got '%s'", expectedValue,
+                            this.lastRecord.value()));
         }
         return this.and();
     }
