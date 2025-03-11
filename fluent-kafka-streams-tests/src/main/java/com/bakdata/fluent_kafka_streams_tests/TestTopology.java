@@ -226,8 +226,8 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         final TopologyInformation topologyInformation = new TopologyInformation(this.topologyDescription,
                 this.getStreamsConfig().getString(StreamsConfig.APPLICATION_ID_CONFIG));
         this.outputTopics.addAll(topologyInformation.getExternalSinkTopics());
-        this.inputTopics.addAll(topologyInformation.getSourceTopics());
-        this.inputPatterns.addAll(topologyInformation.getSourcePatterns());
+        this.inputTopics.addAll(topologyInformation.getExternalSourceTopics());
+        this.inputPatterns.addAll(topologyInformation.getExternalSourcePatterns());
     }
 
     @Override
