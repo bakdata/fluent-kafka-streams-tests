@@ -66,9 +66,14 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     @Override
-    public <KR, VR> TestOutput<KR, VR> withSerde(final Preconfigured<? extends Serde<KR>> keySerde,
+    public <KR, VR> TestOutput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
             final Preconfigured<? extends Serde<VR>> valueSerde) {
         return this.withSerde(this.configurator.configureForKeys(keySerde), this.configurator.configureForValues(valueSerde));
+    }
+
+    @Override
+    public <KR, VR> TestOutput<KR, VR> configureWithSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
+        return this.configureWithSerde(Preconfigured.create(keySerde), Preconfigured.create(valueSerde));
     }
 
     /**
@@ -80,8 +85,13 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     @Override
-    public <KR> TestOutput<KR, V> withKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
+    public <KR> TestOutput<KR, V> configureWithKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
         return this.withSerde(this.configurator.configureForKeys(keySerde), this.valueSerde);
+    }
+
+    @Override
+    public <KR> TestOutput<KR, V> configureWithKeySerde(final Serde<KR> keySerde) {
+        return this.configureWithKeySerde(Preconfigured.create(keySerde));
     }
 
     /**
@@ -93,8 +103,13 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     @Override
-    public <VR> TestOutput<K, VR> withValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
+    public <VR> TestOutput<K, VR> configureWithValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
         return this.withSerde(this.keySerde, this.configurator.configureForValues(valueSerde));
+    }
+
+    @Override
+    public <VR> TestOutput<K, VR> configureWithValueSerde(final Serde<VR> valueSerde) {
+        return this.configureWithValueSerde(Preconfigured.create(valueSerde));
     }
 
     /**
@@ -133,8 +148,8 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     /**
      * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times)
      * .<br/> This is the default, there should usually be no need to call this method.<br/> Note: once the first value
-     * of the stream has been read or the iterator has be called, you cannot switch between the output types anymore
-     * .<br/>
+     * of the stream has been read or the iterator has be called, you cannot switch between the output types
+     * anymore.<br/>
      */
     @Override
     public TestOutput<K, V> asStream() {

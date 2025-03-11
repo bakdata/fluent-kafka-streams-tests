@@ -50,8 +50,10 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
-    <KR, VR> TestOutput<KR, VR> withSerde(Preconfigured<? extends Serde<KR>> keySerde,
+    <KR, VR> TestOutput<KR, VR> configureWithSerde(Preconfigured<? extends Serde<KR>> keySerde,
             Preconfigured<? extends Serde<VR>> valueSerde);
+
+    <KR, VR> TestOutput<KR, VR> configureWithSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
     /**
      * Set new key serde for this output.
@@ -61,7 +63,9 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
 
-    <KR> TestOutput<KR, V> withKeySerde(Preconfigured<? extends Serde<KR>> keySerde);
+    <KR> TestOutput<KR, V> configureWithKeySerde(Preconfigured<? extends Serde<KR>> keySerde);
+
+    <KR> TestOutput<KR, V> configureWithKeySerde(Serde<KR> keySerde);
 
     /**
      * Set new value serde for this output.
@@ -70,7 +74,9 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
 
-    <VR> TestOutput<K, VR> withValueSerde(Preconfigured<? extends Serde<VR>> valueSerde);
+    <VR> TestOutput<K, VR> configureWithValueSerde(Preconfigured<? extends Serde<VR>> valueSerde);
+
+    <VR> TestOutput<K, VR> configureWithValueSerde(Serde<VR> valueSerde);
 
     /**
      * <p>Type-casts the key and value to the given types.</p>

@@ -84,9 +84,13 @@ public class TestInput<K, V> {
         return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde, this.configurator);
     }
 
-    public <KR, VR> TestInput<KR, VR> withSerde(final Preconfigured<? extends Serde<KR>> keySerde,
+    public <KR, VR> TestInput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
             final Preconfigured<? extends Serde<VR>> valueSerde) {
         return this.withSerde(this.configurator.configureForKeys(keySerde), this.configurator.configureForValues(valueSerde));
+    }
+
+    public <KR, VR> TestInput<KR, VR> configureWithSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
+        return this.configureWithSerde(Preconfigured.create(keySerde), Preconfigured.create(valueSerde));
     }
 
     /**
@@ -99,8 +103,12 @@ public class TestInput<K, V> {
         return this.withSerde(keySerde, this.valueSerde);
     }
 
-    public <KR> TestInput<KR, V> withKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
+    public <KR> TestInput<KR, V> configureWithKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
         return this.withSerde(this.configurator.configureForKeys(keySerde), this.valueSerde);
+    }
+
+    public <KR> TestInput<KR, V> configureWithKeySerde(final Serde<KR> keySerde) {
+        return this.configureWithKeySerde(Preconfigured.create(keySerde));
     }
 
     /**
@@ -112,8 +120,12 @@ public class TestInput<K, V> {
         return this.withSerde(this.keySerde, valueSerde);
     }
 
-    public <VR> TestInput<K, VR> withValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
+    public <VR> TestInput<K, VR> configureWithValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
         return this.withSerde(this.keySerde, this.configurator.configureForValues(valueSerde));
+    }
+
+    public <VR> TestInput<K, VR> configureWithValueSerde(final Serde<VR> valueSerde) {
+        return this.configureWithValueSerde(Preconfigured.create(valueSerde));
     }
 
     /**
