@@ -283,6 +283,22 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     }
 
     /**
+     * <p>Get the only output topic used by the topology under test with
+     * {@link org.apache.kafka.streams.kstream.KStream}-semantics.</p>
+     *
+     * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
+     *
+     * @return {@link StreamOutput} of the output topic that you want to read from.
+     * @throws IllegalStateException if more than one output topic is present.
+     */
+    public TestOutput<DefaultK, DefaultV> streamOutput() {
+        if (this.outputTopics.size() != 1) {
+            throw new IllegalStateException("Please use #output(String) to select a topic");
+        }
+        return this.streamOutput(this.outputTopics.iterator().next());
+    }
+
+    /**
      * <p>Get the output topic with the name `topic` used by the topology under test with
      * {@link org.apache.kafka.streams.kstream.KStream}-semantics.</p>
      *
@@ -298,22 +314,6 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         }
         return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
                 this.getConfigurator());
-    }
-
-    /**
-     * <p>Get the only output topic used by the topology under test with
-     * {@link org.apache.kafka.streams.kstream.KStream}-semantics.</p>
-     *
-     * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
-     *
-     * @return {@link StreamOutput} of the output topic that you want to read from.
-     * @throws IllegalStateException if more than one output topic is present.
-     */
-    public TestOutput<DefaultK, DefaultV> streamOutput() {
-        if (this.outputTopics.size() != 1) {
-            throw new IllegalStateException("Please use #output(String) to select a topic");
-        }
-        return this.streamOutput(this.outputTopics.iterator().next());
     }
 
     private Configurator getConfigurator() {
