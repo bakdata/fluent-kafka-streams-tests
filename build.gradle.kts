@@ -16,29 +16,9 @@ allprojects {
     repositories {
         mavenCentral()
         maven(url = "https://packages.confluent.io/maven/")
+        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
 
-}
-
-configure<com.bakdata.gradle.SonatypeSettings> {
-    developers {
-        developer {
-            name.set("Arvid Heise")
-            id.set("AHeise")
-        }
-        developer {
-            name.set("Lawrence Benson")
-            id.set("lawben")
-        }
-        developer {
-            name.set("Torben Meyer")
-            id.set("torbsto")
-        }
-        developer {
-            name.set("Philipp Schirmer")
-            id.set("philipp98431")
-        }
-    }
 }
 
 subprojects {
@@ -66,5 +46,26 @@ subprojects {
         val log4jVersion: String by project
         "testImplementation"(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = log4jVersion)
         "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.27.2")
+    }
+
+    publication {
+        developers {
+            developer {
+                name.set("Arvid Heise")
+                id.set("AHeise")
+            }
+            developer {
+                name.set("Lawrence Benson")
+                id.set("lawben")
+            }
+            developer {
+                name.set("Torben Meyer")
+                id.set("torbsto")
+            }
+            developer {
+                name.set("Philipp Schirmer")
+                id.set("philipp98431")
+            }
+        }
     }
 }
