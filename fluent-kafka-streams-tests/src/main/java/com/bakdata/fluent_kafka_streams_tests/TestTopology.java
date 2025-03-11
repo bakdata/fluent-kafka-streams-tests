@@ -228,7 +228,6 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         this.outputTopics.addAll(topologyInformation.getExternalSinkTopics());
         this.inputTopics.addAll(topologyInformation.getSourceTopics());
         this.inputPatterns.addAll(topologyInformation.getSourcePatterns());
-        this.inputTopics.addAll(topologyInformation.getGlobalStoreSourceTopics());
     }
 
     @Override

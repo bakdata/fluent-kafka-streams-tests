@@ -50,9 +50,23 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <KR, VR> TestOutput<KR, VR> withSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
+    /**
+     * Set new serde for this output. Serdes are configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the output
+     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @return Copy of current {@code TestOutput} with provided serdes
+     */
     <KR, VR> TestOutput<KR, VR> configureWithSerde(Preconfigured<? extends Serde<KR>> keySerde,
             Preconfigured<? extends Serde<VR>> valueSerde);
 
+    /**
+     * Set new serde for this output. Serdes are configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the output
+     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @return Copy of current {@code TestOutput} with provided serdes
+     */
     <KR, VR> TestOutput<KR, VR> configureWithSerde(Serde<KR> keySerde, Serde<VR> valueSerde);
 
     /**
@@ -63,19 +77,44 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      */
     <KR> TestOutput<KR, V> withKeySerde(Serde<KR> keySerde);
 
+    /**
+     * Set new key serde for this output. Serde is configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the output
+     * @return Copy of current {@code TestOutput} with provided key serde
+     */
     <KR> TestOutput<KR, V> configureWithKeySerde(Preconfigured<? extends Serde<KR>> keySerde);
 
+    /**
+     * Set new key serde for this output. Serde is configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the output
+     * @return Copy of current {@code TestOutput} with provided key serde
+     */
     <KR> TestOutput<KR, V> configureWithKeySerde(Serde<KR> keySerde);
 
     /**
      * Set new value serde for this output.
+     *
      * @param valueSerde The serializer/deserializer to be used for the values in the output
      * @return Copy of current {@code TestOutput} with provided value serde
      */
     <VR> TestOutput<K, VR> withValueSerde(Serde<VR> valueSerde);
 
+    /**
+     * Set new value serde for this output. Serde is configured using properties of the test topology.
+     *
+     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @return Copy of current {@code TestOutput} with provided value serde
+     */
     <VR> TestOutput<K, VR> configureWithValueSerde(Preconfigured<? extends Serde<VR>> valueSerde);
 
+    /**
+     * Set new value serde for this output. Serde is configured using properties of the test topology.
+     *
+     * @param valueSerde The serializer/deserializer to be used for the values in the output
+     * @return Copy of current {@code TestOutput} with provided value serde
+     */
     <VR> TestOutput<K, VR> configureWithValueSerde(Serde<VR> valueSerde);
 
     /**
