@@ -9,10 +9,11 @@ description = "Provides the fluent Kafka Streams test framework."
 
 
 dependencies {
+    api(group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.0.0-SNAPSHOT")
     val kafkaVersion: String by project
-    "api"(group = "org.apache.kafka", name = "kafka-clients", version = kafkaVersion)
-    "api"(group = "org.apache.kafka", name = "kafka-streams", version = kafkaVersion)
-    "api"(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
+    api(group = "org.apache.kafka", name = "kafka-clients", version = kafkaVersion)
+    api(group = "org.apache.kafka", name = "kafka-streams", version = kafkaVersion)
+    api(group = "org.apache.kafka", name = "kafka-streams-test-utils", version = kafkaVersion)
     implementation(group = "org.jooq", name = "jool", version = "0.9.15")
 
     val junit5Version: String by project
