@@ -108,6 +108,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     private TopologyTestDriver testDriver;
     private Path stateDirectory;
     private TopologyDescription topologyDescription;
+    private TopologyInformation topologyInformation;
 
     /**
      * Used by wither methods.
@@ -223,11 +224,11 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         this.inputPatterns.clear();
         this.outputTopics.clear();
 
-        final TopologyInformation topologyInformation = new TopologyInformation(this.topologyDescription,
+        this.topologyInformation = new TopologyInformation(this.topologyDescription,
                 this.getStreamsConfig().getString(StreamsConfig.APPLICATION_ID_CONFIG));
-        this.outputTopics.addAll(topologyInformation.getExternalSinkTopics());
-        this.inputTopics.addAll(topologyInformation.getExternalSourceTopics());
-        this.inputPatterns.addAll(topologyInformation.getExternalSourcePatterns());
+        this.outputTopics.addAll(this.topologyInformation.getExternalSinkTopics());
+        this.inputTopics.addAll(this.topologyInformation.getExternalSourceTopics());
+        this.inputPatterns.addAll(this.topologyInformation.getExternalSourcePatterns());
     }
 
     @Override
