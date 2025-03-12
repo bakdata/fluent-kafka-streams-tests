@@ -279,7 +279,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
         return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
-                this.getConfigurator());
+                this.createConfigurator());
     }
 
     /**
@@ -313,11 +313,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
             throw new NoSuchElementException(String.format("Output topic '%s' not found", topic));
         }
         return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
-                this.getConfigurator());
-    }
-
-    private Configurator getConfigurator() {
-        return new Configurator(this.properties);
+                this.createConfigurator());
     }
 
     /**
@@ -359,6 +355,15 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         } catch (final IOException e) {
             throw new UncheckedIOException("Cannot delete state directory", e);
         }
+    }
+
+    /**
+     * Create {@code Configurator} to configure {@link Serde} using {@link #properties}.
+     *
+     * @return {@code Configurator}
+     */
+    public Configurator createConfigurator() {
+        return new Configurator(this.properties);
     }
 
     protected <K, V> TestTopology<K, V> with(
