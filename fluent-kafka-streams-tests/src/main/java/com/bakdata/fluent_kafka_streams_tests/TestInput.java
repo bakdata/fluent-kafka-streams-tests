@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import com.bakdata.kafka.Configurator;
+import com.bakdata.kafka.Preconfigured;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.kafka.common.header.Headers;
@@ -45,6 +47,7 @@ public class TestInput<K, V> {
     private final String topic;
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
+    private final Configurator configurator;
 
     private Long timestamp;
 
@@ -57,11 +60,12 @@ public class TestInput<K, V> {
      * @param valueSerde Serde for value type in topic.
      */
     protected TestInput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde) {
+            final Serde<V> valueSerde, final Configurator configurator) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
         this.valueSerde = valueSerde;
+        this.configurator = configurator;
 
         this.testInputTopic = this.testDriver.createInputTopic(this.topic,
                 this.keySerde == null ? new UnspecifiedSerializer<>() : this.keySerde.serializer(),
@@ -77,7 +81,30 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided serdes
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde);
+        return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde, this.configurator);
+    }
+
+    /**
+     * Set new serde for this input. Serdes are configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the input.
+     * @param valueSerde The serializer/deserializer to be used for the values in the input.
+     * @return Copy of current {@code TestInput} with provided serdes
+     */
+    public <KR, VR> TestInput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
+            final Preconfigured<? extends Serde<VR>> valueSerde) {
+        return this.withSerde(this.configurator.configureForKeys(keySerde), this.configurator.configureForValues(valueSerde));
+    }
+
+    /**
+     * Set new serde for this input. Serdes are configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the input.
+     * @param valueSerde The serializer/deserializer to be used for the values in the input.
+     * @return Copy of current {@code TestInput} with provided serdes
+     */
+    public <KR, VR> TestInput<KR, VR> configureWithSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
+        return this.configureWithSerde(Preconfigured.create(keySerde), Preconfigured.create(valueSerde));
     }
 
     /**
@@ -91,12 +118,53 @@ public class TestInput<K, V> {
     }
 
     /**
+     * Set new key serde for this input. Serde is configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the input.
+     * @return Copy of current {@code TestInput} with provided key serde
+     */
+    public <KR> TestInput<KR, V> configureWithKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
+        return this.withSerde(this.configurator.configureForKeys(keySerde), this.valueSerde);
+    }
+
+    /**
+     * Set new key serde for this input. Serde is configured using properties of the test topology.
+     *
+     * @param keySerde The serializer/deserializer to be used for the keys in the input.
+     * @return Copy of current {@code TestInput} with provided key serde
+     */
+    public <KR> TestInput<KR, V> configureWithKeySerde(final Serde<KR> keySerde) {
+        return this.configureWithKeySerde(Preconfigured.create(keySerde));
+    }
+
+    /**
      * Set new value serde for this input.
+     *
      * @param valueSerde The serializer/deserializer to be used for the values in the input.
      * @return Copy of current {@code TestInput} with provided value serde
      */
     public <VR> TestInput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
         return this.withSerde(this.keySerde, valueSerde);
+    }
+
+    /**
+     * Set new value serde for this input. Serde is configured using properties of the test topology.
+     *
+     * @param valueSerde The serializer/deserializer to be used for the values in the input.
+     * @return Copy of current {@code TestInput} with provided value serde
+     */
+    public <VR> TestInput<K, VR> configureWithValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
+        return this.withSerde(this.keySerde, this.configurator.configureForValues(valueSerde));
+    }
+
+    /**
+     * Set new value serde for this input. Serde is configured using properties of the test topology.
+     *
+     * @param valueSerde The serializer/deserializer to be used for the values in the input.
+     * @return Copy of current {@code TestInput} with provided value serde
+     */
+    public <VR> TestInput<K, VR> configureWithValueSerde(final Serde<VR> valueSerde) {
+        return this.configureWithValueSerde(Preconfigured.create(valueSerde));
     }
 
     /**

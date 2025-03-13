@@ -24,6 +24,8 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import com.bakdata.kafka.Configurator;
+import com.bakdata.kafka.util.TopologyInformation;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -36,7 +38,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -46,10 +47,6 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
-import org.apache.kafka.streams.TopologyDescription.GlobalStore;
-import org.apache.kafka.streams.TopologyDescription.Node;
-import org.apache.kafka.streams.TopologyDescription.Sink;
-import org.apache.kafka.streams.TopologyDescription.Source;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 /**
@@ -111,6 +108,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     private TopologyTestDriver testDriver;
     private Path stateDirectory;
     private TopologyDescription topologyDescription;
+    private TopologyInformation topologyInformation;
 
     /**
      * Used by wither methods.
@@ -160,16 +158,6 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
      */
     public TestTopology(final Topology topology, final Map<String, Object> properties) {
         this(props -> topology, properties);
-    }
-
-    private static void addExternalTopics(final Collection<? super String> allTopics, final String topic) {
-        if (topic.contains("KSTREAM-") || topic.contains("KTABLE-") || topic.contains("-repartition") || topic.contains(
-                "-subscription-response-topic") || topic.contains("-subscription-registration-topic")) {
-            // Internal node created by Kafka. Not relevant for testing.
-            return;
-        }
-
-        allTopics.add(topic);
     }
 
     /**
@@ -236,15 +224,11 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         this.inputPatterns.clear();
         this.outputTopics.clear();
 
-        for (final TopologyDescription.Subtopology subtopology : this.topologyDescription.subtopologies()) {
-            for (final TopologyDescription.Node node : subtopology.nodes()) {
-                this.processNode(node);
-            }
-        }
-
-        for (final GlobalStore store : this.topologyDescription.globalStores()) {
-            store.source().topicSet().forEach(name -> addExternalTopics(this.inputTopics, name));
-        }
+        this.topologyInformation = new TopologyInformation(this.topologyDescription,
+                this.getStreamsConfig().getString(StreamsConfig.APPLICATION_ID_CONFIG));
+        this.outputTopics.addAll(this.topologyInformation.getExternalSinkTopics());
+        this.inputTopics.addAll(this.topologyInformation.getExternalSourceTopics());
+        this.inputPatterns.addAll(this.topologyInformation.getExternalSourcePatterns());
     }
 
     @Override
@@ -294,7 +278,8 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
                 .noneMatch(p -> p.matcher(topic).matches())) {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
-        return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde());
+        return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
+                this.createConfigurator());
     }
 
     /**
@@ -327,7 +312,8 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         if (!this.outputTopics.contains(topic)) {
             throw new NoSuchElementException(String.format("Output topic '%s' not found", topic));
         }
-        return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde());
+        return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
+                this.createConfigurator());
     }
 
     /**
@@ -371,6 +357,15 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         }
     }
 
+    /**
+     * Create {@code Configurator} to configure {@link Serde} using {@link #properties}.
+     *
+     * @return {@code Configurator}
+     */
+    public Configurator createConfigurator() {
+        return new Configurator(this.properties);
+    }
+
     protected <K, V> TestTopology<K, V> with(
             final Function<? super Map<String, Object>, ? extends Topology> topologyFactory,
             final Map<String, Object> userProperties, final Serde<K> defaultKeySerde,
@@ -382,25 +377,5 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         final Properties props = new Properties();
         props.putAll(this.properties);
         return props;
-    }
-
-    private void processNode(final Node node) {
-        if (node instanceof Source) {
-            final Source source = (Source) node;
-            final Set<String> topicSet = source.topicSet();
-            if (topicSet != null) {
-                for (final String topic : topicSet) {
-                    addExternalTopics(this.inputTopics, topic);
-                }
-            } else {
-                this.inputPatterns.add(source.topicPattern());
-            }
-        } else if (node instanceof Sink) {
-            // might be null if a TopicNameExtractor is used
-            final String topic = ((Sink) node).topic();
-            if (topic != null) {
-                addExternalTopics(this.outputTopics, topic);
-            }
-        }
     }
 }
