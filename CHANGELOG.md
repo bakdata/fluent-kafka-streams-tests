@@ -1,8 +1,15 @@
 # Change Log
 
-## [3.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.1.0) (2025-02-20)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.1.0...3.1.0)
+## [3.2.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.2.0) (2025-03-13)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.2.0...3.2.0)
 
+
+## [3.2.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.2.0) (2025-03-13)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.1.0...3.2.0)
+
+**Merged pull requests:**
+
+- Add support for auto\-configuration of Serdes [\#104](https://github.com/bakdata/fluent-kafka-streams-tests/pull/104) ([@philipp94831](https://github.com/philipp94831))
 
 ## [3.1.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.1.0) (2025-02-20)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.0.0...3.1.0)
@@ -55,7 +62,7 @@
 
 **Merged pull requests:**
 
-- Add method to convert output topic to List [\#93](https://github.com/bakdata/fluent-kafka-streams-tests/pull/93) ([@JakobEdding](https://github.com/JakobEdding))
+- Add method to convert output topic to List [\#93](https://github.com/bakdata/fluent-kafka-streams-tests/pull/93) ([@jkbe](https://github.com/jkbe))
 
 ## [2.12.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/2.12.0) (2024-03-01)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/2.11.5...2.12.0)

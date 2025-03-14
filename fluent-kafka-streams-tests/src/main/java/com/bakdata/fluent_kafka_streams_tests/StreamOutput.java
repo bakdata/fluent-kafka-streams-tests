@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 bakdata GmbH
+ * Copyright (c) 2025 bakdata
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
+import com.bakdata.kafka.Configurator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import lombok.NonNull;
@@ -38,8 +39,8 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 class StreamOutput<K, V> extends BaseOutput<K, V> {
     StreamOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde) {
-        super(testDriver, topic, keySerde, valueSerde);
+            final Serde<V> valueSerde, final Configurator configurator) {
+        super(testDriver, topic, keySerde, valueSerde, configurator);
     }
 
     /**
@@ -87,7 +88,7 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
     // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-            final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        return new StreamOutput<>(testDriver, topic, keySerde, valueSerde);
+            final Serde<KR> keySerde, final Serde<VR> valueSerde, final Configurator configurator) {
+        return new StreamOutput<>(testDriver, topic, keySerde, valueSerde, configurator);
     }
 }
