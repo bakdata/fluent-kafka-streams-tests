@@ -9,7 +9,7 @@ description = "Provides the fluent Kafka Streams test framework."
 
 
 dependencies {
-    api(group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.0.2-SNAPSHOT")
+    api(group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.1.0")
     api(group = "org.apache.kafka", name = "kafka-clients")
     api(group = "org.apache.kafka", name = "kafka-streams")
     api(group = "org.apache.kafka", name = "kafka-streams-test-utils")
