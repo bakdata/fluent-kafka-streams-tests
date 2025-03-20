@@ -1,8 +1,15 @@
 # Change Log
 
-## [3.2.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.2.1) (2025-03-18)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.2.1...3.2.1)
+## [3.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.3.0) (2025-03-20)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.3.0...3.3.0)
 
+
+## [3.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.3.0) (2025-03-20)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.2.1...3.3.0)
+
+**Merged pull requests:**
+
+- Upgrade to Kafka 3.9 [\#103](https://github.com/bakdata/fluent-kafka-streams-tests/pull/103) ([@philipp94831](https://github.com/philipp94831))
 
 ## [3.2.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.2.1) (2025-03-18)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.2.0...3.2.1)
