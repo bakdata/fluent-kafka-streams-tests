@@ -9,7 +9,7 @@ description = "Provides the fluent Kafka Streams test framework."
 
 
 dependencies {
-    api(group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.1.0")
+    api(group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.1.1-SNAPSHOT")
     api(group = "org.apache.kafka", name = "kafka-clients")
     api(group = "org.apache.kafka", name = "kafka-streams")
     api(group = "org.apache.kafka", name = "kafka-streams-test-utils")
@@ -19,9 +19,16 @@ dependencies {
     testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
     testImplementation(group = "org.apache.avro", name = "avro", version = "1.12.0")
-    testImplementation(group = "io.confluent", name = "kafka-streams-avro-serde")
-    testImplementation(group = "io.confluent", name = "kafka-protobuf-provider")
-    testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde")
+    testImplementation(group = "io.confluent", name = "kafka-streams-avro-serde") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
+    }
+    testImplementation(group = "io.confluent", name = "kafka-protobuf-provider") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
+    }
+    testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
+        exclude(group = "org.apache.kafka", module = "kafka-streams")
+    }
     testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = "3.25.5")
 }
 
