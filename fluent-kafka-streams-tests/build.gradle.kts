@@ -27,6 +27,7 @@ dependencies {
     }
     testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde") {
         exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
+        exclude(group = "org.apache.kafka", module = "kafka-streams")
     }
     testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = "3.25.5")
 }
