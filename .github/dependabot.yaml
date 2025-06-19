@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      kafka-dependencies:
+        patterns:
+          - "com.bakdata.kafka*"
+          - "com.bakdata.fluent-kafka-streams-tests*"
+          - "io.confluent*"
+          - "org.apache.kafka*"
+      log-dependencies:
+        patterns:
+          - "org.slf4j*"
+          - "org.apache.logging.log4j*"
+      test-dependencies:
+        patterns:
+          - "org.junit*"
+          - "org.assertj*"
+          - "*junit*"
+          - "org.mockito*"
+          - "org.testcontainers*"
+          - "org.awaitility*"
+      plugins:
+        patterns:
+          - "com.bakdata.release"
+          - "com.bakdata.sonar"
+          - "com.bakdata.sonatype"
+      protobuf:
+        patterns:
+          - "com.google.protobuf*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
