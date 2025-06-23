@@ -1,6 +1,6 @@
 plugins {
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
-    id("com.google.protobuf") version "0.9.4"
+    alias(libs.plugins.avro)
+    alias(libs.plugins.protobuf)
     java
     idea // required for protobuf support in intellij
 }
@@ -8,33 +8,30 @@ plugins {
 description = "Provides the fluent Kafka Streams test framework."
 
 
+val protobufVersion = libs.protobuf.get().version
 dependencies {
-    api(group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.1.1-SNAPSHOT")
-    api(group = "org.apache.kafka", name = "kafka-clients")
-    api(group = "org.apache.kafka", name = "kafka-streams")
-    api(group = "org.apache.kafka", name = "kafka-streams-test-utils")
-    implementation(group = "org.jooq", name = "jool", version = "0.9.15")
+    api(libs.kafka.streams.utils)
+    api(libs.kafka.clients)
+    api(libs.kafka.streams)
+    api(libs.kafka.streams.testUtils)
+    implementation(libs.jool)
 
-    val junit5Version: String by project
-    testRuntimeOnly(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = junit5Version)
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-api", version = junit5Version)
-    testImplementation(group = "org.apache.avro", name = "avro", version = "1.12.0")
-    testImplementation(group = "io.confluent", name = "kafka-streams-avro-serde") {
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.avro)
+    testImplementation(libs.kafka.streams.avro.serde) {
         exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
     }
-    testImplementation(group = "io.confluent", name = "kafka-protobuf-provider") {
-        exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
-    }
-    testImplementation(group = "io.confluent", name = "kafka-streams-protobuf-serde") {
+    testImplementation(libs.kafka.streams.protobuf.serde) {
         exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
         exclude(group = "org.apache.kafka", module = "kafka-streams")
     }
-    testImplementation(group = "com.google.protobuf", name = "protobuf-java", version = "3.25.5")
+    testImplementation(libs.protobuf)
 }
 
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
-        artifact = "com.google.protobuf:protoc:3.25.5"
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
     }
 }

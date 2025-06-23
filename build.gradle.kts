@@ -1,9 +1,9 @@
 plugins {
     // release
-    id("com.bakdata.release") version "1.7.1"
-    id("com.bakdata.sonar") version "1.7.1"
-    id("com.bakdata.sonatype") version "1.9.0"
-    id("io.freefair.lombok") version "8.12.2.1" apply false
+    alias(libs.plugins.release)
+    alias(libs.plugins.sonar)
+    alias(libs.plugins.sonatype)
+    alias(libs.plugins.lombok) apply false
 }
 
 allprojects {
@@ -16,7 +16,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven(url = "https://packages.confluent.io/maven/")
-        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
+        maven(url = "https://central.sonatype.com/repository/maven-snapshots")
     }
 
 }
@@ -43,9 +43,8 @@ subprojects {
     }
 
     dependencies {
-        val log4jVersion: String by project
-        "testImplementation"(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = log4jVersion)
-        "testImplementation"(group = "org.assertj", name = "assertj-core", version = "3.27.2")
+        "testImplementation"(rootProject.libs.log4j.slf4j2)
+        "testImplementation"(rootProject.libs.assertj)
     }
 
     publication {
