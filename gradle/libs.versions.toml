@@ -3,7 +3,7 @@ junit5 = "5.11.4"
 junit4 = "4.13.2"
 
 [libraries]
-kafka-streams-utils = { group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.1.2-SNAPSHOT" }
+kafka-streams-utils = { group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.2.0" }
 kafka-clients = { group = "org.apache.kafka", name = "kafka-clients" }
 kafka-streams = { group = "org.apache.kafka", name = "kafka-streams" }
 kafka-streams-testUtils = { group = "org.apache.kafka", name = "kafka-streams-test-utils" }
