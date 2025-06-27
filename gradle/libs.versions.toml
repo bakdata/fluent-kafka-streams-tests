@@ -1,9 +1,11 @@
 [versions]
 junit5 = "5.11.4"
 junit4 = "4.13.2"
+kafkaUtils = "1.2.0"
 
 [libraries]
-kafka-streams-utils = { group = "com.bakdata.kafka", name = "kafka-streams-utils", version = "1.2.0" }
+kafka-bom = { group = "com.bakdata.kafka", name = "kafka-bom", version.ref = "kafkaUtils" }
+kafka-streams-utils = { group = "com.bakdata.kafka", name = "kafka-streams-utils", version.ref = "kafkaUtils" }
 kafka-clients = { group = "org.apache.kafka", name = "kafka-clients" }
 kafka-streams = { group = "org.apache.kafka", name = "kafka-streams" }
 kafka-streams-testUtils = { group = "org.apache.kafka", name = "kafka-streams-test-utils" }
