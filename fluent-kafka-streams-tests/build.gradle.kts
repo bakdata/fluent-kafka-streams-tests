@@ -10,6 +10,7 @@ description = "Provides the fluent Kafka Streams test framework."
 
 val protobufVersion = libs.protobuf.get().version
 dependencies {
+    api(platform(libs.kafka.bom)) // Central repository requires this as a direct dependency to resolve versions
     api(libs.kafka.streams.utils)
     api(libs.kafka.clients)
     api(libs.kafka.streams)
