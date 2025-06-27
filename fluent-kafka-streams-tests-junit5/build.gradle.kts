@@ -4,5 +4,6 @@ dependencies {
     api(project(":fluent-kafka-streams-tests"))
 
     testRuntimeOnly(libs.junit.platform.launcher)
-    api(libs.junit.jupiter)
+    compileOnly(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
 }
