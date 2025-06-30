@@ -1,8 +1,20 @@
 # Change Log
 
-## [3.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.3.0) (2025-03-20)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.3.0...3.3.0)
+## [3.4.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.4.0) (2025-06-30)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.4.0...3.4.0)
 
+
+## [3.4.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.4.0) (2025-06-30)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.3.0...3.4.0)
+
+**Merged pull requests:**
+
+- Expose JUnit dependencies as provided [\#116](https://github.com/bakdata/fluent-kafka-streams-tests/pull/116) ([@philipp94831](https://github.com/philipp94831))
+- Fix publication [\#117](https://github.com/bakdata/fluent-kafka-streams-tests/pull/117) ([@philipp94831](https://github.com/philipp94831))
+- Upgrade to Kafka 4.0 [\#106](https://github.com/bakdata/fluent-kafka-streams-tests/pull/106) ([@philipp94831](https://github.com/philipp94831))
+- Configure Dependabot [\#110](https://github.com/bakdata/fluent-kafka-streams-tests/pull/110) ([@philipp94831](https://github.com/philipp94831))
+- Upgrade to Gradle 8.14 [\#109](https://github.com/bakdata/fluent-kafka-streams-tests/pull/109) ([@philipp94831](https://github.com/philipp94831))
+- Migrate to version catalog [\#108](https://github.com/bakdata/fluent-kafka-streams-tests/pull/108) ([@philipp94831](https://github.com/philipp94831))
 
 ## [3.3.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.3.0) (2025-03-20)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.2.1...3.3.0)
