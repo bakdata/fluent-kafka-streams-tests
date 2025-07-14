@@ -81,7 +81,10 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided serdes
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        return new TestInput<>(this.testDriver, this.topic, keySerde, valueSerde, this.configurator);
+        final Serde<KR> newKeySerde = keySerde == null ? (Serde<KR>) this.keySerde : keySerde;
+        final Serde<VR> newValueSerde =
+                valueSerde == null ? (Serde<VR>) this.valueSerde : valueSerde;
+        return new TestInput<>(this.testDriver, this.topic, newKeySerde, newValueSerde, this.configurator);
     }
 
     /**
@@ -93,12 +96,8 @@ public class TestInput<K, V> {
      */
     public <KR, VR> TestInput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
             final Preconfigured<? extends Serde<VR>> valueSerde) {
-        final Serde<KR> configuredKeySerde = this.configurator.configureForKeys(keySerde);
-        final Serde<VR> configuredValueSerde = this.configurator.configureForValues(valueSerde);
-        final Serde<KR> newKeySerde = configuredKeySerde == null ? (Serde<KR>) this.keySerde : configuredKeySerde;
-        final Serde<VR> newValueSerde =
-                configuredValueSerde == null ? (Serde<VR>) this.valueSerde : configuredValueSerde;
-        return this.withSerde(newKeySerde, newValueSerde);
+        return this.withSerde(this.configurator.configureForKeys(keySerde),
+                this.configurator.configureForValues(valueSerde));
     }
 
     /**
