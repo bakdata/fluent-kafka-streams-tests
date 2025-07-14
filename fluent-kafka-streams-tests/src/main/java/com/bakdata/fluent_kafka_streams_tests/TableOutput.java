@@ -38,8 +38,9 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     private Iterator<ProducerRecord<K, V>> tableIterator;
 
     TableOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Configurator configurator) {
-        super(testDriver, topic, keySerde, valueSerde, configurator);
+            final Serde<V> valueSerde, final Serde<?> defaultKeySerde, final Serde<?> defaultValueSerde,
+            final Configurator configurator) {
+        super(testDriver, topic, keySerde, valueSerde, defaultKeySerde, defaultValueSerde, configurator);
     }
 
     /**
@@ -80,7 +81,9 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-            final Serde<KR> keySerde, final Serde<VR> valueSerde, final Configurator configurator) {
-        return new TableOutput<>(testDriver, topic, keySerde, valueSerde, configurator);
+            final Serde<KR> keySerde, final Serde<VR> valueSerde, final Serde<?> defaultKeySerde,
+            final Serde<?> defaultValueSerde, final Configurator configurator) {
+        return new TableOutput<>(testDriver, topic, keySerde, valueSerde, defaultKeySerde, defaultValueSerde,
+                configurator);
     }
 }

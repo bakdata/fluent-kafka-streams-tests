@@ -47,6 +47,8 @@ public class TestInput<K, V> {
     private final String topic;
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
+    private final Serde<?> defaultKeySerde;
+    private final Serde<?> defaultValueSerde;
     private final Configurator configurator;
 
     private Long timestamp;
@@ -58,13 +60,18 @@ public class TestInput<K, V> {
      * @param topic Name of input topic.
      * @param keySerde Serde for key type in topic.
      * @param valueSerde Serde for value type in topic.
+     * @param defaultKeySerde Default serde for key type in topic.
+     * @param defaultValueSerde Default serde for value type in topic.
      */
     protected TestInput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Configurator configurator) {
+            final Serde<V> valueSerde, final Serde<?> defaultKeySerde, final Serde<?> defaultValueSerde,
+            final Configurator configurator) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
         this.valueSerde = valueSerde;
+        this.defaultKeySerde = defaultKeySerde;
+        this.defaultValueSerde = defaultValueSerde;
         this.configurator = configurator;
 
         this.testInputTopic = this.testDriver.createInputTopic(this.topic,
@@ -81,10 +88,11 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided serdes
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        final Serde<KR> newKeySerde = keySerde == null ? (Serde<KR>) this.keySerde : keySerde;
+        final Serde<KR> newKeySerde = keySerde == null ? (Serde<KR>) this.defaultKeySerde : keySerde;
         final Serde<VR> newValueSerde =
-                valueSerde == null ? (Serde<VR>) this.valueSerde : valueSerde;
-        return new TestInput<>(this.testDriver, this.topic, newKeySerde, newValueSerde, this.configurator);
+                valueSerde == null ? (Serde<VR>) this.defaultValueSerde : valueSerde;
+        return new TestInput<>(this.testDriver, this.topic, newKeySerde, newValueSerde, this.defaultKeySerde,
+                this.defaultValueSerde, this.configurator);
     }
 
     /**

@@ -40,14 +40,19 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     private final String topic;
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
+    private final Serde<?> defaultKeySerde;
+    private final Serde<?> defaultValueSerde;
     private final Configurator configurator;
 
     protected BaseOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Configurator configurator) {
+            final Serde<V> valueSerde, final Serde<?> defaultKeySerde, final Serde<?> defaultValueSerde,
+            final Configurator configurator) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
         this.valueSerde = valueSerde;
+        this.defaultKeySerde = defaultKeySerde;
+        this.defaultValueSerde = defaultValueSerde;
         this.configurator = configurator;
 
         this.testOutputTopic = this.testDriver
@@ -62,10 +67,12 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        final Serde<KR> newKeySerde = keySerde == null ? (Serde<KR>) this.keySerde : keySerde;
+        final Serde<KR> newKeySerde = keySerde == null ? (Serde<KR>) this.defaultKeySerde : keySerde;
         final Serde<VR> newValueSerde =
-                valueSerde == null ? (Serde<VR>) this.valueSerde : valueSerde;
-        return this.create(this.testDriver, this.topic, newKeySerde, newValueSerde, this.configurator);
+                valueSerde == null ? (Serde<VR>) this.defaultValueSerde : valueSerde;
+        return this.create(this.testDriver, this.topic, newKeySerde, newValueSerde, this.defaultKeySerde,
+                this.defaultValueSerde,
+                this.configurator);
     }
 
     @Override
@@ -146,7 +153,8 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public TestOutput<K, V> asTable() {
-        return new TableOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.configurator);
+        return new TableOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.defaultKeySerde,
+                this.defaultValueSerde, this.configurator);
     }
 
     /**
@@ -157,7 +165,8 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public TestOutput<K, V> asStream() {
-        return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.configurator);
+        return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.defaultKeySerde,
+                this.defaultValueSerde, this.configurator);
     }
 
     /**
@@ -193,5 +202,6 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
 
 
     protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
-            Serde<KR> keySerde, Serde<VR> valueSerde, Configurator configurator);
+            Serde<KR> keySerde, Serde<VR> valueSerde, Serde<?> defaultKeySerde, Serde<?> defaultValueSerde,
+            Configurator configurator);
 }

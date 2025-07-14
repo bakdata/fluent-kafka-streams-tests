@@ -28,6 +28,7 @@ import com.bakdata.fluent_kafka_streams_tests.test_applications.MirrorAvro;
 import com.bakdata.fluent_kafka_streams_tests.test_types.City;
 import com.bakdata.fluent_kafka_streams_tests.test_types.Person;
 import com.bakdata.kafka.Preconfigured;
+import org.apache.kafka.common.serialization.Serdes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,6 +92,20 @@ class TestInputAndOutputTest {
                 .add(new City("City1", 2), new Person("Huey", "City1"));
 
         this.testTopology.streamOutput()
+                .configureWithSerde(Preconfigured.<City>defaultSerde(), Preconfigured.<Person>defaultSerde())
+                .expectNextRecord().hasKey(new City("City1", 2)).hasValue(new Person("Huey", "City1"))
+                .expectNoMoreRecord();
+    }
+
+    @Test
+    void shouldRememberDefaultSerdes() {
+        this.testTopology.input()
+                .withSerde(Serdes.String(), Serdes.String())
+                .configureWithSerde(Preconfigured.<City>defaultSerde(), Preconfigured.<Person>defaultSerde())
+                .add(new City("City1", 2), new Person("Huey", "City1"));
+
+        this.testTopology.streamOutput()
+                .withSerde(Serdes.String(), Serdes.String())
                 .configureWithSerde(Preconfigured.<City>defaultSerde(), Preconfigured.<Person>defaultSerde())
                 .expectNextRecord().hasKey(new City("City1", 2)).hasValue(new Person("Huey", "City1"))
                 .expectNoMoreRecord();

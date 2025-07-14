@@ -279,6 +279,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
         return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
+                this.getDefaultKeySerde(), this.getDefaultValueSerde(),
                 this.createConfigurator());
     }
 
@@ -313,6 +314,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
             throw new NoSuchElementException(String.format("Output topic '%s' not found", topic));
         }
         return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
+                this.getDefaultKeySerde(), this.getDefaultValueSerde(),
                 this.createConfigurator());
     }
 
