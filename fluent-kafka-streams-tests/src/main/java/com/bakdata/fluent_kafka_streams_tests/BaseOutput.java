@@ -107,14 +107,19 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
         return this.with(this.serdeConfig.configureWithValueSerde(valueSerde));
     }
 
-    /**
-     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).<br/>
-     * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
-     * the output types anymore.<br/>
-     */
     @Override
-    public TestOutput<K, V> asTable() {
-        return new TableOutput<>(this.testDriver, this.topic, this.serdeConfig);
+    public <KR, VR> TestOutput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
+        return this.with(this.serdeConfig.withTypes(keyType, valueType));
+    }
+
+    @Override
+    public <KR> TestOutput<KR, V> withKeyType(final Class<KR> keyType) {
+        return this.with(this.serdeConfig.withKeyType(keyType));
+    }
+
+    @Override
+    public <VR> TestOutput<K, VR> withValueType(final Class<VR> valueType) {
+        return this.with(this.serdeConfig.withValueType(valueType));
     }
 
     /**
@@ -141,6 +146,16 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     }
 
     /**
+     * Interpret the output with {@link org.apache.kafka.streams.kstream.KTable} semantics (each key only once).<br/>
+     * Note: once the first value of the stream has been read or the iterator has be called, you cannot switch between
+     * the output types anymore.<br/>
+     */
+    @Override
+    public TestOutput<K, V> asTable() {
+        return new TableOutput<>(this.testDriver, this.topic, this.serdeConfig);
+    }
+
+    /**
      * Interpret the output with {@link org.apache.kafka.streams.kstream.KStream} semantics (each key multiple times)
      * .<br/> This is the default, there should usually be no need to call this method.<br/> Note: once the first value
      * of the stream has been read or the iterator has be called, you cannot switch between the output types
@@ -150,9 +165,6 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     public TestOutput<K, V> asStream() {
         return new StreamOutput<>(this.testDriver, this.topic, this.serdeConfig);
     }
-
-    protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
-            SerdeConfig<KR, VR> serdeConfig);
 
     /**
      * Convert the output to a {@link java.util.List}. In case the current instance of this class is a
@@ -184,6 +196,9 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
         return new ProducerRecord<>(this.topic, 0, testRecord.timestamp(), testRecord.key(), testRecord.value(),
                 testRecord.getHeaders());
     }
+
+    protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
+            SerdeConfig<KR, VR> serdeConfig);
 
     private <KR, VR> TestOutput<KR, VR> with(final SerdeConfig<KR, VR> newSerdeConfig) {
         return this.create(this.testDriver, this.topic, newSerdeConfig);

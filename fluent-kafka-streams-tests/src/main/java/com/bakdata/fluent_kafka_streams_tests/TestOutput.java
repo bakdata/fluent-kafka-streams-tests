@@ -127,9 +127,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * @param valueType the new value type.
      * @return Copy of current {@code TestOutput} with provided types
      */
-    default <KR, VR> TestOutput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
-        return (TestOutput<KR, VR>) this;
-    }
+    <KR, VR> TestOutput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType);
 
     /**
      * <p>Type-casts the key to the given type.</p>
@@ -140,9 +138,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * @param keyType the new key type.
      * @return Copy of current {@code TestOutput} with provided key type
      */
-    default <KR> TestOutput<KR, V> withKeyType(final Class<KR> keyType) {
-        return (TestOutput<KR, V>) this;
-    }
+    <KR> TestOutput<KR, V> withKeyType(final Class<KR> keyType);
 
     /**
      * <p>Type-casts the value to the given type.</p>
@@ -153,9 +149,7 @@ public interface TestOutput<K, V> extends Iterable<ProducerRecord<K, V>> {
      * @param valueType the new value type.
      * @return Copy of current {@code TestOutput} with provided value type
      */
-    default <VR> TestOutput<K, VR> withValueType(final Class<VR> valueType) {
-        return (TestOutput<K, VR>) this;
-    }
+    <VR> TestOutput<K, VR> withValueType(final Class<VR> valueType);
 
     /**
      * <p>Reads the next value from the output stream.</p>
