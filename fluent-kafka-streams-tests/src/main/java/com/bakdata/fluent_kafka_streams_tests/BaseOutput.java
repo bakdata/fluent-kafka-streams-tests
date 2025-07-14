@@ -68,7 +68,12 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     @Override
     public <KR, VR> TestOutput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
             final Preconfigured<? extends Serde<VR>> valueSerde) {
-        return this.withSerde(this.configurator.configureForKeys(keySerde), this.configurator.configureForValues(valueSerde));
+        final Serde<KR> configuredKeySerde = this.configurator.configureForKeys(keySerde);
+        final Serde<VR> configuredValueSerde = this.configurator.configureForValues(valueSerde);
+        final Serde<KR> newKeySerde = configuredKeySerde == null ? (Serde<KR>) this.keySerde : configuredKeySerde;
+        final Serde<VR> newValueSerde =
+                configuredValueSerde == null ? (Serde<VR>) this.valueSerde : configuredValueSerde;
+        return this.withSerde(newKeySerde, newValueSerde);
     }
 
     @Override
