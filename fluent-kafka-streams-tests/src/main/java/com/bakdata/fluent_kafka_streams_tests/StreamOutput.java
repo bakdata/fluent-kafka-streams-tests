@@ -24,7 +24,6 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.kafka.Configurator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import lombok.NonNull;
@@ -39,9 +38,8 @@ import org.apache.kafka.streams.TopologyTestDriver;
  */
 class StreamOutput<K, V> extends BaseOutput<K, V> {
     StreamOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Serde<?> defaultKeySerde, final Serde<?> defaultValueSerde,
-            final Configurator configurator) {
-        super(testDriver, topic, keySerde, valueSerde, defaultKeySerde, defaultValueSerde, configurator);
+            final Serde<V> valueSerde, final SerdeConfig serdeConfig) {
+        super(testDriver, topic, keySerde, valueSerde, serdeConfig);
     }
 
     /**
@@ -89,9 +87,7 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
     // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-            final Serde<KR> keySerde, final Serde<VR> valueSerde, final Serde<?> defaultKeySerde,
-            final Serde<?> defaultValueSerde, final Configurator configurator) {
-        return new StreamOutput<>(testDriver, topic, keySerde, valueSerde, defaultKeySerde, defaultValueSerde,
-                configurator);
+            final Serde<KR> keySerde, final Serde<VR> valueSerde, final SerdeConfig serdeConfig) {
+        return new StreamOutput<>(testDriver, topic, keySerde, valueSerde, serdeConfig);
     }
 }

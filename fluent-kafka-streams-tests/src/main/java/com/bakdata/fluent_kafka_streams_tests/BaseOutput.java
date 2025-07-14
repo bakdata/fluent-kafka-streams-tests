@@ -24,7 +24,6 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.kafka.Configurator;
 import com.bakdata.kafka.Preconfigured;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,20 +39,15 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
     private final String topic;
     private final Serde<K> keySerde;
     private final Serde<V> valueSerde;
-    private final Serde<?> defaultKeySerde;
-    private final Serde<?> defaultValueSerde;
-    private final Configurator configurator;
+    private final SerdeConfig serdeConfig;
 
     protected BaseOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Serde<?> defaultKeySerde, final Serde<?> defaultValueSerde,
-            final Configurator configurator) {
+            final Serde<V> valueSerde, final SerdeConfig serdeConfig) {
         this.testDriver = testDriver;
         this.topic = topic;
         this.keySerde = keySerde;
         this.valueSerde = valueSerde;
-        this.defaultKeySerde = defaultKeySerde;
-        this.defaultValueSerde = defaultValueSerde;
-        this.configurator = configurator;
+        this.serdeConfig = serdeConfig;
 
         this.testOutputTopic = this.testDriver
                 .createOutputTopic(this.topic, this.keySerde.deserializer(), this.valueSerde.deserializer());
@@ -67,19 +61,17 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public <KR, VR> TestOutput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        final Serde<KR> newKeySerde = keySerde == null ? (Serde<KR>) this.defaultKeySerde : keySerde;
+        final Serde<KR> newKeySerde = keySerde == null ? this.serdeConfig.getDefaultKeySerde() : keySerde;
         final Serde<VR> newValueSerde =
-                valueSerde == null ? (Serde<VR>) this.defaultValueSerde : valueSerde;
-        return this.create(this.testDriver, this.topic, newKeySerde, newValueSerde, this.defaultKeySerde,
-                this.defaultValueSerde,
-                this.configurator);
+                valueSerde == null ? this.serdeConfig.getDefaultValueSerde() : valueSerde;
+        return this.create(this.testDriver, this.topic, newKeySerde, newValueSerde, this.serdeConfig);
     }
 
     @Override
     public <KR, VR> TestOutput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
             final Preconfigured<? extends Serde<VR>> valueSerde) {
-        return this.withSerde(this.configurator.configureForKeys(keySerde),
-                this.configurator.configureForValues(valueSerde));
+        return this.withSerde(this.serdeConfig.configureForKeys(keySerde),
+                this.serdeConfig.configureForValues(valueSerde));
     }
 
     @Override
@@ -97,7 +89,7 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
 
     @Override
     public <KR> TestOutput<KR, V> configureWithKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
-        return this.withSerde(this.configurator.configureForKeys(keySerde), this.valueSerde);
+        return this.withSerde(this.serdeConfig.configureForKeys(keySerde), this.valueSerde);
     }
 
     @Override
@@ -115,7 +107,7 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
 
     @Override
     public <VR> TestOutput<K, VR> configureWithValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
-        return this.withSerde(this.keySerde, this.configurator.configureForValues(valueSerde));
+        return this.withSerde(this.keySerde, this.serdeConfig.configureForValues(valueSerde));
     }
 
     @Override
@@ -153,8 +145,7 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public TestOutput<K, V> asTable() {
-        return new TableOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.defaultKeySerde,
-                this.defaultValueSerde, this.configurator);
+        return new TableOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.serdeConfig);
     }
 
     /**
@@ -165,8 +156,7 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
      */
     @Override
     public TestOutput<K, V> asStream() {
-        return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.defaultKeySerde,
-                this.defaultValueSerde, this.configurator);
+        return new StreamOutput<>(this.testDriver, this.topic, this.keySerde, this.valueSerde, this.serdeConfig);
     }
 
     /**
@@ -202,6 +192,5 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
 
 
     protected abstract <VR, KR> TestOutput<KR, VR> create(TopologyTestDriver testDriver, String topic,
-            Serde<KR> keySerde, Serde<VR> valueSerde, Serde<?> defaultKeySerde, Serde<?> defaultValueSerde,
-            Configurator configurator);
+            Serde<KR> keySerde, Serde<VR> valueSerde, SerdeConfig serdeConfig);
 }
