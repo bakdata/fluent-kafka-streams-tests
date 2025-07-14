@@ -26,34 +26,25 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.kafka.Configurator;
 import com.bakdata.kafka.Preconfigured;
-import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serializer;
 
-@RequiredArgsConstructor
-class SerdeConfig<K, V> {
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+final class SerdeConfig<K, V> {
+    @Getter
     private final Serde<K> keySerde;
+    @Getter
     private final Serde<V> valueSerde;
     private final Serde<?> defaultKeySerde;
     private final Serde<?> defaultValueSerde;
     private final Configurator configurator;
 
-    Serializer<K> getKeySerializer() {
-        return this.keySerde == null ? new UnspecifiedSerializer<>() : this.keySerde.serializer();
-    }
-
-    Serializer<V> getValueSerializer() {
-        return this.valueSerde == null ? new UnspecifiedSerializer<>() : this.valueSerde.serializer();
-    }
-
-    Deserializer<K> getKeyDeserializer() {
-        return this.keySerde.deserializer();
-    }
-
-    Deserializer<V> getValueDeserializer() {
-        return this.valueSerde.deserializer();
+    static <K, V> SerdeConfig<K, V> create(@NonNull final Serde<K> keySerde, @NonNull final Serde<V> valueSerde,
+            final Configurator configurator) {
+        return new SerdeConfig<>(keySerde, valueSerde, keySerde, valueSerde, configurator);
     }
 
     <KR, VR> SerdeConfig<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
@@ -123,22 +114,5 @@ class SerdeConfig<K, V> {
 
     private <VR> Serde<VR> getDefaultValueSerde() {
         return (Serde<VR>) this.defaultValueSerde;
-    }
-
-    private static class UnspecifiedSerializer<V> implements Serializer<V> {
-        @Override
-        public void configure(final Map<String, ?> configs, final boolean isKey) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public byte[] serialize(final String topic, final V data) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void close() {
-            throw new UnsupportedOperationException();
-        }
     }
 }

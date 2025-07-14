@@ -44,9 +44,10 @@ abstract class BaseOutput<K, V> implements TestOutput<K, V> {
         this.topic = topic;
         this.serdeConfig = serdeConfig;
 
-        this.testOutputTopic = this.testDriver
-                .createOutputTopic(this.topic, this.serdeConfig.getKeyDeserializer(),
-                        this.serdeConfig.getValueDeserializer());
+        this.testOutputTopic = this.testDriver.createOutputTopic(this.topic,
+                this.serdeConfig.getKeySerde().deserializer(),
+                serdeConfig.getValueSerde().deserializer()
+        );
     }
 
     /**

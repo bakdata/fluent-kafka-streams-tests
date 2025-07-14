@@ -373,8 +373,10 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     }
 
     private SerdeConfig<DefaultK, DefaultV> createSerdeConfig() {
-        return new SerdeConfig<>(this.getDefaultKeySerde(), this.getDefaultValueSerde(), this.getDefaultKeySerde(),
-                this.getDefaultValueSerde(), this.createConfigurator());
+        final Serde<DefaultK> keySerde = this.getDefaultKeySerde();
+        final Serde<DefaultV> valueSerde = this.getDefaultValueSerde();
+        final Configurator configurator = this.createConfigurator();
+        return SerdeConfig.create(keySerde, valueSerde, configurator);
     }
 
     private Properties createProperties() {

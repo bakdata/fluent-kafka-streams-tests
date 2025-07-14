@@ -59,8 +59,8 @@ public class TestInput<K, V> {
         this.serdeConfig = serdeConfig;
 
         this.testInputTopic = this.testDriver.createInputTopic(this.topic,
-                this.serdeConfig.getKeySerializer(),
-                this.serdeConfig.getValueSerializer()
+                this.serdeConfig.getKeySerde().serializer(),
+                this.serdeConfig.getValueSerde().serializer()
         );
     }
 
