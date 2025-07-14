@@ -25,11 +25,9 @@
 package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.kafka.Preconfigured;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.test.TestRecord;
@@ -44,9 +42,7 @@ public class TestInput<K, V> {
     private final TopologyTestDriver testDriver;
     private final TestInputTopic<K, V> testInputTopic;
     private final String topic;
-    private final Serde<K> keySerde;
-    private final Serde<V> valueSerde;
-    private final SerdeConfig serdeConfig;
+    private final SerdeConfig<K, V> serdeConfig;
 
     private Long timestamp;
 
@@ -55,20 +51,16 @@ public class TestInput<K, V> {
      *
      * @param testDriver Kafka's {@link TopologyTestDriver} used in this test.
      * @param topic Name of input topic.
-     * @param keySerde Serde for key type in topic.
-     * @param valueSerde Serde for value type in topic.
+     * @param serdeConfig configuration for serdes.
      */
-    protected TestInput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final SerdeConfig serdeConfig) {
+    protected TestInput(final TopologyTestDriver testDriver, final String topic, final SerdeConfig<K, V> serdeConfig) {
         this.testDriver = testDriver;
         this.topic = topic;
-        this.keySerde = keySerde;
-        this.valueSerde = valueSerde;
         this.serdeConfig = serdeConfig;
 
         this.testInputTopic = this.testDriver.createInputTopic(this.topic,
-                this.keySerde == null ? new UnspecifiedSerializer<>() : this.keySerde.serializer(),
-                this.valueSerde == null ? new UnspecifiedSerializer<>() : this.valueSerde.serializer()
+                this.serdeConfig.getKeySerializer(),
+                this.serdeConfig.getValueSerializer()
         );
     }
 
@@ -80,10 +72,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided serdes
      */
     public <KR, VR> TestInput<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        final Serde<KR> newKeySerde = keySerde == null ? this.serdeConfig.getDefaultKeySerde() : keySerde;
-        final Serde<VR> newValueSerde =
-                valueSerde == null ? this.serdeConfig.getDefaultValueSerde() : valueSerde;
-        return new TestInput<>(this.testDriver, this.topic, newKeySerde, newValueSerde, this.serdeConfig);
+        return this.with(this.serdeConfig.withSerde(keySerde, valueSerde));
     }
 
     /**
@@ -95,8 +84,7 @@ public class TestInput<K, V> {
      */
     public <KR, VR> TestInput<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
             final Preconfigured<? extends Serde<VR>> valueSerde) {
-        return this.withSerde(this.serdeConfig.configureForKeys(keySerde),
-                this.serdeConfig.configureForValues(valueSerde));
+        return this.with(this.serdeConfig.configureWithSerde(keySerde, valueSerde));
     }
 
     /**
@@ -107,7 +95,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided serdes
      */
     public <KR, VR> TestInput<KR, VR> configureWithSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
-        return this.configureWithSerde(Preconfigured.create(keySerde), Preconfigured.create(valueSerde));
+        return this.with(this.serdeConfig.configureWithSerde(keySerde, valueSerde));
     }
 
     /**
@@ -117,7 +105,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided key serde
      */
     public <KR> TestInput<KR, V> withKeySerde(final Serde<KR> keySerde) {
-        return this.withSerde(keySerde, this.valueSerde);
+        return this.with(this.serdeConfig.withKeySerde(keySerde));
     }
 
     /**
@@ -127,7 +115,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided key serde
      */
     public <KR> TestInput<KR, V> configureWithKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
-        return this.withSerde(this.serdeConfig.configureForKeys(keySerde), this.valueSerde);
+        return this.with(this.serdeConfig.configureWithKeySerde(keySerde));
     }
 
     /**
@@ -137,7 +125,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided key serde
      */
     public <KR> TestInput<KR, V> configureWithKeySerde(final Serde<KR> keySerde) {
-        return this.configureWithKeySerde(Preconfigured.create(keySerde));
+        return this.with(this.serdeConfig.configureWithKeySerde(keySerde));
     }
 
     /**
@@ -147,7 +135,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided value serde
      */
     public <VR> TestInput<K, VR> withValueSerde(final Serde<VR> valueSerde) {
-        return this.withSerde(this.keySerde, valueSerde);
+        return this.with(this.serdeConfig.withValueSerde(valueSerde));
     }
 
     /**
@@ -157,7 +145,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided value serde
      */
     public <VR> TestInput<K, VR> configureWithValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
-        return this.withSerde(this.keySerde, this.serdeConfig.configureForValues(valueSerde));
+        return this.with(this.serdeConfig.configureWithValueSerde(valueSerde));
     }
 
     /**
@@ -167,7 +155,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided value serde
      */
     public <VR> TestInput<K, VR> configureWithValueSerde(final Serde<VR> valueSerde) {
-        return this.configureWithValueSerde(Preconfigured.create(valueSerde));
+        return this.with(this.serdeConfig.configureWithValueSerde(valueSerde));
     }
 
     /**
@@ -181,7 +169,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided types
      */
     public <KR, VR> TestInput<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
-        return (TestInput<KR, VR>) this;
+        return this.with(this.serdeConfig.withTypes(keyType, valueType));
     }
 
     /**
@@ -194,7 +182,7 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided key type
      */
     public <KR> TestInput<KR, V> withKeyType(final Class<KR> keyType) {
-        return (TestInput<KR, V>) this;
+        return this.with(this.serdeConfig.withKeyType(keyType));
     }
 
     /**
@@ -207,7 +195,11 @@ public class TestInput<K, V> {
      * @return Copy of current {@code TestInput} with provided value type
      */
     public <VR> TestInput<K, VR> withValueType(final Class<VR> valueType) {
-        return (TestInput<K, VR>) this;
+        return this.with(this.serdeConfig.withValueType(valueType));
+    }
+
+    private <KR, VR> TestInput<KR, VR> with(final SerdeConfig<KR, VR> newSerdeConfig) {
+        return new TestInput<>(this.testDriver, this.topic, newSerdeConfig);
     }
 
     /**
@@ -304,23 +296,6 @@ public class TestInput<K, V> {
     private TestInput<K, V> addInternal(final K key, final V value, final Long timestamp, final Headers headers) {
         this.testInputTopic.pipeInput(new TestRecord<>(key, value, headers, timestamp == null ? 0 : timestamp));
         return this;
-    }
-
-    private static class UnspecifiedSerializer<V> implements Serializer<V> {
-        @Override
-        public void configure(final Map<String, ?> configs, final boolean isKey) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public byte[] serialize(final String topic, final V data) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void close() {
-            throw new UnsupportedOperationException();
-        }
     }
 }
 

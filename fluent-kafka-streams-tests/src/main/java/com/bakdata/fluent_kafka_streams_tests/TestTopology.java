@@ -263,8 +263,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
                 .noneMatch(p -> p.matcher(topic).matches())) {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
-        return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
-                this.createSerdeConfig());
+        return new TestInput<>(this.testDriver, topic, this.createSerdeConfig());
     }
 
     /**
@@ -297,8 +296,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         if (!this.outputTopics.contains(topic)) {
             throw new NoSuchElementException(String.format("Output topic '%s' not found", topic));
         }
-        return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
-                this.createSerdeConfig());
+        return new StreamOutput<>(this.testDriver, topic, this.createSerdeConfig());
     }
 
     /**
@@ -374,8 +372,9 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
                 : (Serde<DefaultV>) this.getStreamsConfig().defaultValueSerde();
     }
 
-    private SerdeConfig createSerdeConfig() {
-        return new SerdeConfig(this.getDefaultKeySerde(), this.getDefaultValueSerde(), this.createConfigurator());
+    private SerdeConfig<DefaultK, DefaultV> createSerdeConfig() {
+        return new SerdeConfig<>(this.getDefaultKeySerde(), this.getDefaultValueSerde(), this.getDefaultKeySerde(),
+                this.getDefaultValueSerde(), this.createConfigurator());
     }
 
     private Properties createProperties() {

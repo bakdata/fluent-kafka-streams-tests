@@ -26,28 +26,119 @@ package com.bakdata.fluent_kafka_streams_tests;
 
 import com.bakdata.kafka.Configurator;
 import com.bakdata.kafka.Preconfigured;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serializer;
 
 @RequiredArgsConstructor
-class SerdeConfig {
+class SerdeConfig<K, V> {
+    private final Serde<K> keySerde;
+    private final Serde<V> valueSerde;
     private final Serde<?> defaultKeySerde;
     private final Serde<?> defaultValueSerde;
     private final Configurator configurator;
 
-    public <KR> Serde<KR> configureForKeys(final Preconfigured<? extends Serde<KR>> keySerde) {
+    Serializer<K> getKeySerializer() {
+        return this.keySerde == null ? new UnspecifiedSerializer<>() : this.keySerde.serializer();
+    }
+
+    Serializer<V> getValueSerializer() {
+        return this.valueSerde == null ? new UnspecifiedSerializer<>() : this.valueSerde.serializer();
+    }
+
+    Deserializer<K> getKeyDeserializer() {
+        return this.keySerde.deserializer();
+    }
+
+    Deserializer<V> getValueDeserializer() {
+        return this.valueSerde.deserializer();
+    }
+
+    <KR, VR> SerdeConfig<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
+        final Serde<KR> newKeySerde = keySerde == null ? this.getDefaultKeySerde() : keySerde;
+        final Serde<VR> newValueSerde =
+                valueSerde == null ? this.getDefaultValueSerde() : valueSerde;
+        return new SerdeConfig<>(newKeySerde, newValueSerde, this.defaultKeySerde, this.defaultValueSerde,
+                this.configurator);
+    }
+
+    <KR, VR> SerdeConfig<KR, VR> configureWithSerde(final Preconfigured<? extends Serde<KR>> keySerde,
+            final Preconfigured<? extends Serde<VR>> valueSerde) {
+        return this.withSerde(this.configureForKeys(keySerde), this.configureForValues(valueSerde));
+    }
+
+    <KR, VR> SerdeConfig<KR, VR> configureWithSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
+        return this.configureWithSerde(Preconfigured.create(keySerde), Preconfigured.create(valueSerde));
+    }
+
+    <KR> SerdeConfig<KR, V> withKeySerde(final Serde<KR> keySerde) {
+        return this.withSerde(keySerde, this.valueSerde);
+    }
+
+    <KR> SerdeConfig<KR, V> configureWithKeySerde(final Preconfigured<? extends Serde<KR>> keySerde) {
+        return this.withSerde(this.configureForKeys(keySerde), this.valueSerde);
+    }
+
+    <KR> SerdeConfig<KR, V> configureWithKeySerde(final Serde<KR> keySerde) {
+        return this.configureWithKeySerde(Preconfigured.create(keySerde));
+    }
+
+    <VR> SerdeConfig<K, VR> withValueSerde(final Serde<VR> valueSerde) {
+        return this.withSerde(this.keySerde, valueSerde);
+    }
+
+    <VR> SerdeConfig<K, VR> configureWithValueSerde(final Preconfigured<? extends Serde<VR>> valueSerde) {
+        return this.withSerde(this.keySerde, this.configureForValues(valueSerde));
+    }
+
+    <VR> SerdeConfig<K, VR> configureWithValueSerde(final Serde<VR> valueSerde) {
+        return this.configureWithValueSerde(Preconfigured.create(valueSerde));
+    }
+
+    <KR, VR> SerdeConfig<KR, VR> withTypes(final Class<KR> keyType, final Class<VR> valueType) {
+        return (SerdeConfig<KR, VR>) this;
+    }
+
+    <KR> SerdeConfig<KR, V> withKeyType(final Class<KR> keyType) {
+        return (SerdeConfig<KR, V>) this;
+    }
+
+    <VR> SerdeConfig<K, VR> withValueType(final Class<VR> valueType) {
+        return (SerdeConfig<K, VR>) this;
+    }
+
+    private <KR> Serde<KR> configureForKeys(final Preconfigured<? extends Serde<KR>> keySerde) {
         return this.configurator.configureForKeys(keySerde);
     }
 
-    public <VR> Serde<VR> configureForValues(final Preconfigured<? extends Serde<VR>> valueSerde) {
+    private <VR> Serde<VR> configureForValues(final Preconfigured<? extends Serde<VR>> valueSerde) {
         return this.configurator.configureForValues(valueSerde);
     }
 
-    <KR> Serde<KR> getDefaultKeySerde() {
+    private <KR> Serde<KR> getDefaultKeySerde() {
         return (Serde<KR>) this.defaultKeySerde;
     }
 
-    <VR> Serde<VR> getDefaultValueSerde() {
+    private <VR> Serde<VR> getDefaultValueSerde() {
         return (Serde<VR>) this.defaultValueSerde;
+    }
+
+    private static class UnspecifiedSerializer<V> implements Serializer<V> {
+        @Override
+        public void configure(final Map<String, ?> configs, final boolean isKey) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public byte[] serialize(final String topic, final V data) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void close() {
+            throw new UnsupportedOperationException();
+        }
     }
 }
