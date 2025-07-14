@@ -49,8 +49,7 @@ final class SerdeConfig<K, V> {
 
     <KR, VR> SerdeConfig<KR, VR> withSerde(final Serde<KR> keySerde, final Serde<VR> valueSerde) {
         final Serde<KR> newKeySerde = keySerde == null ? this.getDefaultKeySerde() : keySerde;
-        final Serde<VR> newValueSerde =
-                valueSerde == null ? this.getDefaultValueSerde() : valueSerde;
+        final Serde<VR> newValueSerde = valueSerde == null ? this.getDefaultValueSerde() : valueSerde;
         return new SerdeConfig<>(newKeySerde, newValueSerde, this.defaultKeySerde, this.defaultValueSerde,
                 this.configurator);
     }
