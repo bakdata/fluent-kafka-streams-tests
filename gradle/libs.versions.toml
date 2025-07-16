@@ -22,8 +22,8 @@ assertj = { group = "org.assertj", name = "assertj-core", version = "3.27.3" }
 log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.25.1" }
 
 [plugins]
-release = { id = "com.bakdata.release", version = "1.7.1" }
-sonar = { id = "com.bakdata.sonar", version = "1.7.1" }
+release = { id = "com.bakdata.release", version = "1.10.0" }
+sonar = { id = "com.bakdata.sonar", version = "1.10.0" }
 sonatype = { id = "com.bakdata.sonatype", version = "1.10.0" }
 lombok = { id = "io.freefair.lombok", version = "8.14" }
 avro = { id = "com.github.davidmc24.gradle.plugin.avro", version = "1.9.1" }
