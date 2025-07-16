@@ -1,8 +1,22 @@
 # Change Log
 
-## [3.4.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.4.0) (2025-06-30)
-[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.4.0...3.4.0)
+## [3.4.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.4.1) (2025-07-16)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.4.1...3.4.1)
 
+
+## [3.4.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.4.1) (2025-07-16)
+[View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.4.0...3.4.1)
+
+**Merged pull requests:**
+
+- Support default serdes [\#120](https://github.com/bakdata/fluent-kafka-streams-tests/pull/120) ([@philipp94831](https://github.com/philipp94831))
+
+**Upgraded dependencies:**
+
+- Bump the plugins group with 2 updates [\#118](https://github.com/bakdata/fluent-kafka-streams-tests/pull/118) ([@dependabot[bot]](https://github.com/apps/dependabot))
+- Bump the protobuf group with 2 updates [\#112](https://github.com/bakdata/fluent-kafka-streams-tests/pull/112) ([@dependabot[bot]](https://github.com/apps/dependabot))
+- Bump org.apache.logging.log4j:log4j\-slf4j2\-impl from 2.24.3 to 2.25.0 in the log\-dependencies group [\#114](https://github.com/bakdata/fluent-kafka-streams-tests/pull/114) ([@dependabot[bot]](https://github.com/apps/dependabot))
+- Bump the test\-dependencies group with 2 updates [\#115](https://github.com/bakdata/fluent-kafka-streams-tests/pull/115) ([@dependabot[bot]](https://github.com/apps/dependabot))
 
 ## [3.4.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.4.0) (2025-06-30)
 [View commits](https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.3.0...3.4.0)
