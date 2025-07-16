@@ -24,12 +24,10 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.kafka.Configurator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import lombok.NonNull;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 /**
@@ -38,9 +36,8 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * <p>Note: The StreamOutput is a one-time iterable. Cache it if you need to iterate several times.</p>
  */
 class StreamOutput<K, V> extends BaseOutput<K, V> {
-    StreamOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Configurator configurator) {
-        super(testDriver, topic, keySerde, valueSerde, configurator);
+    StreamOutput(final TopologyTestDriver testDriver, final String topic, final SerdeConfig<K, V> serdeConfig) {
+        super(testDriver, topic, serdeConfig);
     }
 
     /**
@@ -88,7 +85,7 @@ class StreamOutput<K, V> extends BaseOutput<K, V> {
     // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-            final Serde<KR> keySerde, final Serde<VR> valueSerde, final Configurator configurator) {
-        return new StreamOutput<>(testDriver, topic, keySerde, valueSerde, configurator);
+            final SerdeConfig<KR, VR> serdeConfig) {
+        return new StreamOutput<>(testDriver, topic, serdeConfig);
     }
 }

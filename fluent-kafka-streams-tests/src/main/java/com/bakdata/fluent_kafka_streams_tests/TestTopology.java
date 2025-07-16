@@ -91,6 +91,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
  * <p>In case the topology uses a {@link org.apache.kafka.streams.processor.TopicNameExtractor} to select output topics
  * dynamically, you must manually register these topics. You can add them to the set of output topics returned by
  * #getOutputTopics().</p>
+ *
  * @param <DefaultK> Default type of keys
  * @param <DefaultV> Default type of values
  */
@@ -237,22 +238,6 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     }
 
     /**
-     * Get the default serde of the key type in your application.
-     */
-    private Serde<DefaultK> getDefaultKeySerde() {
-        return this.defaultKeySerde != null ? this.defaultKeySerde
-                : (Serde<DefaultK>) this.getStreamsConfig().defaultKeySerde();
-    }
-
-    /**
-     * Get the default serde of the value type in your application.
-     */
-    private Serde<DefaultV> getDefaultValueSerde() {
-        return this.defaultValueSerde != null ? this.defaultValueSerde
-                : (Serde<DefaultV>) this.getStreamsConfig().defaultValueSerde();
-    }
-
-    /**
      * Get the only input topic used by the topology under test.
      *
      * @return {@link TestInput} of the input topic that you want to write to.
@@ -261,7 +246,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
     public TestInput<DefaultK, DefaultV> input() {
         if (this.inputTopics.size() != 1) {
             throw new IllegalStateException("#input() works with exactly 1 topic, if more are used," +
-                    " please use #input(String) to select a topic");
+                                            " please use #input(String) to select a topic");
         }
         return this.input(this.inputTopics.iterator().next());
     }
@@ -278,8 +263,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
                 .noneMatch(p -> p.matcher(topic).matches())) {
             throw new NoSuchElementException(String.format("Input topic '%s' not found", topic));
         }
-        return new TestInput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
-                this.createConfigurator());
+        return new TestInput<>(this.testDriver, topic, this.createSerdeConfig());
     }
 
     /**
@@ -312,8 +296,7 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         if (!this.outputTopics.contains(topic)) {
             throw new NoSuchElementException(String.format("Output topic '%s' not found", topic));
         }
-        return new StreamOutput<>(this.testDriver, topic, this.getDefaultKeySerde(), this.getDefaultValueSerde(),
-                this.createConfigurator());
+        return new StreamOutput<>(this.testDriver, topic, this.createSerdeConfig());
     }
 
     /**
@@ -371,6 +354,29 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
             final Map<String, Object> userProperties, final Serde<K> defaultKeySerde,
             final Serde<V> defaultValueSerde) {
         return new TestTopology<>(topologyFactory, userProperties, defaultKeySerde, defaultValueSerde);
+    }
+
+    /**
+     * Get the default serde of the key type in your application.
+     */
+    private Serde<DefaultK> getDefaultKeySerde() {
+        return this.defaultKeySerde != null ? this.defaultKeySerde
+                : (Serde<DefaultK>) this.getStreamsConfig().defaultKeySerde();
+    }
+
+    /**
+     * Get the default serde of the value type in your application.
+     */
+    private Serde<DefaultV> getDefaultValueSerde() {
+        return this.defaultValueSerde != null ? this.defaultValueSerde
+                : (Serde<DefaultV>) this.getStreamsConfig().defaultValueSerde();
+    }
+
+    private SerdeConfig<DefaultK, DefaultV> createSerdeConfig() {
+        final Serde<DefaultK> keySerde = this.getDefaultKeySerde();
+        final Serde<DefaultV> valueSerde = this.getDefaultValueSerde();
+        final Configurator configurator = this.createConfigurator();
+        return SerdeConfig.create(keySerde, valueSerde, configurator);
     }
 
     private Properties createProperties() {

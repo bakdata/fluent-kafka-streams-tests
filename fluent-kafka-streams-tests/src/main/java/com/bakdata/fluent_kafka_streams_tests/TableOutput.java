@@ -24,22 +24,19 @@
 
 package com.bakdata.fluent_kafka_streams_tests;
 
-import com.bakdata.kafka.Configurator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.NonNull;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.TopologyTestDriver;
 
 class TableOutput<K, V> extends BaseOutput<K, V> {
     private final Map<K, ProducerRecord<K, V>> table = new LinkedHashMap<>();
     private Iterator<ProducerRecord<K, V>> tableIterator;
 
-    TableOutput(final TopologyTestDriver testDriver, final String topic, final Serde<K> keySerde,
-            final Serde<V> valueSerde, final Configurator configurator) {
-        super(testDriver, topic, keySerde, valueSerde, configurator);
+    TableOutput(final TopologyTestDriver testDriver, final String topic, final SerdeConfig<K, V> serdeConfig) {
+        super(testDriver, topic, serdeConfig);
     }
 
     /**
@@ -80,7 +77,7 @@ class TableOutput<K, V> extends BaseOutput<K, V> {
     // ==================
     @Override
     protected <VR, KR> TestOutput<KR, VR> create(final TopologyTestDriver testDriver, final String topic,
-            final Serde<KR> keySerde, final Serde<VR> valueSerde, final Configurator configurator) {
-        return new TableOutput<>(testDriver, topic, keySerde, valueSerde, configurator);
+            final SerdeConfig<KR, VR> serdeConfig) {
+        return new TableOutput<>(testDriver, topic, serdeConfig);
     }
 }
