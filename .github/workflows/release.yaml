@@ -21,6 +21,6 @@ jobs:
       java-version: 17
       release-type: "${{ inputs.release-type }}"
     secrets:
-      github-email: "${{ secrets.GH_EMAIL }}"
-      github-username: "${{ secrets.GH_USERNAME }}"
-      github-token: "${{ secrets.GH_TOKEN }}"
+      GOOGLE_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+      GOOGLE_PROJECT_ID: ${{ secrets.GOOGLE_PROJECT_ID }}
