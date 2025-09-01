@@ -25,6 +25,6 @@ log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl",
 release = { id = "com.bakdata.release", version = "1.11.0" }
 sonar = { id = "com.bakdata.sonar", version = "1.11.0" }
 sonatype = { id = "com.bakdata.sonatype", version = "1.11.0" }
-lombok = { id = "io.freefair.lombok", version = "8.14" }
+lombok = { id = "io.freefair.lombok", version = "8.14.2" }
 avro = { id = "com.github.davidmc24.gradle.plugin.avro", version = "1.9.1" }
 protobuf = { id = "com.google.protobuf", version = "0.9.5" }
