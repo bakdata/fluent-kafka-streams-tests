@@ -19,7 +19,7 @@ junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit5" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 assertj = { group = "org.assertj", name = "assertj-core", version = "3.27.3" }
-log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.25.1" }
+log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.25.2" }
 
 [plugins]
 release = { id = "com.bakdata.release", version = "1.11.0" }
