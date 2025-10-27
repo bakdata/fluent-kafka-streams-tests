@@ -21,11 +21,10 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.avro)
     testImplementation(libs.kafka.streams.avro.serde) {
-        exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
+        exclude(group = "org.apache.kafka") // force usage of OSS kafka-clients
     }
     testImplementation(libs.kafka.streams.protobuf.serde) {
-        exclude(group = "org.apache.kafka", module = "kafka-clients") // force usage of OSS kafka-clients
-        exclude(group = "org.apache.kafka", module = "kafka-streams")
+        exclude(group = "org.apache.kafka") // force usage of OSS kafka-clients
     }
     testImplementation(libs.protobuf)
 }

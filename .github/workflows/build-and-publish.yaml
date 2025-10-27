@@ -13,6 +13,7 @@ jobs:
     uses: bakdata/ci-templates/.github/workflows/java-gradle-library.yaml@1.70.0
     with:
       java-version: 17
+      gradle-refresh-dependencies: true
     secrets:
       sonar-token: ${{ secrets.SONARCLOUD_TOKEN }}
       sonar-organization: ${{ secrets.SONARCLOUD_ORGANIZATION }}
