@@ -1,5 +1,5 @@
 [versions]
-junit5 = "5.13.2"
+junit5 = "5.14.0"
 junit4 = "4.13.2"
 kafkaUtils = "1.2.2-SNAPSHOT"
 
@@ -12,14 +12,14 @@ kafka-streams-testUtils = { group = "org.apache.kafka", name = "kafka-streams-te
 kafka-streams-avro-serde = { group = "io.confluent", name = "kafka-streams-avro-serde" }
 kafka-streams-protobuf-serde = { group = "io.confluent", name = "kafka-streams-protobuf-serde" }
 avro = { group = "org.apache.avro", name = "avro", version = "1.12.0" }
-protobuf = { group = "com.google.protobuf", name = "protobuf-java", version = "4.31.1" }
+protobuf = { group = "com.google.protobuf", name = "protobuf-java", version = "4.33.0" }
 jool = { group = "org.jooq", name = "jool", version = "0.9.15" }
 
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit5" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
-assertj = { group = "org.assertj", name = "assertj-core", version = "3.27.3" }
-log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.25.1" }
+assertj = { group = "org.assertj", name = "assertj-core", version = "3.27.6" }
+log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.25.2" }
 
 [plugins]
 release = { id = "com.bakdata.release", version = "1.11.0" }
