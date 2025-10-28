@@ -1,7 +1,7 @@
 [versions]
 junit5 = "5.14.0"
 junit4 = "4.13.2"
-kafkaUtils = "1.2.0"
+kafkaUtils = "1.3.0"
 
 [libraries]
 kafka-bom = { group = "com.bakdata.kafka", name = "kafka-bom", version.ref = "kafkaUtils" }
