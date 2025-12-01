@@ -12,7 +12,7 @@ kafka-streams-testUtils = { group = "org.apache.kafka", name = "kafka-streams-te
 kafka-streams-avro-serde = { group = "io.confluent", name = "kafka-streams-avro-serde" }
 kafka-streams-protobuf-serde = { group = "io.confluent", name = "kafka-streams-protobuf-serde" }
 avro = { group = "org.apache.avro", name = "avro", version = "1.12.0" }
-protobuf = { group = "com.google.protobuf", name = "protobuf-java", version = "4.33.0" }
+protobuf = { group = "com.google.protobuf", name = "protobuf-java", version = "4.33.1" }
 jool = { group = "org.jooq", name = "jool", version = "0.9.15" }
 
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
