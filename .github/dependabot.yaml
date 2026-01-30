@@ -23,6 +23,8 @@ updates:
           - "org.mockito*"
           - "org.testcontainers*"
           - "org.awaitility*"
+        exclude-patterns:
+          - "com.bakdata.fluent-kafka-streams-tests*"
       plugins:
         patterns:
           - "com.bakdata.release"
@@ -31,8 +33,15 @@ updates:
       protobuf:
         patterns:
           - "com.google.protobuf*"
+      freefair-plugins:
+        patterns:
+          - "io.freefair*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
+    groups:
+      ci-templates:
+        patterns:
+          - "bakdata/ci-templates*"
