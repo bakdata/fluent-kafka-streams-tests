@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.5.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.5.1) - 2026-01-30
+### What's changed
+
+* Bump org.apache.avro:avro from 1.12.0 to 1.12.1 by @dependabot[bot] in [#140](https://github.com/bakdata/fluent-kafka-streams-tests/pull/140)
+
+* Bump the plugins group with 3 updates by @dependabot[bot] in [#139](https://github.com/bakdata/fluent-kafka-streams-tests/pull/139)
+
+* Bump io.freefair.lombok from 8.14 to 8.14.3 by @dependabot[bot] in [#146](https://github.com/bakdata/fluent-kafka-streams-tests/pull/146)
+
+* Bump the protobuf group across 1 directory with 2 updates by @dependabot[bot] in [#147](https://github.com/bakdata/fluent-kafka-streams-tests/pull/147)
+
+* Bump bakdata/ci-templates/.github/workflows/java-gradle-library.yaml from 1.70.0 to 1.70.2 by @dependabot[bot] in [#144](https://github.com/bakdata/fluent-kafka-streams-tests/pull/144)
+
+* Bump bakdata/ci-templates/.github/workflows/java-gradle-release.yaml from 1.70.0 to 1.70.2 by @dependabot[bot] in [#143](https://github.com/bakdata/fluent-kafka-streams-tests/pull/143)
+
+* Update Dependabot config by @philipp94831 in [#148](https://github.com/bakdata/fluent-kafka-streams-tests/pull/148)
+
+* Bump the ci-templates group with 2 updates by @dependabot[bot] in [#151](https://github.com/bakdata/fluent-kafka-streams-tests/pull/151)
+
+* Bump the test-dependencies group with 2 updates by @dependabot[bot] in [#154](https://github.com/bakdata/fluent-kafka-streams-tests/pull/154)
+
+* Bump the plugins group with 3 updates by @dependabot[bot] in [#155](https://github.com/bakdata/fluent-kafka-streams-tests/pull/155)
+
+* Bump org.apache.logging.log4j:log4j-slf4j2-impl from 2.25.2 to 2.25.3 in the log-dependencies group by @dependabot[bot] in [#153](https://github.com/bakdata/fluent-kafka-streams-tests/pull/153)
+
+* Bump com.google.protobuf:protobuf-java from 4.33.4 to 4.33.5 in the protobuf group by @dependabot[bot] in [#156](https://github.com/bakdata/fluent-kafka-streams-tests/pull/156)
+
+* Bump the kafka-dependencies group with 2 updates by @dependabot[bot] in [#152](https://github.com/bakdata/fluent-kafka-streams-tests/pull/152)
+
+
+**Full Changelog**: https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.5.0...3.5.1
+
 ## [3.5.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.5.0) - 2025-10-28
 ### What's changed
 
