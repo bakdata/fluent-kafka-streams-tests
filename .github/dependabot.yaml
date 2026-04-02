@@ -1,9 +1,43 @@
 version: 2
+
+multi-ecosystem-groups:
+  build:
+    schedule:
+      interval: "monthly"
+
 updates:
+  - package-ecosystem: "gradle"
+    directory: "./" # Hack to allow multiple definitions of Gradle
+    patterns:
+      - "gradle-wrapper"
+      - "com.bakdata.release"
+      - "com.bakdata.sonar"
+      - "com.bakdata.jib"
+      - "com.bakdata.avro"
+      - "com.bakdata.mockito"
+      # freefair plugins follow Gradle's versioning
+      - "io.freefair*"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "com.bakdata*"
+    multi-ecosystem-group: "build"
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "com.bakdata*"
+    ignore: # Should match the patterns that are selected for "build" multi-ecosystem Gradle updates
+      - dependency-name: "gradle-wrapper"
+      - dependency-name: "com.bakdata.release"
+      - dependency-name: "com.bakdata.sonar"
+      - dependency-name: "com.bakdata.jib"
+      - dependency-name: "com.bakdata.avro"
+      - dependency-name: "com.bakdata.mockito"
+      - dependency-name: "io.freefair*"
     groups:
       kafka-dependencies:
         patterns:
@@ -38,9 +72,24 @@ updates:
           - "io.freefair*"
 
   - package-ecosystem: "github-actions"
+    directory: "./" # Hack to allow multiple definitions of GitHub Actions
+    patterns:
+      - "bakdata/ci-templates*"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "bakdata/ci-templates*"
+    multi-ecosystem-group: "build"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "bakdata/ci-templates*"
+    ignore: # Should match the patterns that are selected for "build" multi-ecosystem GitHub Actions updates
+      - dependency-name: "bakdata/ci-templates*"
     groups:
       ci-templates:
         patterns:
