@@ -13,12 +13,6 @@ allprojects {
         maxParallelForks = 4
     }
 
-    repositories {
-        mavenCentral()
-        maven(url = "https://packages.confluent.io/maven/")
-        maven(url = "https://central.sonatype.com/repository/maven-snapshots")
-    }
-
 }
 
 subprojects {

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -228,6 +229,9 @@ public class TestTopology<DefaultK, DefaultV> implements AutoCloseable {
         this.topologyInformation = new TopologyInformation(this.topologyDescription,
                 this.getStreamsConfig().getString(StreamsConfig.APPLICATION_ID_CONFIG));
         this.outputTopics.addAll(this.topologyInformation.getExternalSinkTopics());
+        final Optional<String> dlqTopic = Optional.ofNullable(
+                this.getStreamsConfig().getString(StreamsConfig.ERRORS_DEAD_LETTER_QUEUE_TOPIC_NAME_CONFIG));
+        dlqTopic.ifPresent(this.outputTopics::add);
         this.inputTopics.addAll(this.topologyInformation.getExternalSourceTopics());
         this.inputPatterns.addAll(this.topologyInformation.getExternalSourcePatterns());
     }
