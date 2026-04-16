@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.6.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.6.0) - 2026-04-16
+### What's changed
+
+* Bump the ci-templates group with 2 updates by @dependabot[bot] in [#157](https://github.com/bakdata/fluent-kafka-streams-tests/pull/157)
+
+* Bump gradle-wrapper from 8.14.2 to 9.3.1 by @dependabot[bot] in [#158](https://github.com/bakdata/fluent-kafka-streams-tests/pull/158)
+
+* Bump com.google.protobuf:protobuf-java from 4.33.5 to 4.34.0 in the protobuf group by @dependabot[bot] in [#161](https://github.com/bakdata/fluent-kafka-streams-tests/pull/161)
+
+* Bump org.junit.jupiter:junit-jupiter from 5.14.2 to 5.14.3 in the test-dependencies group by @dependabot[bot] in [#160](https://github.com/bakdata/fluent-kafka-streams-tests/pull/160)
+
+* Bump the ci-templates group with 2 updates by @dependabot[bot] in [#159](https://github.com/bakdata/fluent-kafka-streams-tests/pull/159)
+
+* Use new Avro plugin by @philipp94831 in [#162](https://github.com/bakdata/fluent-kafka-streams-tests/pull/162)
+
+* Setup multi-ecosystem Dependabot group by @philipp94831 in [#169](https://github.com/bakdata/fluent-kafka-streams-tests/pull/169)
+
+* Add missing sonatype plugin to Dependabot multi-ecosystem group by @philipp94831 in [#172](https://github.com/bakdata/fluent-kafka-streams-tests/pull/172)
+
+* Bump the kafka-dependencies group across 1 directory with 2 updates by @dependabot[bot] in [#164](https://github.com/bakdata/fluent-kafka-streams-tests/pull/164)
+
+* Bump org.apache.logging.log4j:log4j-slf4j2-impl from 2.25.3 to 2.25.4 in the log-dependencies group across 1 directory by @dependabot[bot] in [#165](https://github.com/bakdata/fluent-kafka-streams-tests/pull/165)
+
+* Bump com.google.protobuf:protobuf-java from 4.34.0 to 4.34.1 in the protobuf group across 1 directory by @dependabot[bot] in [#167](https://github.com/bakdata/fluent-kafka-streams-tests/pull/167)
+
+* Bump the "build" group with 1 update across multiple ecosystems by @dependabot[bot] in [#171](https://github.com/bakdata/fluent-kafka-streams-tests/pull/171)
+
+* Support Kafka Streams built-in dead letter queue by @philipp94831 in [#173](https://github.com/bakdata/fluent-kafka-streams-tests/pull/173)
+
+
+**Full Changelog**: https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.5.1...3.6.0
+
 ## [3.5.1](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.5.1) - 2026-01-30
 ### What's changed
 
