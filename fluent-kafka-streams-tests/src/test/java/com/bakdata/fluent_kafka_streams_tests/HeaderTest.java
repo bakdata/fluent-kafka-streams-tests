@@ -27,7 +27,6 @@ package com.bakdata.fluent_kafka_streams_tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bakdata.fluent_kafka_streams_tests.test_applications.Mirror;
-import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeaders;
@@ -60,7 +59,7 @@ class HeaderTest {
                         .add("header1", new byte[]{1})
                         .add("header2", new byte[]{2, 3}));
 
-        final List<ProducerRecord<String, String>> records = Lists.newArrayList(this.testTopology.streamOutput());
+        final List<ProducerRecord<String, String>> records = this.testTopology.streamOutput().toList();
         assertThat(records)
                 .hasSize(2)
                 .anySatisfy(producerRecord -> {
