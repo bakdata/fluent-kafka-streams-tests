@@ -1,5 +1,5 @@
 [versions]
-junit5 = "5.14.3"
+junit5 = "5.14.4"
 junit4 = "4.13.2"
 kafkaUtils = "1.5.0"
 
