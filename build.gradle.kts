@@ -20,7 +20,7 @@ subprojects {
     apply(plugin = "io.freefair.lombok")
     configure<JavaPluginExtension> {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(11)
+            languageVersion = JavaLanguageVersion.of(17)
         }
     }
 
