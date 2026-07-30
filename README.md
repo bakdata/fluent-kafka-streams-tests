@@ -58,8 +58,8 @@ class WordCountTest {
 }
 ```
 
-The `TestTopology` takes care of all the inputs, processing, and outputs of you application. For it to do that, you need
-to register it as an extension (JUnit Jupiter), so certain setup/teardown methods are called.
+The `TestTopology` takes care of all the inputs, processing, and outputs of you application.
+For it to do that, you need to register it as an extension (JUnit Jupiter), so certain setup/teardown methods are called.
 The constructor expects a topology factory (for a fresh topology in each test) that creates the topology under test.
 
 Additionally, the properties of the `KafkaClient` need to be specified.
