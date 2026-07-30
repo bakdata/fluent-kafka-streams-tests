@@ -27,6 +27,7 @@ dependencies {
         exclude(group = "org.apache.kafka") // force usage of OSS kafka-clients
     }
     testImplementation(libs.protobuf)
+    testImplementation(libs.jackson.databind)
 }
 
 protobuf {
