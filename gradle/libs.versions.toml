@@ -1,5 +1,5 @@
 [versions]
-junitJupiter = "6.1.1"
+junitJupiter = "6.1.2"
 kafkaUtils = "1.6.1"
 
 [libraries]
