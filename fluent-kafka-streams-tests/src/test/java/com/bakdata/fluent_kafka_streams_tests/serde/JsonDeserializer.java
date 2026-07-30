@@ -24,14 +24,15 @@
 
 package com.bakdata.fluent_kafka_streams_tests.serde;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.Map;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JsonDeserializer<T> implements Deserializer<T> {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
     private final Class<? extends T> clazz;
 
     public JsonDeserializer(final Class<? extends T> clazz) {
@@ -50,7 +51,7 @@ public class JsonDeserializer<T> implements Deserializer<T> {
 
         try {
             return this.objectMapper.readValue(bytes, this.clazz);
-        } catch (final IOException e) {
+        } catch (final JacksonException e) {
             throw new SerializationException(e);
         }
     }
