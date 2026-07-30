@@ -15,6 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "fluent-kafka-streams-tests"
 
-listOf("", "-junit-jupiter", "-junit4").forEach { suffix ->
+listOf("", "-junit-jupiter").forEach { suffix ->
     include(":fluent-kafka-streams-tests$suffix")
 }
