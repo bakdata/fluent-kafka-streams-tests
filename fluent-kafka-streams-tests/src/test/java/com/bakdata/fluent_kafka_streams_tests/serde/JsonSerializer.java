@@ -24,16 +24,17 @@
 
 package com.bakdata.fluent_kafka_streams_tests.serde;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.Map;
 import lombok.NoArgsConstructor;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @NoArgsConstructor
 public class JsonSerializer<T> implements Serializer<T> {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Override
     public void configure(final Map<String, ?> props, final boolean isKey) {
@@ -47,7 +48,7 @@ public class JsonSerializer<T> implements Serializer<T> {
 
         try {
             return this.objectMapper.writeValueAsBytes(data);
-        } catch (final IOException e) {
+        } catch (final JacksonException e) {
             throw new SerializationException("Error serializing JSON message", e);
         }
     }
