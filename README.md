@@ -28,8 +28,6 @@ compile group: 'com.bakdata.fluent-kafka-streams-tests', name: 'fluent-kafka-str
 </dependency>
 ```
 
-There is also a junit4 version and one without any dependencies to a specific testing framework.
-
 For other build tools or versions, refer to the [overview of sonatype](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-*&core=gav).
 
 ## Using it to Write Tests
@@ -92,7 +90,9 @@ class WordCountTest {
 }
 ```
 
-See the tests for the [junit4](fluent-kafka-streams-tests-junit4/src/test/java/com/bakdata/fluent_kafka_streams_tests/junit4/WordCountTest.java) and [framework agnostic](fluent-kafka-streams-tests/src/test/java/com/bakdata/fluent_kafka_streams_tests/WordCountTest.java) setup.
+See the tests for
+the [framework agnostic](fluent-kafka-streams-tests/src/test/java/com/bakdata/fluent_kafka_streams_tests/WordCountTest.java)
+setup.
 
 The `TestTopology` has a method `.input()` to retrieve the input topic (or `.input(String topic)`) if more than one input topic is present).
 You can simply add values to your input stream by calling `.add(V value)` or `.add(K key, V value)`.
