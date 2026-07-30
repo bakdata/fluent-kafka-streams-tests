@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-package com.bakdata.fluent_kafka_streams_tests.junit5;
+package com.bakdata.fluent_kafka_streams_tests.junitjupiter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.bakdata.fluent_kafka_streams_tests.junit5.test_applications.WordCount;
+import com.bakdata.fluent_kafka_streams_tests.junitjupiter.test_applications.WordCount;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;

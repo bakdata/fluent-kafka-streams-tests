@@ -1,7 +1,7 @@
 [![Build and Publish](https://github.com/bakdata/fluent-kafka-streams-tests/actions/workflows/build-and-publish.yaml/badge.svg)](https://github.com/bakdata/fluent-kafka-streams-tests/actions/workflows/build-and-publish.yaml)
 [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
 [![Code coverage](https://sonarcloud.io/api/project_badges/measure?project=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests&metric=coverage)](https://sonarcloud.io/dashboard?id=com.bakdata.fluent-kafka-streams-tests%3Afluent-kafka-streams-tests)
-[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests-junit5.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests*&core=gav)
+[![Maven](https://img.shields.io/maven-central/v/com.bakdata.fluent-kafka-streams-tests/fluent-kafka-streams-tests-junit-jupiter.svg)](https://search.maven.org/search?q=g:com.bakdata.fluent-kafka-streams-tests%20AND%20a:fluent-kafka-streams-tests*&core=gav)
 
 Fluent Kafka Streams Tests
 =========================
@@ -16,15 +16,15 @@ You can add Fluent Kafka Streams Tests via Maven Central.
 
 #### Gradle
 ```gradle
-compile group: 'com.bakdata.fluent-kafka-streams-tests', name: 'fluent-kafka-streams-tests-junit5', version: '2.1.0'
+compile group: 'com.bakdata.fluent-kafka-streams-tests', name: 'fluent-kafka-streams-tests-junit-jupiter', version: '4.0.0'
 ```
 
 #### Maven
 ```xml
 <dependency>
     <groupId>com.bakdata.fluent-kafka-streams-tests</groupId>
-    <artifactId>fluent-kafka-streams-tests-junit5</artifactId>
-    <version>2.1.0</version>
+    <artifactId>fluent-kafka-streams-tests-junit-jupiter</artifactId>
+    <version>4.0.0</version>
 </dependency>
 ```
 
@@ -58,8 +58,8 @@ class WordCountTest {
 }
 ```
 
-The `TestTopology` takes care of all the inputs, processing, and outputs of you application.
-For it to do that, you need to register it as an extension (JUnit5), so certain setup/teardown methods are called.
+The `TestTopology` takes care of all the inputs, processing, and outputs of you application. For it to do that, you need
+to register it as an extension (JUnit Jupiter), so certain setup/teardown methods are called.
 The constructor expects a topology factory (for a fresh topology in each test) that creates the topology under test.
 
 Additionally, the properties of the `KafkaClient` need to be specified.

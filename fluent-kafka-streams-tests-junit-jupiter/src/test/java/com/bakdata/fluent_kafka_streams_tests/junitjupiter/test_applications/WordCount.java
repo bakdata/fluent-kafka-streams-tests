@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.bakdata.fluent_kafka_streams_tests.junit5.test_applications;
+package com.bakdata.fluent_kafka_streams_tests.junitjupiter.test_applications;
 
 import java.util.Arrays;
 import java.util.HashMap;
