@@ -17,7 +17,7 @@ jool = { group = "org.jooq", name = "jool", version = "0.9.15" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 assertj = { group = "org.assertj", name = "assertj-core", version = "3.27.7" }
-log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.26.0" }
+log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.26.1" }
 jackson-databind = { group = "tools.jackson.core", name = "jackson-databind", version = "3.2.1" }
 
 [plugins]
