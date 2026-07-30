@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.bakdata.fluent_kafka_streams_tests.junit5;
+package com.bakdata.fluent_kafka_streams_tests.junitjupiter;
 
 import com.bakdata.fluent_kafka_streams_tests.TestTopology;
 import java.util.Map;
