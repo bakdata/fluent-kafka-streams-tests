@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/4.0.0) - 2026-07-30
+### What's changed
+
+* Bump com.google.protobuf from 0.9.6 to 0.10.0 in the protobuf group by @dependabot[bot] in [#174](https://github.com/bakdata/fluent-kafka-streams-tests/pull/174)
+
+* Bump the "build" group with 2 updates across multiple ecosystems by @dependabot[bot] in [#175](https://github.com/bakdata/fluent-kafka-streams-tests/pull/175)
+
+* Bump org.apache.logging.log4j:log4j-slf4j2-impl from 2.25.4 to 2.26.0 in the log-dependencies group by @dependabot[bot] in [#176](https://github.com/bakdata/fluent-kafka-streams-tests/pull/176)
+
+* Bump the "build" group with 1 update across multiple ecosystems by @dependabot[bot] in [#179](https://github.com/bakdata/fluent-kafka-streams-tests/pull/179)
+
+* Bump org.junit.jupiter:junit-jupiter from 5.14.3 to 5.14.4 in the test-dependencies group by @dependabot[bot] in [#177](https://github.com/bakdata/fluent-kafka-streams-tests/pull/177)
+
+* Bump com.google.protobuf:protobuf-java from 4.34.1 to 4.35.0 in the protobuf group by @dependabot[bot] in [#178](https://github.com/bakdata/fluent-kafka-streams-tests/pull/178)
+
+* Bump the kafka-dependencies group with 2 updates by @dependabot[bot] in [#180](https://github.com/bakdata/fluent-kafka-streams-tests/pull/180)
+
+* Bump the "build" group with 2 updates across multiple ecosystems by @dependabot[bot] in [#182](https://github.com/bakdata/fluent-kafka-streams-tests/pull/182)
+
+* Bump com.google.protobuf:protobuf-java from 4.35.0 to 4.35.1 in the protobuf group by @dependabot[bot] in [#181](https://github.com/bakdata/fluent-kafka-streams-tests/pull/181)
+
+* Upgrade to Java 17 by @philipp94831 in [#184](https://github.com/bakdata/fluent-kafka-streams-tests/pull/184)
+
+* Migrate to Jackson 3 by @philipp94831 in [#183](https://github.com/bakdata/fluent-kafka-streams-tests/pull/183)
+
+* Upgrade to Junit 6 by @philipp94831 in [#185](https://github.com/bakdata/fluent-kafka-streams-tests/pull/185)
+
+* Remove Junit 4 module by @philipp94831 in [#186](https://github.com/bakdata/fluent-kafka-streams-tests/pull/186)
+
+* Bump org.apache.logging.log4j:log4j-slf4j2-impl from 2.26.0 to 2.26.1 by @dependabot[bot] in [#191](https://github.com/bakdata/fluent-kafka-streams-tests/pull/191)
+
+* Bump gradle-wrapper from 9.6.0 to 9.6.1 in the build group by @dependabot[bot] in [#189](https://github.com/bakdata/fluent-kafka-streams-tests/pull/189)
+
+* Bump kafkaUtils from 1.6.0 to 1.6.1 by @dependabot[bot] in [#192](https://github.com/bakdata/fluent-kafka-streams-tests/pull/192)
+
+* Bump org.junit.jupiter:junit-jupiter from 6.1.1 to 6.1.2 by @dependabot[bot] in [#190](https://github.com/bakdata/fluent-kafka-streams-tests/pull/190)
+
+
+**Full Changelog**: https://github.com/bakdata/fluent-kafka-streams-tests/compare/3.6.0...4.0.0
+
 ## [3.6.0](https://github.com/bakdata/fluent-kafka-streams-tests/tree/3.6.0) - 2026-04-16
 ### What's changed
 
