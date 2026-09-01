@@ -21,9 +21,9 @@ log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl",
 jackson-databind = { group = "tools.jackson.core", name = "jackson-databind", version = "3.2.1" }
 
 [plugins]
-release = { id = "com.bakdata.release", version = "2.2.0" }
-sonar = { id = "com.bakdata.sonar", version = "2.2.0" }
-sonatype = { id = "com.bakdata.sonatype", version = "2.2.0" }
+release = { id = "com.bakdata.release", version = "2.2.1" }
+sonar = { id = "com.bakdata.sonar", version = "2.2.1" }
+sonatype = { id = "com.bakdata.sonatype", version = "2.2.1" }
 lombok = { id = "io.freefair.lombok", version = "9.5.0" }
 avro = { id = "com.bakdata.gradle.avro", version = "2.0.0" }
 protobuf = { id = "com.google.protobuf", version = "0.10.0" }
