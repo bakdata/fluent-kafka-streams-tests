@@ -24,6 +24,6 @@ jackson-databind = { group = "tools.jackson.core", name = "jackson-databind", ve
 release = { id = "com.bakdata.release", version = "2.2.1" }
 sonar = { id = "com.bakdata.sonar", version = "2.2.1" }
 sonatype = { id = "com.bakdata.sonatype", version = "2.2.1" }
-lombok = { id = "io.freefair.lombok", version = "9.5.0" }
+lombok = { id = "io.freefair.lombok", version = "9.8.2" }
 avro = { id = "com.bakdata.gradle.avro", version = "2.0.1" }
 protobuf = { id = "com.google.protobuf", version = "0.10.0" }
