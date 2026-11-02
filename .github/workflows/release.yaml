@@ -16,7 +16,7 @@ on:
 jobs:
   java-gradle-release:
     name: Java Gradle
-    uses: bakdata/ci-templates/.github/workflows/java-gradle-release.yaml@1.82.1
+    uses: bakdata/ci-templates/.github/workflows/java-gradle-release.yaml@37079c092c50f7e75c206269b4388bf79f2a7a72 # https://github.com/bakdata/ci-templates/releases/tag/2.1.1
     with:
       release-type: "${{ inputs.release-type }}"
     secrets:
